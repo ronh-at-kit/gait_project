@@ -1,7 +1,7 @@
 import argparse
 
 
-from data_preprocessing.create_of import create_of_tumgaid
+from data_preprocessing.preprocess import preprocess_tumgaid
 
 
 if __name__ == '__main__':
@@ -22,4 +22,5 @@ if __name__ == '__main__':
     args.example = args.example > 0
 
     if args.dataset == 'tum':
-        create_of_tumgaid(args.data_root, args.output_folder, args.example)
+        preprocess_tumgaid(args.data_root, args.output_folder, args.example)
+        pass
