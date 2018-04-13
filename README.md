@@ -3,7 +3,7 @@
     conda create --name gait_27 python=2.7
     source activate gait_27
     pip install opencv-python=3.4.0.12 tqdm
-    conda install matplotlib
+    conda install matplotlib numpy
 
 # 1. Install openpose
 
