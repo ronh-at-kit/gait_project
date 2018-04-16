@@ -98,11 +98,11 @@ def visit_person_tumgaid(person_folder, output_root_dir):
         sequence = os.path.basename(sequence_folder) # strip path
         print('processing sequence {}'.format(sequence))
         flow_output_dir = os.path.join(output_root_dir, 'flow', person, sequence)
-        try_make_dirs(flow_output_dir)
         image_sequence = list_images(sequence_folder, "jpg")
 
         #extract flow
         if settings.calculate_flow:
+            try_make_dirs(flow_output_dir)
             for i, frame_pair in enumerate(pairwise(image_sequence)):
                 prev, next = map(load_image, frame_pair)
                 of = calc_of(prev, next)
