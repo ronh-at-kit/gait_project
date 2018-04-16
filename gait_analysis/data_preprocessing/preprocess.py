@@ -5,7 +5,8 @@ import argparse
 import os
 import glob
 
-from data_preprocessing.settings import openpose_root
+from data_preprocessing import settings
+from settings import openpose_root
 from utils.iterators import pairwise
 import tifffile
 import numpy as np
@@ -101,15 +102,17 @@ def visit_person_tumgaid(person_folder, output_root_dir):
         image_sequence = list_images(sequence_folder, "jpg")
 
         #extract flow
-        for i, frame_pair in enumerate(pairwise(image_sequence)):
-            prev, next = map(load_image, frame_pair)
-            of = calc_of(prev, next)
-            write_of(os.path.join(flow_output_dir, 'of_{:03d}.tiff'.format(i)), of)
+        if settings.calculate_flow:
+            for i, frame_pair in enumerate(pairwise(image_sequence)):
+                prev, next = map(load_image, frame_pair)
+                of = calc_of(prev, next)
+                write_of(os.path.join(flow_output_dir, 'of_{:03d}.tiff'.format(i)), of)
 
-        #extract pody keypoints
-        pose_output_dir = os.path.join(output_root_dir, 'pose', person, sequence)
-        try_make_dirs(pose_output_dir)
-        extract_pose_imagedir(sequence_folder, pose_output_dir)
+        if settings.calculate_pose:
+            #extract pody keypoints
+            pose_output_dir = os.path.join(output_root_dir, 'pose', person, sequence)
+            try_make_dirs(pose_output_dir)
+            extract_pose_imagedir(sequence_folder, pose_output_dir)
 
 
 
