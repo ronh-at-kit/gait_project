@@ -26,15 +26,15 @@
 * run configure, run generate
 
 ``` 
-    cd build/
-    make -j`nproc` #uses maximum number of processes
+cd build/
+make -j`nproc` #uses maximum number of processes
 ```
 
 ## 1.2 test Openpose
 
 * from openpose root
 ```
-    ./build/examples/openpose/openpose.bin --image_dir ./examples/media
+./build/examples/openpose/openpose.bin --image_dir ./examples/media
 ```
      
 
