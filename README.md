@@ -39,9 +39,14 @@
      
 
 
-# 2. Configure openpose path
+# 2. Configure openpose path und preprocessing
 
 * go to `gait_analysis/data_preprocessing/settings.py` and set `openpose_root=<your root dir for openpose>`
+* also set which preprocessing pipeline you want to set up
+
+
+    calculate_flow = False
+    calculate_pose = True
 
 
 # 3. start preprocessing
