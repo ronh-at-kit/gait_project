@@ -1,44 +1,15 @@
 import subprocess
 from tqdm import tqdm
 import cv2
-import argparse
 import os
 import glob
 
-from data_preprocessing import settings
-from settings import openpose_root
-from utils.iterators import pairwise
+from gait_analysis import settings
+from gait_analysis.settings import openpose_root
+from gait_analysis.utils.data_loading import list_person_folders, list_sequence_folders
+from gait_analysis.utils.iterators import pairwise
 import tifffile
 import numpy as np
-
-
-# folders within each person folder that should be excluded from optical flow calculation
-# for example back, back2
-tumgaid_exclude_list = ['back', 'back2']
-
-
-# class OpticalFlowCalculator:
-#     def __init__(self):
-#         pass
-#
-#     def calc_of(self, prevs, next):
-#         '''
-#         returns optical flow
-#         :param prevs:
-#         :param next:
-#         :return:
-#         '''
-#         pass
-#
-#
-# class OF_Farneback(OpticalFlowCalculator):
-#     of_args = {}
-#     def __init__(self):
-#         super(OF_Farneback, self).__init__()
-#
-#     def calc_of(self, prevs, next):
-#         of = cv2.calcOpticalFlowFarneback(prevs, next, **self.of_args)
-#         return of
 
 
 def load_image(path, method='cv2'):
@@ -78,6 +49,7 @@ def list_images(dir, extension, sort=True):
         return sorted(image_list)
     return image_list
 
+
 def try_make_dirs(path):
     try:
         os.makedirs(path)
@@ -92,8 +64,7 @@ def visit_person_tumgaid(person_folder, output_root_dir):
     # a sequence_folder is a folder containing a sequence, like b01 within p001
     person = os.path.basename(person_folder)
 
-    sequence_folders = sorted(glob.glob(os.path.join(person_folder, '*')))
-    sequence_folders = [folder for folder in sequence_folders if os.path.basename(folder) not in tumgaid_exclude_list]
+    sequence_folders = list_sequence_folders(person_folder)
     for sequence_folder in sequence_folders:
         sequence = os.path.basename(sequence_folder) # strip path
         print('processing sequence {}'.format(sequence))
@@ -115,7 +86,6 @@ def visit_person_tumgaid(person_folder, output_root_dir):
             extract_pose_imagedir(sequence_folder, pose_output_dir)
 
 
-
 def preprocess_tumgaid(TUMGAIDimage_root, output_dir, only_example=False):
     '''
 
@@ -124,19 +94,23 @@ def preprocess_tumgaid(TUMGAIDimage_root, output_dir, only_example=False):
     :param only_example: if true, only the first person will be processed to give a preview
     :return:
     '''
-    all_person_folders = sorted(glob.glob(os.path.join(TUMGAIDimage_root, 'image', 'p*')))
+    all_person_folders = list_person_folders(TUMGAIDimage_root)
     if only_example:
         all_person_folders = all_person_folders[:1]
         # this is a debug mode
-        # visit_person_tumgaid(all_person_folders[0], output_dir):
     for person_folder in tqdm(all_person_folders):
         print("processing folder {}".format(person_folder))
         visit_person_tumgaid(person_folder, output_dir)
 
 
-
-
 def extract_pose_imagedir(image_dir, output_dir):
+    '''
+    Json format can be seen here
+    https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md
+    :param image_dir:
+    :param output_dir:
+    :return:
+    '''
     openpose_bin = os.path.join(openpose_root, 'build', 'examples', 'openpose', 'openpose.bin')
     args = [
             openpose_bin,
