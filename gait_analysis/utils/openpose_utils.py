@@ -33,11 +33,14 @@ def load_keypoints_from_file(fname):
         keypoints = json.load(f)
     return keypoints
 
-
-def filter_keypoints(pose_dict, include_list):
+def filter_keypoints(pose_dict, include_list, return_list=False, return_confidence=True):
     assert type(include_list) is list, 'include_list hast to be a list'
-    return  {key: val for key, val in pose_dict.iteritems() if key in include_list}
-
+    output = {key: val for key, val in pose_dict.iteritems() if key in include_list}
+    if not return_confidence:
+        output = {key: val[:2] for key, val in output.iteritems()}
+    if return_list:
+        return output.values()
+    return  output
 
 def keypoints_to_posedict(pose):
     '''

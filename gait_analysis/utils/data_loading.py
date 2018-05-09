@@ -24,6 +24,14 @@ def list_sequence_folders(person_folder):
 
 
 def load_sequence_annotation(annotation_file, sequence):
+    '''
+    Loads the specified sequence from the annotation file.
+    Returns it as a pandas dataframe.
+    nan values are dropped. this happend mostly at the end of the df
+    :param annotation_file:
+    :param sequence:
+    :return:
+    '''
     data = pe.get_dict(file_name=annotation_file, sheets=[sequence])
     df = pd.DataFrame(data)
     df = df.replace('', np.nan).dropna()
@@ -36,6 +44,13 @@ def remove_nif(df):
     new_df = df[df.right_foot != 'NOT_IN_FRAME']
     return new_df
 
+def not_NIF_frame_nums(df):
+    '''
+    return the frame numbers withOUT NOT_IN_FRAME annotations
+    :param df:
+    :return: a list of integers
+    '''
+    return (df.left_foot != 'NOT_IN_FRAME') * (df.right_foot != 'NOT_IN_FRAME')
 
 def as_numeric(df):
     df.left_foot = 1.0 * (df.left_foot == "IN_THE_AIR")
