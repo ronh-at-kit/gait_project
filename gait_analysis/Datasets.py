@@ -1,23 +1,21 @@
 import os
 import glob
 from itertools import product
-from data_loading import not_NIF_frame_nums, load_sequence_annotation, remove_nif
-import openpose_utils as opu
+from gait_analysis.utils.data_loading import not_NIF_frame_nums, load_sequence_annotation, remove_nif
+import gait_analysis.utils.openpose_utils as opu
 import cv2
 from functools import partial
 
 import numpy as np
-from iterators import pairwise
-from data_preprocessing.preprocess import calc_of
+from gait_analysis.utils.iterators import pairwise
+from gait_analysis.data_preprocessing.preprocess import calc_of
 
 
-class GaitDataset:
+class AbstractGaitDataset:
     # TODO inherit this from pytorch dataset class
     pass
 
-
-
-class TumGAID_Dataset(GaitDataset):
+class TumGAID_Dataset(AbstractGaitDataset):
     '''
     TumGAID_Dataset loader
     '''
@@ -26,6 +24,12 @@ class TumGAID_Dataset(GaitDataset):
                  tumgaid_preprocessing_root,
                  tumgaid_annotations_root,
                  args_dict):
+        '''
+        :param tumgaid_root:
+        :param tumgaid_preprocessing_root:
+        :param tumgaid_annotations_root:
+        :param args_dict:
+        '''
         self.tumgaid_root = tumgaid_root
         self.tumgaid_preprocessing_root = tumgaid_preprocessing_root
         self.tumgaid_annotations_root = tumgaid_annotations_root
@@ -48,6 +52,13 @@ class TumGAID_Dataset(GaitDataset):
         return len(self.dataset_items)
 
     def __getitem__(self, idx):
+        '''
+        returns a a dictionary with the outputs that were configured int the constructor
+        and
+        annotations
+        :param idx:
+        :return:
+        '''
         dataset_item = self.dataset_items[idx]
 
         # returns annotations with NIF
@@ -153,8 +164,6 @@ class TumGAID_Dataset(GaitDataset):
         scene_images = [load_imfile(f) for f in scene_files]
         return scene_images
 
-
-
 def extract_patch_around_points(image_data, patch_size, point_list):
     '''
     :param image_data: np.array representing image data
@@ -187,7 +196,6 @@ def extract_patch(image_data, patch_size, center_point):
     image_data = np.pad(image_data, ((r, r), (r, r), (0, 0)), 'constant')
 
     return image_data[y_start:y_end, x_start:x_end, ...]
-
 
 def extract_pnum(abspath):
     path = os.path.basename(abspath)

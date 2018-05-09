@@ -1,4 +1,6 @@
-from utils.Datasets import TumGAID_Dataset
+from gait_analysis.Datasets import TumGAID_Dataset
+from gait_analysis import settings as S
+
 
 
 tumgaid_default_args = {
@@ -17,7 +19,7 @@ tumgaid_default_args = {
         'method' : 'dense',
         'load_patches' : True,
         'load_patch_options' : {
-            'patch_size' : 5
+            'patch_size' : 10
         }
     },
     'load_scene' : False,
@@ -30,8 +32,7 @@ tumgaid_default_args = {
 }
 
 
-def test_flow_maps():
-    import settings as S
+def test_tumgaid():
     tumgaid_default_args = {
         'load_pose': True,
         'load_pose_options': {
@@ -68,5 +69,11 @@ def test_flow_maps():
         for kk in k:
             assert (kk.shape == (10, 10, 2)), '{}'.format(kk.shape)
 
+    assert len(output['pose_keypoints']) == len(annotations)
+    # flow maps are always pairwise, therfore -1
+    assert len(output['flow_maps']) == (len(annotations) - 1)
 
 # TODO add CI
+
+if __name__ == '__main__':
+    test_tumgaid()
