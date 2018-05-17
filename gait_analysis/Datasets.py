@@ -68,6 +68,9 @@ class TumGAID_Dataset(AbstractGaitDataset):
         nif_pos = not_NIF_frame_nums(annotations)
         nif_pos = np.array(nif_pos)
 
+        # there can be frames without poses, which affects the validity of those frames
+        # here, we use the validity list from the annotations (nif_pos) and give it to _laod_pose
+        # we return the updates list of valid frames and the pose_keypoints
         pose_keypoints, nif_pos = self._load_pose(dataset_item, nif_pos)
         output['pose_keypoints'] = pose_keypoints
 
@@ -100,7 +103,7 @@ class TumGAID_Dataset(AbstractGaitDataset):
         def create_path(i):
             return os.path.join(pose_folder, '{:03d}_keypoints.json'.format(i))
         pose_files= [create_path(i) for i, is_not_nif in enumerate(not_nif_frames) if is_not_nif]
-        idx_valid_frames = [i for i,val in enumerate(not_nif_frames) if val]
+        idx_valid_frames = [i for i, val in enumerate(not_nif_frames) if val]
 
         keypoints = map(opu.load_keypoints_from_file, pose_files)
         people = [k['people'] for k in keypoints]
@@ -108,6 +111,7 @@ class TumGAID_Dataset(AbstractGaitDataset):
         poses = []
         idx_no_poses = []
         for i in range(len(people)):
+            # TODO this is very dirty to use try block. You could use if people if to see if its empty
            try:
                poses.append(people[i][0]['pose_keypoints_2d'])
            except:
@@ -121,9 +125,6 @@ class TumGAID_Dataset(AbstractGaitDataset):
             not_nif_frames[idx_valid_frames[idx_no_poses]] = False
 
         #poses = map(lambda x:  x[0]['pose_keypoints_2d'], people)
-
-
-
 
         pose_dicts = map(opu.keypoints_to_posedict, poses)
 
