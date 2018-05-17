@@ -1,3 +1,5 @@
+import numpy as np
+
 class AbstractGaitModel():
     '''
     AbstractBaseModelClass
@@ -6,12 +8,15 @@ class AbstractGaitModel():
     def __init__(self):
         pass
 
-    def train(self):
+    def train(self, X, Y):
         pass
 
-    def validate(self):
+    def validate(self, X, Y):
         pass
 
 
-    def predict(self):
+    def predict(self, X):
+        return np.random.rand()
+
+    def finish_training(self):
         pass
