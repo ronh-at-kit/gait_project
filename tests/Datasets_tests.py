@@ -73,7 +73,12 @@ def test_tumgaid():
     # flow maps are always pairwise, therfore -1
     assert len(output['flow_maps']) == (len(annotations) - 1)
 
+
+# TODO test case that pose it outside image
+
+
 # TODO add CI
+
 
 if __name__ == '__main__':
     test_tumgaid()

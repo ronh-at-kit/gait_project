@@ -39,9 +39,26 @@ def load_sequence_annotation(annotation_file, sequence):
     return df
 
 
-def remove_nif(df):
+def remove_nif(df, pos):
+    '''
+    Returns a new data frame only consisting of valid entries. The list 'pos'
+    can be used to add additional filters to the list of valid entries.
+
+    Eventually, all values that are NOT_IN_FRAME will be sorted out.
+    You can specify a list of True/False values to include / exclude additionl values.
+    Items coorresponding to False in the pos list will be sorted out.
+
+
+    :param df: a dataframe object with 'left_foot' and 'right_foot' values
+    :param pos: a list of True and False values
+    with the same length as the entries in the data frame
+    :return: new data frame with only valid entries
+    '''
+    df.left_foot.values[~pos] = 'NOT_IN_FRAME'
+    df.right_foot.values[~pos] = 'NOT_IN_FRAME'
     df = df[df.left_foot != 'NOT_IN_FRAME']
     new_df = df[df.right_foot != 'NOT_IN_FRAME']
+    #print(new_df)
     return new_df
 
 def not_NIF_frame_nums(df):
