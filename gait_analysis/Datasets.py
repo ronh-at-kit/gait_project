@@ -59,20 +59,31 @@ class TumGAID_Dataset(AbstractGaitDataset):
         :param idx:
         :return:
         '''
+
         dataset_item = self.dataset_items[idx]
+        output = {}
 
         # returns annotations with NIF
         annotations = self._load_annotation(dataset_item)
         nif_pos = not_NIF_frame_nums(annotations)
-        annotations = remove_nif(annotations)
+        nif_pos = np.array(nif_pos)
 
-        output = {}
+        pose_keypoints, nif_pos = self._load_pose(dataset_item, nif_pos)
+        output['pose_keypoints'] = pose_keypoints
+
+        annotations = remove_nif(annotations, nif_pos)
+
+
         if self.options_dict['load_flow']:
             flow_maps = self._load_flow(dataset_item, nif_pos)
             output['flow_maps'] = flow_maps
-        if self.options_dict['load_pose']:
-            pose_keypoints = self._load_pose(dataset_item, nif_pos)
-            output['pose_keypoints'] = pose_keypoints
+        #if self.options_dict['load_pose']:
+        #    pose_keypoints = self._load_pose(dataset_item, nif_pos)
+        #    output['pose_keypoints'] = pose_keypoints
+        if  self.options_dict['load_scene']:
+            images = self._load_scene(dataset_item, nif_pos)
+            output['images'] = images
+
 
         # use NIF positions to filter out scene images, flow_maps, and others
         return output, annotations
@@ -88,10 +99,32 @@ class TumGAID_Dataset(AbstractGaitDataset):
 
         def create_path(i):
             return os.path.join(pose_folder, '{:03d}_keypoints.json'.format(i))
-        pose_files = [create_path(i) for i, is_not_nif in enumerate(not_nif_frames) if is_not_nif]
+        pose_files= [create_path(i) for i, is_not_nif in enumerate(not_nif_frames) if is_not_nif]
+        idx_valid_frames = [i for i,val in enumerate(not_nif_frames) if val]
+
         keypoints = map(opu.load_keypoints_from_file, pose_files)
         people = [k['people'] for k in keypoints]
-        poses = map(lambda x: x[0]['pose_keypoints_2d'], people)
+
+        poses = []
+        idx_no_poses = []
+        for i in range(len(people)):
+           try:
+               poses.append(people[i][0]['pose_keypoints_2d'])
+           except:
+               idx_no_poses.append(i)
+
+        idx_valid_frames = np.asarray(idx_valid_frames)
+        idx_no_poses = np.asarray(idx_no_poses)
+
+        if idx_no_poses.any():
+
+            not_nif_frames[idx_valid_frames[idx_no_poses]] = False
+
+        #poses = map(lambda x:  x[0]['pose_keypoints_2d'], people)
+
+
+
+
         pose_dicts = map(opu.keypoints_to_posedict, poses)
 
         include_list = pose_options['body_keypoints_include_list']
@@ -100,23 +133,26 @@ class TumGAID_Dataset(AbstractGaitDataset):
                                                 'return_confidence' : False
                                                 })
         poses = map(func, pose_dicts)
-        return poses
+        return poses, not_nif_frames
 
     def _load_flow(self, dataset_item, not_nif_frames):
         flow_options = self.options_dict['load_flow_options']
         scene_images = self._load_scene(dataset_item, not_nif_frames)
         if flow_options['load_patches']:
             patch_options = flow_options['load_patch_options']
-            poses = self._load_pose(dataset_item, not_nif_frames)
+            poses,_ = self._load_pose(dataset_item, not_nif_frames)
             flow_maps = self._calc_flow_sequence(scene_images)
             flow_patches = []
             # TODO remove hard-coded slicing of poses because flow_maps always take two image pairs
             # and poses operate on each image
             # otherwise len(flow_maps) and len(pose) would not be the same
+
             for flow_map, pose in zip(flow_maps, poses[:-1]):
+
                 patch = extract_patch_around_points(flow_map, patch_options['patch_size'], pose)
                 flow_patches.append(patch)
             return flow_patches
+
 
 
     def _load_annotation(self, dataset_item):
@@ -172,10 +208,14 @@ def extract_patch_around_points(image_data, patch_size, point_list):
     :return:
     '''
     patches = []
+
     for arr in point_list:
+
         x, y = arr.astype(np.uint)
         patch = extract_patch(image_data, patch_size, center_point=(x, y))
+
         assert patch.shape[:2] == (2*patch_size, 2*patch_size)
+
         patches.append(patch)
     return patches
 
@@ -188,14 +228,29 @@ def extract_patch(image_data, patch_size, center_point):
     :return:
     '''
     cx, cy = center_point
+    i_y, i_x, i_dim = image_data.shape
+
+    # Check whetehr the center points are outside the frame
+    if (cx > i_x):
+        cx = i_x
+
+    if (cy > i_y):
+        cy = i_y
+
+    r = patch_size  # for more compact style
+
+    # Check if keypoints are zero, in that case return the zero matrix
+    if (cx + cy == 0):
+        return np.zeros((2*r,2*r,i_dim), dtype=np.uint8)
     # pad image before patch extraction to also get the correct path size
     # for center_points close to the edge
-    r = patch_size # for more compact style
-    x_start, x_end = np.array([-r, r]) + cx + r
-    y_start, y_end = np.array([-r, r]) + cy + r
-    image_data = np.pad(image_data, ((r, r), (r, r), (0, 0)), 'constant')
+    else:
 
-    return image_data[y_start:y_end, x_start:x_end, ...]
+        x_start, x_end = np.array([-r, r]) + cx + r
+        y_start, y_end = np.array([-r, r]) + cy + r
+        image_data = np.pad(image_data, ((r, r), (r, r), (0, 0)), 'constant')
+
+        return image_data[y_start:y_end, x_start:x_end, ...]
 
 def extract_pnum(abspath):
     path = os.path.basename(abspath)

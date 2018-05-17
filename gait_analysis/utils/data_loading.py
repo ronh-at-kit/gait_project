@@ -39,9 +39,17 @@ def load_sequence_annotation(annotation_file, sequence):
     return df
 
 
-def remove_nif(df):
+def remove_nif(df, pos):
+
+
+
+    #print (df)
+    #print(~pos)
+    df.left_foot.values[~pos] = 'NOT_IN_FRAME'
+    df.right_foot.values[~pos] = 'NOT_IN_FRAME'
     df = df[df.left_foot != 'NOT_IN_FRAME']
     new_df = df[df.right_foot != 'NOT_IN_FRAME']
+    #print(new_df)
     return new_df
 
 def not_NIF_frame_nums(df):
