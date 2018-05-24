@@ -1,7 +1,15 @@
 #from https://docs.python.org/2/library/itertools.html
-from itertools import *
+# python 3 problem
+try:
+    from itertools import izip
+    from itertools import *
+except ImportError: # will be 3.x series
+    pass
+    from itertools import *
+    izip = zip
 import collections
 import random
+
 
 def take(n, iterable):
     "Return first n items of the iterable as a list"
