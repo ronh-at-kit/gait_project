@@ -76,6 +76,9 @@ def test_tumgaid():
 
 # TODO test case that pose it outside image
 
+# TODO opu test
+
+# TODO python 2 test
 
 # TODO add CI
 

@@ -44,7 +44,7 @@ class TumGAID_Dataset(AbstractGaitDataset):
                 )
             )
         )
-        p_nums = map(extract_pnum, annotation_files)
+        p_nums = list(map(extract_pnum, annotation_files))
         all_options = list(product(p_nums, args_dict['include_scenes']))
 
       
@@ -193,15 +193,7 @@ class TumGAID_Dataset(AbstractGaitDataset):
         for prev, next in pairwise(image_sequence):
             prev = maybe_RGB2GRAY(prev)
             next = maybe_RGB2GRAY(next)
-            of = calc_of(prev, next)
-            # add the magnitude
-            ofx, ofy = map(np.squeeze, np.split(of, 2, axis=-1))
-            ofmagnitude = np.sqrt(ofx ** 2 + ofy ** 2)
-            flow_total = np.stack((ofx,ofy,ofmagnitude), axis = 2)
-            flow.append(flow_total)
-            #flow.append(calc_of(prev, next))
-
-
+            flow.append(calc_of(prev, next))
         return flow
 
 
@@ -290,6 +282,22 @@ def extract_pnum(abspath):
 def construct_image_path(p_num, tumgaid_root):
     image_path = os.path.join(tumgaid_root, 'image', 'p{:03i}'.format(p_num))
     return image_path
+
+def calc_flow_magnitude(flow_patch, normalize_xy=False):
+    '''
+    given x and y flow, returns a concatenated array of flow_x, flow_y, flow_magnitude
+    :param flow_patch: shape(p, p, 2)
+    :return: shape(p, p, 3)
+    '''
+    # add the magnitude
+    of = flow_patch
+    ofx, ofy = map(np.squeeze, np.split(of, 2, axis=-1))
+    ofmagnitude = np.sqrt(ofx ** 2 + ofy ** 2)
+    if normalize_xy:
+        ofx /= ofmagnitude
+        ofy /= ofmagnitude
+    flow_total = np.stack((ofx, ofy, ofmagnitude), axis=2)
+    return flow_total
 
 def maybe_RGB2GRAY(im_rgb):
     '''
