@@ -1,8 +1,10 @@
-openpose_root = '/home/sandro/Projekte/2018_gait/openpose/'
+openpose_root = '/home/ron/PycharmProjects/openpose'
 
-tumgaid_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage/"
-tumgaid_preprocessing_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage_preprocessed/"
-tumgaid_annotations_root = "/media/sandro/Volume/Datasets/tumgaid/annotations/"
+tumgaid_root = "/home/ron/Dokumente/Datasets/Gait/TumGaid/TUMGAIDimage/"
+tumgaid_preprocessing_root = "/home/ron/Dokumente/Datasets/Gait/TumGaid/TUMGAIDimage/preprocessing/"
+tumgaid_annotations_root = "/home/ron/Dokumente/Datasets/Gait/TumGaid/annotations/"
+tumgaid_annotations_root_train = "/home/ron/Dokumente/Datasets/Gait/TumGaid/annotations/train/"
+tumgaid_annotations_root_test = "/home/ron/Dokumente/Datasets/Gait/TumGaid/annotations/test/"
 
 calculate_flow = False
 calculate_pose = True
@@ -22,7 +24,7 @@ tumgaid_default_args = {
                                          'RHip',
                                          'LHip']
     },
-    'load_flow' : True,
+    'load_flow' : False,
     'load_flow_options' :{
         'method' : 'dense',
         'load_patches' : True,

@@ -4,12 +4,17 @@ import cv2
 import os
 import glob
 
+
+#os.chdir("/home/ron/PycharmProjects/gait_project")
+#print(os.getcwd())
 from gait_analysis import settings
 from gait_analysis.settings import openpose_root
 from gait_analysis.utils.data_loading import list_person_folders, list_sequence_folders
 from gait_analysis.utils.iterators import pairwise
 import tifffile
 import numpy as np
+
+
 
 
 def load_image(path, method='cv2'):
