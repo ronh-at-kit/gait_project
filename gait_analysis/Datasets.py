@@ -44,6 +44,7 @@ class TumGAID_Dataset(AbstractGaitDataset):
         all_options = list(product(p_nums, args_dict['include_scenes']))
 
         self.p_nums = p_nums
+        self.included_scenes = args_dict['include_scenes']
         self.dataset_items = all_options
         self.options_dict = args_dict
 
@@ -153,8 +154,6 @@ class TumGAID_Dataset(AbstractGaitDataset):
                 patch = extract_patch_around_points(flow_map, patch_options['patch_size'], pose)
                 flow_patches.append(patch)
             return flow_patches
-
-
 
     def _load_annotation(self, dataset_item):
         '''
