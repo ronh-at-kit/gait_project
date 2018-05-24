@@ -23,7 +23,10 @@ class TumGAID_Dataset(AbstractGaitDataset):
     def __init__(self, tumgaid_root,
                  tumgaid_preprocessing_root,
                  tumgaid_annotations_root,
-                 args_dict):
+                 args_dict,
+                 transform = None):
+
+
         '''
         :param tumgaid_root:
         :param tumgaid_preprocessing_root:
@@ -33,6 +36,7 @@ class TumGAID_Dataset(AbstractGaitDataset):
         self.tumgaid_root = tumgaid_root
         self.tumgaid_preprocessing_root = tumgaid_preprocessing_root
         self.tumgaid_annotations_root = tumgaid_annotations_root
+        
         annotation_files = sorted(
             glob.glob(
                 os.path.join(
@@ -43,10 +47,11 @@ class TumGAID_Dataset(AbstractGaitDataset):
         p_nums = map(extract_pnum, annotation_files)
         all_options = list(product(p_nums, args_dict['include_scenes']))
 
+      
         self.p_nums = p_nums
         self.dataset_items = all_options
         self.options_dict = args_dict
-
+        self.transform = transform
 
     def __len__(self):
         return len(self.dataset_items)
@@ -78,16 +83,18 @@ class TumGAID_Dataset(AbstractGaitDataset):
 
 
         if self.options_dict['load_flow']:
-            flow_maps = self._load_flow(dataset_item, nif_pos)
+            flow_maps,scene_images = self._load_flow(dataset_item, nif_pos)
             output['flow_maps'] = flow_maps
         #if self.options_dict['load_pose']:
         #    pose_keypoints = self._load_pose(dataset_item, nif_pos)
         #    output['pose_keypoints'] = pose_keypoints
         if  self.options_dict['load_scene']:
+            output['scene_images'] = scene_images
             images = self._load_scene(dataset_item, nif_pos)
-            output['images'] = images
+            output['total_images'] = images
 
-
+#        if self.transform is not None:
+#            output = self.transform(output)
         # use NIF positions to filter out scene images, flow_maps, and others
         return output, annotations
 
@@ -125,15 +132,23 @@ class TumGAID_Dataset(AbstractGaitDataset):
             not_nif_frames[idx_valid_frames[idx_no_poses]] = False
 
         #poses = map(lambda x:  x[0]['pose_keypoints_2d'], people)
-
+        #pose_dicts = []
+        #print(type(poses))
+        #for i in range(len(poses)):
+        #    pose_dicts[i] = opu.keypoints_to_posedict(poses[i])
         pose_dicts = map(opu.keypoints_to_posedict, poses)
+        pose_dicts = list(pose_dicts)
 
         include_list = pose_options['body_keypoints_include_list']
         func = partial(opu.filter_keypoints, **{'include_list' : include_list,
                                                 'return_list' : True,
                                                 'return_confidence' : False
                                                 })
-        poses = map(func, pose_dicts)
+
+
+        poses = list(map(func, pose_dicts))
+
+
         return poses, not_nif_frames
 
     def _load_flow(self, dataset_item, not_nif_frames):
@@ -143,16 +158,23 @@ class TumGAID_Dataset(AbstractGaitDataset):
             patch_options = flow_options['load_patch_options']
             poses,_ = self._load_pose(dataset_item, not_nif_frames)
             flow_maps = self._calc_flow_sequence(scene_images)
+
             flow_patches = []
+            scene_patches=[]
             # TODO remove hard-coded slicing of poses because flow_maps always take two image pairs
             # and poses operate on each image
             # otherwise len(flow_maps) and len(pose) would not be the same
 
-            for flow_map, pose in zip(flow_maps, poses[:-1]):
 
+            for flow_map, pose in list(zip(flow_maps, poses[:-1])):
                 patch = extract_patch_around_points(flow_map, patch_options['patch_size'], pose)
                 flow_patches.append(patch)
-            return flow_patches
+                
+            for scene_image, pose in list(zip(scene_images, poses[:-1])):
+                patch = extract_patch_around_points(scene_image, patch_options['patch_size'], pose)
+                scene_patches.append(patch)
+                
+            return flow_patches,scene_patches
 
 
 
@@ -172,7 +194,15 @@ class TumGAID_Dataset(AbstractGaitDataset):
         for prev, next in pairwise(image_sequence):
             prev = maybe_RGB2GRAY(prev)
             next = maybe_RGB2GRAY(next)
-            flow.append(calc_of(prev, next))
+            of = calc_of(prev, next)
+            # add the magnitude
+            ofx, ofy = map(np.squeeze, np.split(of, 2, axis=-1))
+            ofmagnitude = np.sqrt(ofx ** 2 + ofy ** 2)
+            flow_total = np.stack((ofx,ofy,ofmagnitude), axis = 2)
+            flow.append(flow_total)
+            #flow.append(calc_of(prev, next))
+
+
         return flow
 
 
