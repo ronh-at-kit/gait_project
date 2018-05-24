@@ -1,6 +1,7 @@
 import numpy as np
 import json
 
+
 keypoints_mapping_coco_18 = {
     0:  "Nose",
     1:  "Neck",
@@ -35,11 +36,13 @@ def load_keypoints_from_file(fname):
 
 def filter_keypoints(pose_dict, include_list, return_list=False, return_confidence=True):
     assert type(include_list) is list, 'include_list hast to be a list'
-    output = {key: val for key, val in pose_dict.iteritems() if key in include_list}
+    output = {key: val for key, val in iter(pose_dict.items()) if key in include_list}
     if not return_confidence:
-        output = {key: val[:2] for key, val in output.iteritems()}
+        output = {key: val[:2] for key, val in iter(output.items())}
     if return_list:
-        return output.values()
+        # https://stackoverflow.com/questions/17431638/get-typeerror-dict-values-object-does-not-support-indexing-when-using-python
+        # need to cast output.values into a list
+        return list(output.values())
     return  output
 
 def keypoints_to_posedict(pose):
@@ -49,7 +52,7 @@ def keypoints_to_posedict(pose):
     :return:
     '''
     pose = np.array(pose).reshape(-1, 3)
-    pose_dict = {point: pose[i, :].squeeze() for i, point in keypoints_mapping_coco_18.iteritems()}
+    pose_dict = {point: pose[i, :].squeeze() for i, point in iter(keypoints_mapping_coco_18.items())}
     return pose_dict
 
 def random_rgb():
