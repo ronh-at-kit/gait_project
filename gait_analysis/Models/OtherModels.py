@@ -8,10 +8,12 @@ class SVMModel(AbstractGaitModel):
     feature_list = None
     target_list = None
     svm_obj = None
+    is_trained = False
     def __init__(self, SVM):
         self.svm_obj = SVM
         self.feature_list = []
         self.target_list = []
+        self.is_trained = False
 
     def train(self, X, Y):
         '''
@@ -31,11 +33,19 @@ class SVMModel(AbstractGaitModel):
 
 
     def finish_training(self):
-        self.feature_list = np.vstack(self.feature_list)
-        self.target_list = np.vstack(self.target_list).squeeze()
-        assert self.feature_list.shape[0] == self.target_list.shape[0]
-        assert len(self.target_list.shape) == 1
+        self._concat_features()
         self.svm_obj.fit(self.feature_list, self.target_list)
+        self.is_trained = True
+
+    def _concat_features(self):
+        if not self.is_trained:
+            self.feature_list = np.vstack(self.feature_list)
+            self.target_list = np.vstack(self.target_list).squeeze()
+            assert self.feature_list.shape[0] == self.target_list.shape[0]
+            assert len(self.target_list.shape) == 1
+        else:
+            pass
+
 
     def reset(self):
         self.feature_list = []
