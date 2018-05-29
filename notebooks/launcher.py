@@ -11,7 +11,7 @@ def mkdir_p(path):
         pass
 svm_args = {
     'kernel' : 'linear',
-    'C' : 1e-3    
+    'C' : 1e-3,    
 }
 tumgaid_args = {
     'load_pose': True,
@@ -19,11 +19,11 @@ tumgaid_args = {
         'D': 2,
         'body_keypoints_include_list': [
             'LAnkle',
-            #'RAnkle',
-            #'LKnee',
-            #'RKnee',
-            #'RHip',
-            #'LHip',
+            'RAnkle',
+            'LKnee',
+            'RKnee',
+            'RHip',
+            'LHip',
         ]
         
     },
@@ -41,14 +41,13 @@ tumgaid_args = {
         'load_tracked': False
     },
     'include_scenes': ['b01', 'b02', 'n01', 'n02', 's01', 's02'],
-
 }
 args_dict = {
     'diff_poses' : True,
     'diff_pose_magnitude' : True,
     'temporal_extent' : 1,
     'split_index': 5,
-    'max_test': None,
+    'max_test' : None,
     'output-dir' : '.',
     'svm_args' : svm_args,
     'tumgaid_args' : tumgaid_args,
@@ -61,7 +60,22 @@ def run_file(out_dir):
            'SVM_Training.ipynb']
     call(cargs, cwd='.')
     
-for t in range(6):
+    
+from itertools import product
+body_keypoints_include_list=[
+    'LAnkle',
+    'RAnkle',
+    'LKnee',
+    'RKnee',
+    'RHip',
+    'LHip',
+]
+all_options = [body_keypoints_include_list[:i] for i in range(1, len(body_keypoints_include_list))]
+opt_tuple = list(product(range(6), all_options))
+print(opt_tuple)
+for t, keypoints in opt_tuple:
+    print(t)
+    print(keypoints)
     now = datetime.datetime.now()
     newDirName = now.strftime("%Y_%m_%d-%H%M%S")    
     out_dir = os.path.join(exp_folder, newDirName)
@@ -69,14 +83,15 @@ for t in range(6):
     args_dict = {
         'diff_poses' : True,
         'diff_pose_magnitude' : True,
-        'temporal_extent' : 1,
-        'split_index': 10
+        'temporal_extent' : t,
+        'split_index': 10,
         'max_test': None,
         'output-dir' : out_dir,
         'svm_args' : svm_args,
         'tumgaid_args' : tumgaid_args,
     }
+    args_dict['tumgaid_args']['load_pose_options']['body_keypoints_include_list'] = keypoints
     args_dict['temporal_extent'] = t
     with open('args.json', 'w') as f:
-        json.dump(args_dict, f)
+        json.dump(args_dict, f, indent=4, sort_keys=True)
     run_file(out_dir)
