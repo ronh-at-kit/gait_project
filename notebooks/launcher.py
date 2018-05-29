@@ -3,7 +3,7 @@ import shutil
 from subprocess import call
 import datetime
 import os
-exp_folder = r'/media/sandro/Volume/Datasets/tumgaid/experiments/'
+exp_folder = r'/media/sandro/Volume/Datasets/tumgaid/experiments/exp_1/'
 def mkdir_p(path):
     try:
         os.makedirs(path)
@@ -61,7 +61,7 @@ def run_file(out_dir):
            'SVM_Training.ipynb']
     call(cargs, cwd='.')
     
-for t in range(2):
+for t in range(6):
     now = datetime.datetime.now()
     newDirName = now.strftime("%Y_%m_%d-%H%M%S")    
     out_dir = os.path.join(exp_folder, newDirName)
@@ -70,7 +70,7 @@ for t in range(2):
         'diff_poses' : True,
         'diff_pose_magnitude' : True,
         'temporal_extent' : 1,
-        'split_index': 5,
+        'split_index': 10
         'max_test': None,
         'output-dir' : out_dir,
         'svm_args' : svm_args,
