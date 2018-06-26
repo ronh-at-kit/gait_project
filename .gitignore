@@ -1,2 +1,7 @@
 .idea/
 *.pyc
+/notebooks/experiments_1/SVM_Training.html
+/notebooks/experiments_1/.config_ipynb
+
+
+**/*.html
