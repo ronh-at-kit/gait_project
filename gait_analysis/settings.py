@@ -38,3 +38,6 @@ tumgaid_default_args = {
     'include_scenes' : ['b01', 'b02', 'n01', 'n02', 's01', 's02'],
 
 }
+
+
+exp_reports_root = r'/media/sandro/Volume/Datasets/tumgaid/exp_reports/'
