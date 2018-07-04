@@ -4,6 +4,10 @@
     source activate gait_27
     pip install opencv-python=3.4.0.12 tqdm ezodf
     conda install matplotlib numpy pandas xlrd
+    conda install -c conda-forge pyexcel tifffile
+    conda install -c soumith pytorch
+    conda install -c conda-forge pyexcel-ods3
+    pip install pyexcel-ods
 
 # 1. Install openpose
 
