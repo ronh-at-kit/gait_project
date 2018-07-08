@@ -34,19 +34,19 @@ class TestAnnotations(unittest.TestCase):
 
         }
 
-        self.annotations_path = "~/Documents/TUMData/annotations"
         self.preprocessing_path = "~/Documents/TUMData/preprocessing"
+        self.dataset_items = [(2, 'b01'),(300,'n02')]
 
     def test_len(self):
-        poses = Poses(self.preprocessing_path, self.annotations_path, self.tumgait_default_args)
-        self.assertEqual(66,len(poses))
+        poses = Poses(self.dataset_items, self.preprocessing_path, self.tumgait_default_args)
+        self.assertEqual(2,len(poses))
 
     def test_import(self):
-        poses = Poses(self.preprocessing_path, self.annotations_path, self.tumgait_default_args)
+        poses = Poses(self.dataset_items, self.preprocessing_path, self.tumgait_default_args)
         pose = poses[1]
-        self.assertEqual(len(pose), 60)
+        self.assertEqual(2, len(pose))
         frame0 = pose[0]
-        self.assertEqual(len(frame0), 6)
+        self.assertEqual(73, len(frame0))
 
 if __name__ == '__main__':
     unittest.main()

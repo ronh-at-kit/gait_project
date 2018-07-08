@@ -32,18 +32,19 @@ class TestAnnotations(unittest.TestCase):
 
         }
 
-        self.annotations_path = "~/Documents/TUMData/"
+        self.annotations_path = "~/Documents/TUMData/annotations"
+        self.dataset_items = [(2, 'b01'),(300,'n02')]
 
     def test_len(self):
-        annotations = Annotations(self.annotations_path,self.tumgait_default_args);
-        self.assertEqual(len(annotations), 66)
+        annotations = Annotations(self.dataset_items,self.annotations_path);
+        self.assertEqual(len(annotations), 2)
 
     def test_import(self):
-        annotations = Annotations(self.annotations_path,self.tumgait_default_args);
-        annotation = annotations[1]
-        self.assertEqual((61, 3), annotation.shape)
+        annotations = Annotations(self.dataset_items,self.annotations_path);
+        annotation, IF_indices = annotations[1]
+        self.assertEqual((69, 3), annotation.shape)
         self.assertTrue((['frame_id','left_foot','right_foot']==annotation.columns).all())
-
+        print(IF_indices[1:5])
 
 
 if __name__ == '__main__':

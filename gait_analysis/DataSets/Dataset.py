@@ -10,7 +10,7 @@ import numpy as np
 from gait_analysis.utils.iterators import pairwise
 from gait_analysis.data_preprocessing.preprocess import calc_of
 
-from DataSets import Scenes, Annotations, Poses
+import Scenes, Annotations, Poses
 
 class AbstractGaitDataset:
     # TODO inherit this from pytorch dataset class
@@ -41,12 +41,15 @@ class TumGAID_Dataset(AbstractGaitDataset):
                 )
             )
         )
-        p_nums = map(extract_pnum, annotation_files)
-        all_options = list(product(p_nums, args_dict['include_scenes']))
+        person_numbers = map(extract_pnum, annotation_files)
+        dataset_items = list(product(person_numbers, args_dict['include_scenes']))
 
-        self.p_nums = p_nums
-        self.dataset_items = all_options
+
+        self.person_numbers = person_numbers
+        self.dataset_items = dataset_items
         self.options_dict = args_dict
+
+        self.annotations = Annotations(tumgaid_annotations_root, dataset_items);
 
 
     def __len__(self):
@@ -64,29 +67,28 @@ class TumGAID_Dataset(AbstractGaitDataset):
         dataset_item = self.dataset_items[idx]
         output = {}
 
-        # returns annotations with NIF
-        annotations = self._load_annotation(dataset_item)
-        nif_pos = not_NIF_frame_nums(annotations)
-        nif_pos = np.array(nif_pos)
-
-        # there can be frames without poses, which affects the validity of those frames
-        # here, we use the validity list from the annotations (nif_pos) and give it to _laod_pose
-        # we return the updates list of valid frames and the pose_keypoints
-        pose_keypoints, nif_pos = self._load_pose(dataset_item, nif_pos)
+        # get the annotations
+        annotations, in_frame_indices = self.annotations[idx]
+        # get the poses
+        pose_options = self.options_dict
+        pose_options['valid_indices'] = in_frame_indices
+        poses = Poses(self.dataset_items, self.tumgaid_preprocessing_root, pose_options)
+        pose_keypoints, valid_indices = poses[idx]
         output['pose_keypoints'] = pose_keypoints
 
-        annotations = remove_nif(annotations, nif_pos)
+        # clean annotations once again from invalid pose detection
+        annotations = remove_nif(annotations, valid_indices)
 
+        if self.options_dict['load_scene']:
+            scene_options = self.options_dict
+            scene_options['valid_indices'] = valid_indices
+            scenes = Scenes(self.dataset_items, self.tumgaid_preprocessing_root, scene_options)
+            images = scenes[idx]
+            output['images'] = images
 
         if self.options_dict['load_flow']:
-            flow_maps = self._load_flow(dataset_item, nif_pos)
+            flow_maps = self._load_flow(dataset_item, valid_indices)
             output['flow_maps'] = flow_maps
-        #if self.options_dict['load_pose']:
-        #    pose_keypoints = self._load_pose(dataset_item, nif_pos)
-        #    output['pose_keypoints'] = pose_keypoints
-        if  self.options_dict['load_scene']:
-            images = self._load_scene(dataset_item, nif_pos)
-            output['images'] = images
 
 
         # use NIF positions to filter out scene images, flow_maps, and others
