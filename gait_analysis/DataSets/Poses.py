@@ -60,9 +60,10 @@ class Poses(Dataset):
 
         def create_path(i):
             return join(pose_folder, '{:03d}_keypoints.json'.format(i))
+
         if 'valid_indices' in self.options_dict:
             valid_indices = self.options_dict['valid_indices']
-            pose_files = [create_path(i) for i, is_not_nif in enumerate(valid_indices) if valid_indices]
+            pose_files = [create_path(i) for i, is_not_nif in enumerate(valid_indices) if valid_indices[i]]
             idx_valid_frames = [i for i, val in enumerate(valid_indices) if val]
         else:
             pose_files = [join(pose_folder, f) for f in listdir(pose_folder) if f.endswith('.json')]

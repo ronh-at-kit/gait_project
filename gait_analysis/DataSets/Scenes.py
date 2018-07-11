@@ -72,6 +72,7 @@ class Scenes(Dataset):
             scene_files = [create_path(i) for i, is_not_nif in enumerate(not_nif_frames) if is_not_nif]
         else:
             scene_files = [join(scene_folder, f) for f in listdir(scene_folder) if f.endswith('.jpg')]
+            scene_files.sort()
 
         def read_image(im_file):
             if not os.path.isfile(im_file):

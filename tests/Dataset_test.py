@@ -1,6 +1,6 @@
 import unittest
 import cv2
-from gait_analysis import Scenes
+from gait_analysis import TumGAID_Dataset
 import numpy as np
 
 def showImage(img):
@@ -40,31 +40,20 @@ class TestAnnotations(unittest.TestCase):
 
         }
 
-        self.dataset_items = [(2, 'b01'),(300,'n02')]
-        self.scenes_path = "~/Documents/TUMData/TUMGAIDimage"
+        self.tumgait_root = "~/Documents/TUMData/TUMGAIDimage"
+        self.preprocessing_root = "~/Documents/TUMData/preprocessing"
+        self.annotations_root = "~/Documents/TUMData/annotations"
 
     def test_len(self):
-        scenes = Scenes(self.dataset_items, self.scenes_path, self.tumgait_default_args)
-        self.assertEqual(2,len(scenes))
+        datasets = TumGAID_Dataset(self.tumgait_root, self.preprocessing_root,self.annotations_root, self.tumgait_default_args)
+        self.assertEqual(66,len(datasets))
 
     def test_import(self):
-        scenes = Scenes(self.dataset_items, self.scenes_path, self.tumgait_default_args)
-        scene = scenes[1]
-        self.assertEqual(75,len(scene))
-        scene_0 = scene[0]
-        self.assertEqual(scene_0.shape, (480, 640, 3))
-        #showImage(scene_0)
-    def test_import_valid_in_frame(self):
-        valid_indices = np.asarray([False] * 75)
-        valid_indices[10:14] = True
-        self.tumgait_default_args['valid_indices'] = valid_indices
-
-        scenes = Scenes(self.dataset_items, self.scenes_path, self.tumgait_default_args)
-        scene = scenes[1]
-        self.assertEqual(4,len(scene))
-        scene_0 = scene[0]
-        self.assertEqual(scene_0.shape, (480, 640, 3))
-        # showImage(scene_0)
+        datasets = TumGAID_Dataset(self.tumgait_root, self.preprocessing_root,self.annotations_root, self.tumgait_default_args)
+        dataset = datasets[1]
+        self.assertEqual(75,len(dataset))
+        dataset_0 = dataset[0]
+        # self.assertEqual(dataset_0.shape, (480, 640, 3))
 
 
 

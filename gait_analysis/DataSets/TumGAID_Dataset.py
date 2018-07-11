@@ -2,21 +2,19 @@ import os
 import glob
 from itertools import product
 from gait_analysis.utils.data_loading import not_NIF_frame_nums, load_sequence_annotation, remove_nif
-import gait_analysis.utils.openpose_utils as opu
 import cv2
-from functools import partial
 
 import numpy as np
 from gait_analysis.utils.iterators import pairwise
+from gait_analysis.utils.files import format_data_path
 from gait_analysis.data_preprocessing.preprocess import calc_of
 
-import Scenes, Annotations, Poses
 
-class AbstractGaitDataset:
-    # TODO inherit this from pytorch dataset class
-    pass
+from gait_analysis import Scenes, Annotations, Poses
+from torch.utils.data import Dataset
 
-class TumGAID_Dataset(AbstractGaitDataset):
+
+class TumGAID_Dataset(Dataset):
     '''
     TumGAID_Dataset loader
     '''
@@ -24,20 +22,20 @@ class TumGAID_Dataset(AbstractGaitDataset):
     def __init__(self, tumgaid_root,
                  tumgaid_preprocessing_root,
                  tumgaid_annotations_root,
-                 args_dict):
+                 args_dict,transform = None):
         '''
         :param tumgaid_root:
         :param tumgaid_preprocessing_root:
         :param tumgaid_annotations_root:
         :param args_dict:
         '''
-        self.tumgaid_root = tumgaid_root
-        self.tumgaid_preprocessing_root = tumgaid_preprocessing_root
-        self.tumgaid_annotations_root = tumgaid_annotations_root
+        self.tumgaid_root = format_data_path(tumgaid_root)
+        self.tumgaid_preprocessing_root = format_data_path(tumgaid_preprocessing_root)
+        self.tumgaid_annotations_root = format_data_path(tumgaid_annotations_root)
         annotation_files = sorted(
             glob.glob(
                 os.path.join(
-                    tumgaid_annotations_root, 'annotation_p*.ods'
+                    self.tumgaid_annotations_root, 'annotation_p*.ods'
                 )
             )
         )
@@ -49,7 +47,6 @@ class TumGAID_Dataset(AbstractGaitDataset):
         self.dataset_items = dataset_items
         self.options_dict = args_dict
 
-        self.annotations = Annotations(tumgaid_annotations_root, dataset_items);
 
 
     def __len__(self):
@@ -64,10 +61,10 @@ class TumGAID_Dataset(AbstractGaitDataset):
         :return:
         '''
 
-        dataset_item = self.dataset_items[idx]
         output = {}
 
         # get the annotations
+        self.annotations = Annotations(self.dataset_items, self.tumgaid_annotations_root);
         annotations, in_frame_indices = self.annotations[idx]
         # get the poses
         pose_options = self.options_dict
@@ -78,97 +75,37 @@ class TumGAID_Dataset(AbstractGaitDataset):
 
         # clean annotations once again from invalid pose detection
         annotations = remove_nif(annotations, valid_indices)
-
-        if self.options_dict['load_scene']:
+        if self.options_dict['load_scene'] or self.options_dict['load_flow']:
             scene_options = self.options_dict
             scene_options['valid_indices'] = valid_indices
-            scenes = Scenes(self.dataset_items, self.tumgaid_preprocessing_root, scene_options)
+            scenes = Scenes(self.dataset_items, self.tumgaid_root, scene_options)
             images = scenes[idx]
+
+        if self.options_dict['load_scene']:
             output['images'] = images
 
         if self.options_dict['load_flow']:
-            flow_maps = self._load_flow(dataset_item, valid_indices)
+            flow_options = self.options_dict['load_flow_options']
+            flow_maps = self._load_flow(images, pose_keypoints, flow_options)
             output['flow_maps'] = flow_maps
 
-
-        # use NIF positions to filter out scene images, flow_maps, and others
         return output, annotations
 
-    def _load_pose(self, dataset_item, not_nif_frames):
-        pose_options = self.options_dict['load_pose_options']
-        p_num, sequence = dataset_item
-        pose_folder = os.path.join(
-            self.tumgaid_preprocessing_root,
-            'pose',
-            'p{:03d}'.format(p_num),
-            sequence)
 
-        def create_path(i):
-            return os.path.join(pose_folder, '{:03d}_keypoints.json'.format(i))
-        pose_files= [create_path(i) for i, is_not_nif in enumerate(not_nif_frames) if is_not_nif]
-        idx_valid_frames = [i for i, val in enumerate(not_nif_frames) if val]
 
-        keypoints = map(opu.load_keypoints_from_file, pose_files)
-        people = [k['people'] for k in keypoints]
-
-        poses = []
-        idx_no_poses = []
-        for i in range(len(people)):
-            # TODO this is very dirty to use try block. You could use if people if to see if its empty
-           try:
-               poses.append(people[i][0]['pose_keypoints_2d'])
-           except:
-               idx_no_poses.append(i)
-
-        idx_valid_frames = np.asarray(idx_valid_frames)
-        idx_no_poses = np.asarray(idx_no_poses)
-
-        if idx_no_poses.any():
-
-            not_nif_frames[idx_valid_frames[idx_no_poses]] = False
-
-        #poses = map(lambda x:  x[0]['pose_keypoints_2d'], people)
-
-        pose_dicts = map(opu.keypoints_to_posedict, poses)
-
-        include_list = pose_options['body_keypoints_include_list']
-        func = partial(opu.filter_keypoints, **{'include_list' : include_list,
-                                                'return_list' : True,
-                                                'return_confidence' : False
-                                                })
-        poses = map(func, pose_dicts)
-        return poses, not_nif_frames
-
-    def _load_flow(self, dataset_item, not_nif_frames):
-        flow_options = self.options_dict['load_flow_options']
-        scene_images = self._load_scene(dataset_item, not_nif_frames)
+    def _load_flow(self, images, poses, flow_options):
         if flow_options['load_patches']:
             patch_options = flow_options['load_patch_options']
-            poses,_ = self._load_pose(dataset_item, not_nif_frames)
-            flow_maps = self._calc_flow_sequence(scene_images)
+            flow_maps = self._calc_flow_sequence(images)
             flow_patches = []
             # TODO remove hard-coded slicing of poses because flow_maps always take two image pairs
             # and poses operate on each image
             # otherwise len(flow_maps) and len(pose) would not be the same
-
             for flow_map, pose in zip(flow_maps, poses[:-1]):
-
                 patch = extract_patch_around_points(flow_map, patch_options['patch_size'], pose)
                 flow_patches.append(patch)
             return flow_patches
 
-
-
-    def _load_annotation(self, dataset_item):
-        '''
-        :param dataset_item:
-        :return: annotations with NIF included.
-        '''
-        p_num, sequence = dataset_item
-        annotation_file = os.path.join(self.tumgaid_annotations_root,
-                                       'annotation_p{:03d}.ods'.format(p_num))
-        df = load_sequence_annotation(annotation_file, sequence)
-        return df
 
     def _calc_flow_sequence(self, image_sequence):
         flow = []
@@ -178,31 +115,6 @@ class TumGAID_Dataset(AbstractGaitDataset):
             flow.append(calc_of(prev, next))
         return flow
 
-
-    def _load_scene(self, dataset_item, not_nif_frames):
-        '''
-        Loads scene sequence given a dataset item.
-        :param dataset_item: the tuple indicating the dataset item
-        :param not_nif_frames: a boolean mask indicating the valid frames. True means valid
-        :return: a list of np.arrays containing the scene images
-        '''
-        p_num, sequence = dataset_item
-        sequence_folder = os.path.join(self.tumgaid_root,
-                                       'image',
-                                       'p{:03d}'.format(p_num),
-                                       sequence)
-        def create_path(i):
-            return os.path.join(sequence_folder, '{:03d}.jpg'.format(i))
-
-        # filter is already applied to the file paths
-        scene_files = [create_path(i) for i, is_not_nif in enumerate(not_nif_frames) if is_not_nif]
-
-        def load_imfile(im_file):
-            im = cv2.imread(im_file, -1)
-            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-            return im
-        scene_images = [load_imfile(f) for f in scene_files]
-        return scene_images
 
 def extract_patch_around_points(image_data, patch_size, point_list):
     '''
@@ -261,9 +173,6 @@ def extract_pnum(abspath):
     p_num = path[-7:-4]
     return int(p_num)
 
-def construct_image_path(p_num, tumgaid_root):
-    image_path = os.path.join(tumgaid_root, 'image', 'p{:03i}'.format(p_num))
-    return image_path
 
 def maybe_RGB2GRAY(im_rgb):
     '''
