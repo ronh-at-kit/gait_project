@@ -73,3 +73,15 @@ def as_numeric(df):
     df.left_foot = 1.0 * (df.left_foot == "IN_THE_AIR")
     df.right_foot = 1.0 * (df.right_foot == "IN_THE_AIR")
     return df
+
+
+
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:  # Python >2.5
+        pass
+        #if exc.errno == errno.EEXIST and os.path.isdir(path):
+        #    pass
+        #else:
+        #    raise

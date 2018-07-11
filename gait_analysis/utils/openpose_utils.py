@@ -1,5 +1,6 @@
 import numpy as np
 import json
+from gait_analysis.utils.iterators import *
 
 keypoints_mapping_coco_18 = {
     0:  "Nose",
@@ -59,3 +60,52 @@ def random_rgb():
     '''
     return np.random.randint(0, 256, size=3)
 
+def maybe_subtract_poses(pose_keypoints, apply_diff_poses, convert_to_magnitude):
+    '''
+    If apply_diff_poses is True, the list of pose keypoints is returned
+    that gives the difference between each consecutive keypoint frame.
+    :param pose_keypoints:
+    :param apply_diff_poses:
+    :return:
+    '''
+    if apply_diff_poses:
+        augmented_list = [pose_keypoints[0]] + pose_keypoints
+        poses = []
+        for p1, p2 in pairwise(augmented_list):
+            diff_pose = Pose(p1) - Pose(p2)
+            if convert_to_magnitude:
+                poses.append(diff_pose.magnitudes)
+            else:
+                poses.append(diff_pose.to_list())
+        return poses
+    return pose_keypoints
+
+class Pose():
+    pose_keypoints = None
+    def __init__(self, pose_keypoints):
+        '''
+        A class to easier perform calculations with pose keypoints
+        :param pose_keypoints: a list of keypoints where each keypoint is a np array of length 2
+        '''
+        assert type(pose_keypoints) == list
+        self.pose_keypoints = pose_keypoints
+
+    def __sub__(pose1, pose2):
+        diff_pose = []
+        for arr1, arr2 in zip(pose1.pose_keypoints, pose2.pose_keypoints):
+            diff_pose.append(arr1 - arr2)
+        return Pose(diff_pose)
+
+    def __str__(self):
+        return self.pose_keypoints.__str__()
+
+    @property
+    def magnitudes(self):
+        return [np.sqrt(arr[0]**2 + arr[1]**2) for arr in self.pose_keypoints]
+
+    def to_list(self):
+        return self.pose_keypoints
+
+
+if __name__ == '__main__':
+    pass
