@@ -1,0 +1,6 @@
+python=2.7
+opencv-python=3.4.0.12
+tqdm
+numpy
+matplotlib
+torch
