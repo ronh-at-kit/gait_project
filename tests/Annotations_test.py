@@ -1,5 +1,6 @@
 import unittest
-from gait_analysis import Annotations
+from gait_analysis import Annotations, settings
+
 
 
 class TestAnnotations(unittest.TestCase):
@@ -32,7 +33,7 @@ class TestAnnotations(unittest.TestCase):
 
         }
 
-        self.annotations_path = "~/Documents/TUMData/annotations"
+        self.annotations_path = settings.tumgaid_annotations_root
         self.dataset_items = [(2, 'b01'),(300,'n02')]
 
     def test_len(self):

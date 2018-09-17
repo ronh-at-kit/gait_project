@@ -1,6 +1,6 @@
 import unittest
 import cv2
-from gait_analysis import Scenes
+from gait_analysis import Scenes, settings
 import numpy as np
 
 def showImage(img):
@@ -11,37 +11,9 @@ def showImage(img):
 
 class TestAnnotations(unittest.TestCase):
     def setUp(self):
-        self.tumgait_default_args = {
-            'load_pose': True,
-            'load_pose_options': {
-                'D': 2,
-                'body_keypoints_include_list': ['LAnkle',
-                                                'RAnkle',
-                                                'LKnee',
-                                                'RKnee',
-                                                'RHip',
-                                                'LHip']
-            },
-            'load_flow': True,
-            'load_flow_options': {
-                'method': 'dense',
-                'load_patches': True,
-                'load_patch_options': {
-                    'patch_size': 5
-                }
-            },
-            'load_scene': False,
-            'load_scene_options': {
-                'grayscale': False,
-                'load_tracked': False
-            },
-            'include_scenes': ['b01', 'b02', 'n01', 'n02', 's01', 's02'],
-
-
-        }
-
+        self.tumgait_default_args = settings.tumgaid_default_args
         self.dataset_items = [(2, 'b01'),(300,'n02')]
-        self.scenes_path = "~/Documents/TUMData/TUMGAIDimage"
+        self.scenes_path = settings.tumgaid_root
 
     def test_len(self):
         scenes = Scenes(self.dataset_items, self.scenes_path, self.tumgait_default_args)

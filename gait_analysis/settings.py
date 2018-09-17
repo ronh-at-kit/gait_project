@@ -1,8 +1,13 @@
-openpose_root = '/home/sandro/Projekte/2018_gait/openpose/'
+# DEFINE YOUR CONFIGURATION HERE
+# openpose_root = '/home/sandro/Projekte/2018_gait/openpose/'
+# tumgaid_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage/"
+# tumgaid_preprocessing_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage_preprocessed/"
+# tumgaid_annotations_root = "/media/sandro/Volume/Datasets/tumgaid/annotations/"
 
-tumgaid_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage/"
-tumgaid_preprocessing_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage_preprocessed/"
-tumgaid_annotations_root = "/media/sandro/Volume/Datasets/tumgaid/annotations/"
+openpose_root = '/home/sandro/Projekte/2018_gait/openpose/'
+tumgaid_root = "~/gait_project_folder/TUMData/TUMGAIDimage"
+tumgaid_preprocessing_root = "~/gait_project_folder/TUMData/preprocessing"
+tumgaid_annotations_root = "~/gait_project_folder/TUMData/annotations"
 
 calculate_flow = False
 calculate_pose = True

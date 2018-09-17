@@ -1,0 +1,5 @@
+# python compilation files
+*.pyc
+
+# idea files
+misc.xml
