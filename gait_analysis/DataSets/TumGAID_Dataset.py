@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 from gait_analysis.utils.iterators import pairwise
 from gait_analysis.utils.files import format_data_path
+from gait_analysis.utils.data_loading import list_annotations_files
 from gait_analysis.data_preprocessing.preprocess import calc_of
 
 
@@ -32,13 +33,7 @@ class TumGAID_Dataset(Dataset):
         self.tumgaid_root = format_data_path(tumgaid_root)
         self.tumgaid_preprocessing_root = format_data_path(tumgaid_preprocessing_root)
         self.tumgaid_annotations_root = format_data_path(tumgaid_annotations_root)
-        annotation_files = sorted(
-            glob.glob(
-                os.path.join(
-                    self.tumgaid_annotations_root, 'annotation_p*.ods'
-                )
-            )
-        )
+        annotation_files = list_annotations_files(self.tumgaid_annotations_root)
         person_numbers = map(extract_pnum, annotation_files)
         dataset_items = list(product(person_numbers, args_dict['include_scenes']))
 

@@ -10,7 +10,7 @@ import numpy as np
 from gait_analysis.utils.iterators import pairwise
 from gait_analysis.data_preprocessing.preprocess import calc_of
 
-from DataSets import Scenes, Annotations, Poses
+from DataSets import Scenes, AnnotationsTum, Poses
 
 class AbstractGaitDataset:
     # TODO inherit this from pytorch dataset class

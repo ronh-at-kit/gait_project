@@ -3,10 +3,20 @@ import os
 import pandas as pd
 import pyexcel as pe
 import numpy as np
-
+from gait_analysis.utils.files import list_all_files
 from gait_analysis.settings import tumgaid_exclude_list
 
 
+
+def list_annotations_files(annotations_dir):
+    '''
+    Get a list of the path to the annotations files in the  annotations directory
+    :param annotations_dir: directory to the annotations directory
+    :return annotations_files: list of annotations files
+    '''
+    annotations_files = sorted(list_all_files(annotations_dir,"ods"))
+
+    return annotations_files
 def list_person_folders(TUMGAIDimage_root):
     all_person_folders = sorted(glob.glob(os.path.join(TUMGAIDimage_root, 'image', 'p*')))
     return all_person_folders
@@ -38,6 +48,21 @@ def load_sequence_annotation(annotation_file, sequence):
     df.frame_id = df.frame_id.astype(int)
     return df
 
+def load_subsequence_angle_annotation(annotation_file, subsequence, angle):
+    '''
+    Load the specified subsequence angle from the annotaion file
+    Returns data as a pandas dataframe
+    :param annotation_file:
+    :param subsequence:
+    :param angle:
+    :return: df: sheet dataframe
+    '''
+    sheet_name = subsequence + "-" + '{:03d}'.format(angle)
+    data = pe.get_dict(file_name=annotation_file, sheets=[sheet_name])
+    df = pd.DataFrame(data)
+    df = df.replace('', np.nan).dropna()
+    df.frame_id = df.frame_id.astype(int)
+    return df
 
 def remove_nif(df, pos):
     '''

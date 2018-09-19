@@ -37,11 +37,11 @@ class TestAnnotations(unittest.TestCase):
         self.dataset_items = [(2, 'b01'),(300,'n02')]
 
     def test_len(self):
-        annotations = Annotations(self.dataset_items,self.annotations_path);
+        annotations = Annotations(self.dataset_items, self.annotations_path);
         self.assertEqual(len(annotations), 2)
 
     def test_import(self):
-        annotations = Annotations(self.dataset_items,self.annotations_path);
+        annotations = Annotations(self.dataset_items, self.annotations_path);
         annotation, IF_indices = annotations[1]
         self.assertEqual((69, 3), annotation.shape)
         self.assertTrue((['frame_id','left_foot','right_foot']==annotation.columns).all())

@@ -3,3 +3,12 @@
 
 # idea files
 misc.xml
+
+.idea/
+
+# python cache
+.cache
+.pytest_cache
+
+# eggs
+.egg-info

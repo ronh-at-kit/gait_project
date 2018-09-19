@@ -1,4 +1,5 @@
 import os
+import fnmatch
 
 
 def format_data_path(data_path):
@@ -17,3 +18,13 @@ def format_data_path(data_path):
     if not os.path.exists(data_path_corrected):
         raise ValueError('{} don\'t exist.'.format(data_path_corrected))
     return data_path_corrected
+
+def list_all_files(input_path, extension):
+    videos = []
+    pattern = "*." + extension
+    for root, dirs, files in os.walk(input_path):
+        for file in files:
+            if fnmatch.fnmatch(file, pattern):
+                videos.append(os.path.join(root,file))
+    # print(videos)
+    return videos

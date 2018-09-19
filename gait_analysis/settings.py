@@ -4,10 +4,18 @@
 # tumgaid_preprocessing_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage_preprocessed/"
 # tumgaid_annotations_root = "/media/sandro/Volume/Datasets/tumgaid/annotations/"
 
+# TUMGAID FOLDERS
 openpose_root = '/home/sandro/Projekte/2018_gait/openpose/'
 tumgaid_root = "~/gait_project_folder/TUMData/TUMGAIDimage"
 tumgaid_preprocessing_root = "~/gait_project_folder/TUMData/preprocessing"
 tumgaid_annotations_root = "~/gait_project_folder/TUMData/annotations"
+# *********************************************************
+# CASIA FOLDERS
+CASIA_IMAGES_DIR = "~/gait_project_folder/casia_images/CASIA/DatasetB"
+CASIA_PREPROCESSING_DIR = "~/gait_project_folder/casia_data/preprocessing"
+CASIA_ANNOTATIONS_DIR = "~/gait_project_folder/gait_annotations/CASIA/DatasetB/final_annotations"
+
+# *********************************************************
 
 calculate_flow = False
 calculate_pose = True
