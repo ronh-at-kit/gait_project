@@ -28,3 +28,13 @@ def list_all_files(input_path, extension):
                 videos.append(os.path.join(root,file))
     # print(videos)
     return videos
+
+def correct_path(path):
+    '''
+    Correct the path when it statrs the with ~ (LINUX MAXOS case)
+    :param path:
+    :return:
+    '''
+    if path.startswith('~'):
+        path = os.path.expanduser(path)
+    return os.path.abspath(path)

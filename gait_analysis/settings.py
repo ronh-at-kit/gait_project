@@ -1,19 +1,23 @@
 # DEFINE YOUR CONFIGURATION HERE
-# openpose_root = '/home/sandro/Projekte/2018_gait/openpose/'
-# tumgaid_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage/"
-# tumgaid_preprocessing_root = "/media/sandro/Volume/Datasets/tumgaid/TUMGAIDimage_preprocessed/"
-# tumgaid_annotations_root = "/media/sandro/Volume/Datasets/tumgaid/annotations/"
+openpose_root = '~/gait_project/pose/build/' # where the bin is located
 
 # TUMGAID FOLDERS
-openpose_root = '/home/sandro/Projekte/2018_gait/openpose/'
-tumgaid_root = "~/gait_project_folder/TUMData/TUMGAIDimage"
-tumgaid_preprocessing_root = "~/gait_project_folder/TUMData/preprocessing"
-tumgaid_annotations_root = "~/gait_project_folder/TUMData/annotations"
+# TODO: REFACTOR TO MAKE TUM AND CASIA SYMMETRIC
+###
+pose_root = '~/gait_project/TUMData/preprocessing/TUM/DatasetA/pose' # where the bin is located
+flow_root = '~/gait_project/TUMData/preprocessing/TUM/DatasetA/flow'
+raw_root = '~/gait_project/TUMData/preprocessing/TUM/DatasetA/raw'
+tumgaid_root = "~/gait_project/TUMData/images/TUM/DatasetA/"
+tumgaid_preprocessing_root = "~/gait_project/TUMData/preprocessing/TUM/DatasetA/"
+tumgaid_annotations_root = "~/gait_project/TUMData/annotations/TUM/DatasetA/"
 # *********************************************************
 # CASIA FOLDERS
-CASIA_IMAGES_DIR = "~/gait_project_folder/casia_images/CASIA/DatasetB"
-CASIA_PREPROCESSING_DIR = "~/gait_project_folder/casia_data/preprocessing"
-CASIA_ANNOTATIONS_DIR = "~/gait_project_folder/gait_annotations/CASIA/DatasetB/final_annotations"
+casia_pose_dir =  "~/gait_project/CASIAData/preprocessing/CASIA/DatasetB/pose"# ordered by people folders
+casia_flow_dir =  "~/gait_project/CASIAData/preprocessing/CASIA/DatasetB/flow"# ordered by people folders
+casia_raw_dir =  "~/gait_project/CASIAData/preprocessing/CASIA/DatasetB/raw"# ordered by people folders
+casia_images_dir = "~/gait_project/CASIAData/images/CASIA/DatasetB/"# ordered by people folders
+casia_preprocessing_dir = "~/gait_project/CASIAData//preprocessing/CASIA/DatasetB/"# ordered by people flow pose and raw then by people folders
+casia_annotations_dir = "~/gait_project/CASIAData/annotations/CASIA/DatasetB/final_annotations/"# ordered by people folders
 
 # *********************************************************
 
@@ -23,7 +27,7 @@ calculate_pose = True
 tumgaid_exclude_list = ['back', 'back2']
 
 
-
+# TODO: this is nasty... default should be implemented outside
 tumgaid_default_args = {
     'load_pose' : True,
     'load_pose_options' : {

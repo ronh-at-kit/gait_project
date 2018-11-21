@@ -8,7 +8,7 @@ import numpy as np
 from gait_analysis.utils.iterators import pairwise
 from gait_analysis.utils.files import format_data_path
 from gait_analysis.utils.data_loading import list_annotations_files
-from gait_analysis.data_preprocessing.preprocess import calc_of
+from gait_analysis.data_preprocessing.preprocess_tum import calc_of
 
 
 from gait_analysis import Scenes, Annotations, Poses

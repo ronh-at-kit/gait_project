@@ -17,8 +17,11 @@ def list_annotations_files(annotations_dir):
     annotations_files = sorted(list_all_files(annotations_dir,"ods"))
 
     return annotations_files
-def list_person_folders(TUMGAIDimage_root):
-    all_person_folders = sorted(glob.glob(os.path.join(TUMGAIDimage_root, 'image', 'p*')))
+def list_person_folders(images_path, dataset ='TUM'):
+    if dataset == 'TUM':
+        all_person_folders = sorted(glob.glob(os.path.join(images_path, 'p*')))
+    elif dataset == 'CASIA':
+        all_person_folders = sorted(glob.glob(os.path.join(images_path, '*/*')))
     return all_person_folders
 
 

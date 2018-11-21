@@ -1,7 +1,8 @@
 import argparse
 
 
-from data_preprocessing.preprocess import preprocess_tumgaid
+from data_preprocessing.preprocess_tum import preprocess_tumgaid
+from data_preprocessing.preprocess_casia import preprocess_casia
 
 
 if __name__ == '__main__':
@@ -22,5 +23,6 @@ if __name__ == '__main__':
     args.example = args.example > 0
 
     if args.dataset == 'tum':
-        preprocess_tumgaid(args.data_root, args.output_folder, args.example)
-        pass
+        preprocess_tumgaid(args.data_root, args.output_folder,args.example)
+    elif args.dataset == 'casia':
+        preprocess_casia(args.example)

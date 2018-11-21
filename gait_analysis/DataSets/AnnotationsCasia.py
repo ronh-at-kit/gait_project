@@ -12,7 +12,7 @@ class AnnotationsCasia(Dataset):
 
     def __init__(self, dataset_items, tumgait_annotations_root, transform=None):
         '''
-        :param tumgait_annotations_root:
+        :param casia_annotations_root:
         :param transform torch transform object
         '''
         # path manipulation:
