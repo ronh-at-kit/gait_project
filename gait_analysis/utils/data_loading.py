@@ -5,6 +5,7 @@ import pyexcel as pe
 import numpy as np
 from gait_analysis.utils.files import list_all_files
 from gait_analysis.settings import tumgaid_exclude_list
+from gait_analysis.settings import casia_include_list
 
 
 
@@ -25,14 +26,21 @@ def list_person_folders(images_path, dataset ='TUM'):
     return all_person_folders
 
 
-def list_sequence_folders(person_folder):
+def list_sequence_folders(person_folder, dataset = 'TUM'):
     '''
     list sequence folders within the given person_folder
     :param person_folder:
+    :param dataset: specify the name of the dataset to process.
     :return:
     '''
-    sequence_folders = sorted(glob.glob(os.path.join(person_folder, '*')))
-    sequence_folders = [folder for folder in sequence_folders if os.path.basename(folder) not in tumgaid_exclude_list]
+    if dataset == 'TUM':
+        sequence_folders = sorted(glob.glob(os.path.join(person_folder, '*')))
+        sequence_folders = [folder for folder in sequence_folders if os.path.basename(folder) not in tumgaid_exclude_list]
+    elif dataset == 'CASIA':
+        sequence_folders = sorted(glob.glob(os.path.join(person_folder, '*')))
+        sequence_folders = [folder for folder in sequence_folders if os.path.basename(folder)[:-3] in casia_include_list]
+    else:
+        raise ("dataset selected to find sequences folders is not correct. valid values CASIA and TUM. Found: {}".format(dataset) )
     return sequence_folders
 
 

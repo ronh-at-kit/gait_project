@@ -1,6 +1,6 @@
 import os
 import fnmatch
-
+import glob
 
 def format_data_path(data_path):
     '''
@@ -38,3 +38,24 @@ def correct_path(path):
     if path.startswith('~'):
         path = os.path.expanduser(path)
     return os.path.abspath(path)
+
+
+def makedirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    else:
+        print('folder exists already. Please double check and maybe delete folder {}'.format(path))
+        pass
+
+def list_images(dir, extension, sort=True):
+    '''
+    return a list of all images with the given extension within the specified folder
+    :param dir:
+    :param extension: extension without dot, like 'png'
+    :param sorted: if the list should be sorted
+    :return:
+    '''
+    image_list = glob.glob(os.path.join(dir, '*.{}'.format(extension)))
+    if sort:
+        return sorted(image_list)
+    return image_list

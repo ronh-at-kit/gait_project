@@ -4,3 +4,4 @@ from DataSets.Scenes import Scenes
 from DataSets.Poses import Poses
 from DataSets.TumGAID_Dataset import TumGAID_Dataset
 from DataSets.CasiaDataset import CasiaDataset
+import utils
