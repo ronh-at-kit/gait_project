@@ -38,7 +38,7 @@ fi
 
 
 # install files
-source activate torch
+source activate gait_36
 conda install -c menpo opencv
 
 pip install -r requirements.txt

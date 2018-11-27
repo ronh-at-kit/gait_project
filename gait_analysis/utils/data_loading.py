@@ -38,7 +38,7 @@ def list_sequence_folders(person_folder, dataset = 'TUM'):
         sequence_folders = [folder for folder in sequence_folders if os.path.basename(folder) not in tumgaid_exclude_list]
     elif dataset == 'CASIA':
         sequence_folders = sorted(glob.glob(os.path.join(person_folder, '*')))
-        sequence_folders = [folder for folder in sequence_folders if os.path.basename(folder)[:-3] in casia_include_list]
+        sequence_folders = [folder for folder in sequence_folders if os.path.basename(folder)[-3:] in casia_include_list]
     else:
         raise ("dataset selected to find sequences folders is not correct. valid values CASIA and TUM. Found: {}".format(dataset) )
     return sequence_folders

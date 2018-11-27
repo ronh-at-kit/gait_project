@@ -1,14 +1,18 @@
 #0. Environment setup
+manually create the environment
 
-    conda create --name gait_27 python=2.7
-    source activate gait_27
-    pip install opencv-python=3.4.0.12 tqdm ezodf
-    conda install matplotlib numpy pandas xlrd
-    conda install -c conda-forge pyexcel tifffile
-    conda install -c soumith pytorch
-    conda install -c conda-forge pyexcel-ods3
-    pip install pyexcel-ods
+    conda create --name gait_36 python=3.6
+    source activate gait_36
+    
+then run ./setup.sh in the project folder
+```bash
+    ./setup.sh
+```
+This will install the rest of the dependencies and will create the enviromental variables.
+You may start a new terminal session or run `source ~/.bashrc` or `source ~/.profile_bash`
+for linux and mac respectively
 
+ 
 # 1. Install openpose
 
 * I was not able to build openpose with opencv 3.something so far
