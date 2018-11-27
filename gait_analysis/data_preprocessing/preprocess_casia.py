@@ -111,7 +111,7 @@ def visit_person_sequence_casia(person_folder):
             #extract pody keypoints
             pose_output_dir = os.path.join(settings.casia_pose_dir, person, sequence, sequence_angle)
             makedirs(pose_output_dir)
-            # extract_pose_imagedir(sequence_angle_folder, pose_output_dir)
+            extract_pose_imagedir(sequence_angle_folder, pose_output_dir)
 
 
 def preprocess_casia(only_example=False):
