@@ -40,5 +40,11 @@ fi
 # install files
 source activate gait_36
 conda install -c menpo opencv
+pip install opencv-python=3.4.0.12 tqdm ezodf
+conda install matplotlib numpy pandas xlrd
+conda install -c conda-forge pyexcel tifffile
+conda install -c soumith pytorch
+conda install -c conda-forge pyexcel-ods3
+pip install pyexcel-ods
 
 pip install -r requirements.txt

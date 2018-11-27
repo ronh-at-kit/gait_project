@@ -6,11 +6,11 @@ manually create the environment
     
 then run ./setup.sh in the project folder
 ```bash
-    ./setup.sh
+./setup.sh
 ```
 This will install the rest of the dependencies and will create the enviromental variables.
 You may start a new terminal session or run `source ~/.bashrc` or `source ~/.profile_bash`
-for linux and mac respectively
+for linux and mac respectively if you run `setup.sh` for the first time.
 
  
 # 1. Install openpose
