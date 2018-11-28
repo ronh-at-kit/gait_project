@@ -124,6 +124,7 @@ def preprocess_casia(only_example=False):
     '''
 
     images_dir = settings.casia_images_dir
+    print("=======>>>>  images_dir = {}".format(images_dir))
     person_sequence_folders = list_person_folders(images_dir, dataset='CASIA')
 
     # if one example is selected: the list of person folders are reduced to 1 sample
