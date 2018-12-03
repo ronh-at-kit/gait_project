@@ -11,4 +11,4 @@ misc.xml
 .pytest_cache
 
 # eggs
-.egg-info
+.egg-info*.pyc
