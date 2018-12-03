@@ -111,7 +111,7 @@ def visit_person_sequence_casia(person_folder):
             #extract pody keypoints
             pose_output_dir = os.path.join(settings.casia_pose_dir, person, sequence, sequence_angle)
             makedirs(pose_output_dir)
-            # extract_pose_imagedir(sequence_angle_folder, pose_output_dir)
+            extract_pose_imagedir(sequence_angle_folder, pose_output_dir)
 
 
 def preprocess_casia(only_example=False):
@@ -124,6 +124,7 @@ def preprocess_casia(only_example=False):
     '''
 
     images_dir = settings.casia_images_dir
+    print("=======>>>>  images_dir = {}".format(images_dir))
     person_sequence_folders = list_person_folders(images_dir, dataset='CASIA')
 
     # if one example is selected: the list of person folders are reduced to 1 sample

@@ -1,14 +1,14 @@
 from os.path import join
 from gait_analysis.utils.files import correct_path
 # DEFINE YOUR CONFIGURATION HERE
-openpose_root = '~/gait_project/pose/build/' # where the bin is located
-casia_root = "~/gait_project/CASIAData/"
+openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
+casia_root = "~/Dokumente/Datasets/Gait/CASIA"
 tum_root = "~/gait_project/TUMData"
 
 # correcting "~"
-openpose_root = correct_path('~/gait_project/pose/build/') # where the bin is located
-casia_root = correct_path("~/gait_project/CASIAData/")
-tum_root = correct_path("~/gait_project/TUMData")
+openpose_root = correct_path(openpose_root) # where the bin is located
+casia_root = correct_path(casia_root)
+tum_root = correct_path(tum_root)
 
 # TUMGAID FOLDERS
 # TODO: REFACTOR TO MAKE TUM AND CASIA SYMMETRIC
@@ -23,7 +23,7 @@ tumgaid_annotations_root = join(tum_root,"annotations/TUM") # ordered by people 
 casia_pose_dir = join(casia_root,"preprocessing/pose/") # ordered by people folders
 casia_flow_dir = join(casia_root,"preprocessing/flow")# ordered by people folders
 casia_crop_dir = join(casia_root,"preprocessing/crop")# ordered by people folders
-casia_images_dir = join(casia_root,"images/CASIA/DatasetB/")# ordered by people folders
+casia_images_dir = join(casia_root,"images")# ordered by people folders
 casia_annotations_dir = join(casia_root,"annotations/CASIA/DatasetB/final_annotations/")# ordered by people folders
 # *********************************************************
 
