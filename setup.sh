@@ -40,7 +40,7 @@ fi
 # install files
 source activate gait_36
 conda install -c menpo opencv
-pip install opencv-python=3.4.0.12 tqdm ezodf
+pip install opencv-python==3.4.4.19 tqdm ezodf
 conda install matplotlib numpy pandas xlrd
 conda install -c conda-forge pyexcel tifffile
 conda install -c soumith pytorch
