@@ -12,3 +12,5 @@ misc.xml
 
 # eggs
 .egg-info
+*.pyc
+*.DS_Store
