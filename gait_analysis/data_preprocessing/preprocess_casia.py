@@ -10,6 +10,9 @@ from gait_analysis.utils.iterators import pairwise
 from gait_analysis.utils.files import makedirs, list_images
 import tifffile
 import numpy as np
+import PIL
+from PIL import Image
+import h5py
 
 import settings
 
@@ -25,7 +28,7 @@ def load_image(path, method='cv2'):
         im = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     return im
 
-def write_of(filename, image, method='tiff'):
+def write_of(filename, flow, method='tiff'):
     '''
     Write optical flow. maybe will have more methods
     :param filename:
@@ -33,11 +36,48 @@ def write_of(filename, image, method='tiff'):
     :param method:
     :return:
     '''
-    #cv2.imwrite(filename, image)
-    if method == 'tiff':
-        # add magnitude to third dimension
-        image = np.dstack((image, np.sqrt(image[..., 0]**2 + image[..., 1]**2)))
-        tifffile.imsave(filename, image)
+
+    norm = np.sqrt(flow[..., 0] ** 2 + flow[..., 1] ** 2) #calculate norm as the third parameter
+
+    ''' 
+    These are max and min values which have been found experimentally on a test dataset. The test dataset 
+    comprised persons 50 - 59. Mix and min values have been evaluated for all 100 sequences.
+    The values below are approximately the 0.9 percentiles of the max or min values over all 100 sequences. Numbers 
+    have been rounded and have been made symmetrical.    
+    '''
+    hor_max = 24
+    hor_min = -24
+    ver_max = 66
+    ver_min = -66
+    mag_max = 74
+
+    # Clip the values so that they don't exceed the min or max values.
+    horz =  np.clip(flow[:,:,0], hor_min, hor_max)
+    vert =  np.clip(flow[:,:,1], ver_min, ver_max)
+    magn =  np.clip(norm, 0, mag_max)
+
+    # Normalize them to the range 0...255
+    horz = np.around(255*((horz - hor_min) / (hor_max - hor_min)))
+    vert = np.around(255 * ((vert - ver_min) / (ver_max - ver_min)))
+    magn = np.around(255 * ((magn) / (mag_max)))
+
+    # Save image with PIL in order to make use of additional compression. The achieved compression factor is around
+    # factor 50, compared to the regular tiff-format (the raw data).
+    flow_shape = np.shape(horz)
+    img = np.zeros((flow_shape[0], flow_shape[1], 3))
+    img[:, :, 0] = horz
+    img[:, :, 1] = vert
+    img[:, :, 2] = magn
+
+    img_pil = Image.fromarray(np.uint8(img))
+    img_pil.save(filename, quality=100, optimize=True)
+
+    # legacy
+    # if method == 'tiff':
+    #    # add magnitude to third dimension
+    #    flow = np.dstack((flow, np.sqrt(flow[..., 0]**2 + flow[..., 1]**2)))
+    #    tifffile.imsave(filename, flow)
+
 
 def calc_of(prevs, next):
     '''
@@ -104,7 +144,8 @@ def visit_person_sequence_casia(person_folder):
             for i, frame_pair in enumerate(pairwise(image_sequence)):
                 prev, next = map(load_image, frame_pair)
                 of = calc_of(prev, next)
-                flow_out_filename = 'of_{}_{:03d}.tiff'.format(sequence_angle, i)
+                # flow_out_filename = 'of_{}_{:03d}.tiff'.format(sequence_angle, i)
+                flow_out_filename = 'of_{}_{:03d}.png'.format(sequence_angle, i)
                 write_of(os.path.join(flow_output_dir, flow_out_filename), of)
 
         if settings.calculate_pose:
@@ -125,12 +166,13 @@ def preprocess_casia(only_example=False):
 
     images_dir = settings.casia_images_dir
     print("=======>>>>  images_dir = {}".format(images_dir))
+    print("I am in the general version")
     person_sequence_folders = list_person_folders(images_dir, dataset='CASIA')
 
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:
-        person_sequence_folders = person_sequence_folders[:1]
+        person_sequence_folders = person_sequence_folders[500:600]
 
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
