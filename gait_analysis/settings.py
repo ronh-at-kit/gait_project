@@ -2,7 +2,7 @@ from os.path import join
 from gait_analysis.utils.files import correct_path
 # DEFINE YOUR CONFIGURATION HERE
 openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
-casia_root = "~/Dokumente/Datasets/Gait/CASIA"
+casia_root = "~/gait_project/CASIAData"
 tum_root = "~/gait_project/TUMData"
 
 # correcting "~"

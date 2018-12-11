@@ -1,27 +1,25 @@
+from torch.utils.data import Dataset
 from gait_analysis import Scenes, Poses
 from gait_analysis import AnnotationsCasia as Annotations
-from torch.utils.data import Dataset
 from gait_analysis.utils.files import format_data_path
 from gait_analysis.utils.data_loading import list_annotations_files
-from itertools import product
+import gait_analysis.settings as settings
 import os
 
 
 class CasiaDataset(Dataset):
-    def __init__(self, images_dir, preprocessing_dir, annotations_dir, options_dict):
-        self.images_dir = format_data_path(images_dir)
-        # TODO: preprocessing is not generated jet
-        # self.preprocessing_dir = format_data_path(preprocessing_dir)
-        self.annotations_dir = format_data_path(annotations_dir)
-
-        annotation_files = list_annotations_files(self.annotations_dir)
-        dataset_items = map(extract_pnum_subsequence, annotation_files)
+    # TODO: options_dict comes from a config reader.
+    def __init__(self, options_dict):
+        annotation_files = list_annotations_files(settings.casia_annotations_dir)
+        # TODO: dataset_items comes from a itemizer class
+        dataset_items = list(map(extract_pnum_subsequence, annotation_files))
         # TODO: use include scenes to filter out subsequences.
         # list(product(person_numbers, options_dict['include_scenes']))
         self.dataset_items = dataset_items
-        self.options_dict = options_dict
-        self.person_numbers = [item[1] for item in dataset_items]
-        self.annotations = Annotations(self.dataset_items, self.annotations_dir)
+        self.options_dict = options_dict # this will come from a config file
+        # self.person_numbers = [item[1] for item in dataset_items]
+        self.annotations = Annotations(self.dataset_items)
+
 
 
     def __len__(self):

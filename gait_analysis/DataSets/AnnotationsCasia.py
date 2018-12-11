@@ -1,8 +1,10 @@
 import os
-from gait_analysis.utils.data_loading import not_NIF_frame_nums, load_subsequence_angle_annotation, remove_nif
 import numpy as np
+import gait_analysis.settings as settings
+from gait_analysis.utils.data_loading import not_NIF_frame_nums, load_subsequence_angle_annotation, remove_nif
 from torch.utils.data import Dataset
 from gait_analysis.utils.files import format_data_path
+
 
 
 class AnnotationsCasia(Dataset):
@@ -10,13 +12,13 @@ class AnnotationsCasia(Dataset):
     TumGAID_Dataset loader
     '''
 
-    def __init__(self, dataset_items, tumgait_annotations_root, transform=None):
+    def __init__(self, dataset_items, transform=None):
         '''
         :param casia_annotations_root:
         :param transform torch transform object
         '''
         # path manipulation:
-        self.annotations_path = format_data_path(tumgait_annotations_root)
+        self.annotations_path = format_data_path(settings.casia_annotations_dir)
         self.dataset_items = dataset_items
 
     def __len__(self):
