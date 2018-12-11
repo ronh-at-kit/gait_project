@@ -2,6 +2,13 @@ import os
 import fnmatch
 import glob
 
+def is_empty_path(path):
+    if len(list_all_files(path,'*'))>0:
+        return True
+    else:
+        return False
+
+
 def format_data_path(data_path):
     '''
     preprocess path containing data
@@ -20,14 +27,13 @@ def format_data_path(data_path):
     return data_path_corrected
 
 def list_all_files(input_path, extension):
-    videos = []
+    files_matched = []
     pattern = "*." + extension
     for root, dirs, files in os.walk(input_path):
         for file in files:
             if fnmatch.fnmatch(file, pattern):
-                videos.append(os.path.join(root,file))
-    # print(videos)
-    return videos
+                files_matched.append(os.path.join(root,file))
+    return files_matched
 
 def correct_path(path):
     '''

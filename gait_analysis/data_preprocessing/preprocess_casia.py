@@ -2,20 +2,32 @@ import subprocess
 from tqdm import tqdm
 import cv2
 import os
-from utils.files import correct_path
-from gait_analysis import settings
-from gait_analysis.settings import openpose_root
 from gait_analysis.utils.data_loading import list_person_folders, list_sequence_folders
 from gait_analysis.utils.iterators import pairwise
 from gait_analysis.utils.files import makedirs, list_images
-import tifffile
+from gait_analysis import fileUtils
+from gait_analysis.utils.ui import query_yes_no
 import numpy as np
-import PIL
 from PIL import Image
-import h5py
-
 import settings
+import warnings
 
+def abort_overwrite():
+    '''
+    Warns over the data content in file that may be overwrite. PREVENT TO DESTROY INFORMATION.
+    :return:
+    '''
+    # extract flow
+    if settings.calculate_flow and not fileUtils.is_empty_path(settings.casia_flow_dir):
+        abort = query_yes_no('The path {} contains files. The process will overwrite data. Do you want to abort?'.format(settings.casia_flow_dir))
+        if abort:
+            return True
+    if settings.calculate_pose and not fileUtils.is_empty_path(settings.casia_pose_dir):
+        abort = query_yes_no('The path {} contains files. The process will overwrite data. Do you want to abort?'.format(settings.casia_pose_dir))
+        if abort:
+            return True
+    # if no for all return false = total false
+    return False
 
 def load_image(path, method='cv2'):
     '''
@@ -127,7 +139,6 @@ def visit_person_sequence_casia(person_folder):
 
     # a sequence_folder is a folder containing a sequence, like b01 within p001
     person = os.path.basename(os.path.dirname(person_folder))
-
     sequence_angle_folders = list_sequence_folders(person_folder, dataset='CASIA')
 
     for sequence_angle_folder in sequence_angle_folders:
@@ -169,13 +180,16 @@ def preprocess_casia(only_example=False):
     print("I am in the general version")
     person_sequence_folders = list_person_folders(images_dir, dataset='CASIA')
 
+    # Waring to don't overwrite:
+    if abort_overwrite():
+        # if user
+        warnings.warn("pre-nprocess aborted by user! ", UserWarning)
+        return
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:
         person_sequence_folders = person_sequence_folders[500:600]
-
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
         visit_person_sequence_casia(person_folder)
-
 
