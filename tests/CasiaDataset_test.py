@@ -1,7 +1,7 @@
 import unittest
 import cv2
 from gait_analysis import CasiaDataset, settings
-import numpy as np
+# import numpy as np
 
 def showImage(img):
     cv2.imshow('image', img)
@@ -20,8 +20,8 @@ class TestCasiaDataset(unittest.TestCase):
     def test_import(self):
         datasets = CasiaDataset(self.casia_options_dict)
         dataset = datasets[1]
-        self.assertEqual(75,len(dataset))
-        dataset_0 = dataset[0]
+        self.assertEqual(62,len(dataset))
+        # dataset_0 = dataset[0]
         # self.assertEqual(dataset_0.shape, (480, 640, 3))
 
 

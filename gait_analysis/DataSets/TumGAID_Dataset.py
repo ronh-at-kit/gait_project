@@ -11,7 +11,7 @@ from gait_analysis.utils.data_loading import list_annotations_files
 from gait_analysis.data_preprocessing.preprocess_tum import calc_of
 
 
-from gait_analysis import Scenes, Annotations, Poses
+from gait_analysis import Scenes, Annotations, PosesTum
 from torch.utils.data import Dataset
 
 
@@ -64,7 +64,7 @@ class TumGAID_Dataset(Dataset):
         # get the poses
         pose_options = self.options_dict
         pose_options['valid_indices'] = in_frame_indices
-        poses = Poses(self.dataset_items, self.tumgaid_preprocessing_root, pose_options)
+        poses = PosesTum(self.dataset_items , self.tumgaid_preprocessing_root , pose_options)
         pose_keypoints, valid_indices = poses[idx]
         output['pose_keypoints'] = pose_keypoints
 

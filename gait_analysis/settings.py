@@ -4,7 +4,14 @@ from gait_analysis.utils.files import correct_path
 openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
 casia_root = "~/gait_project/CASIAData"
 tum_root = "~/gait_project/TUMData"
+configuration = "default"
 
+# ==========================================================
+# ==========================================================
+# ==========================================================
+#   Don't Modify bellow
+# ==========================================================
+# ==========================================================
 # correcting "~"
 openpose_root = correct_path(openpose_root) # where the bin is located
 casia_root = correct_path(casia_root)
@@ -26,14 +33,12 @@ casia_crop_dir = join(casia_root,"preprocessing/crop")# ordered by people folder
 casia_images_dir = join(casia_root,"images")# ordered by people folders
 casia_annotations_dir = join(casia_root,"annotations/CASIA/DatasetB/final_annotations/")# ordered by people folders
 # *********************************************************
-
 calculate_flow = True
 calculate_pose = True
-
 tumgaid_exclude_list = ['back', 'back2']
 casia_include_list = ['018', '054','090','126','162']
 
-
+## LEGACY TUM
 # TODO: this is nasty... default should be implemented outside
 tumgaid_default_args = {
     'load_pose' : True,
@@ -65,3 +70,5 @@ tumgaid_default_args = {
 
 
 exp_reports_root = r'/media/sandro/Volume/Datasets/tumgaid/exp_reports/'
+
+

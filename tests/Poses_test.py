@@ -1,6 +1,6 @@
 import unittest
 import cv2
-from gait_analysis import Poses, settings
+from gait_analysis import PosesTum, settings
 
 
 class TestAnnotations(unittest.TestCase):
@@ -10,11 +10,11 @@ class TestAnnotations(unittest.TestCase):
         self.dataset_items = [(2, 'b01'),(300,'n02')]
 
     def test_len(self):
-        poses = Poses(self.dataset_items, self.preprocessing_path, self.tumgait_default_args)
+        poses = PosesTum(self.dataset_items , self.preprocessing_path , self.tumgait_default_args)
         self.assertEqual(2,len(poses))
 
     def test_import(self):
-        poses = Poses(self.dataset_items, self.preprocessing_path, self.tumgait_default_args)
+        poses = PosesTum(self.dataset_items , self.preprocessing_path , self.tumgait_default_args)
         pose = poses[1]
         self.assertEqual(2, len(pose))
         frame0 = pose[0]
