@@ -50,3 +50,7 @@ pip install notebook
 
 
 pip install -r requirements.txt
+
+
+# setup a gait_36 env in jupyter
+python -m ipykernel install --user --name gait_36 --display-name "Python gait_36"
