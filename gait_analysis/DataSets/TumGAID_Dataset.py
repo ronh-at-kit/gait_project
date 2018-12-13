@@ -11,7 +11,7 @@ from gait_analysis.utils.data_loading import list_annotations_files
 from gait_analysis.data_preprocessing.preprocess_tum import calc_of
 
 
-from gait_analysis import Scenes, Annotations, PosesTum
+from gait_analysis import ScenesTum, Annotations, PosesTum
 from torch.utils.data import Dataset
 
 
@@ -73,7 +73,7 @@ class TumGAID_Dataset(Dataset):
         if self.options_dict['load_scene'] or self.options_dict['load_flow']:
             scene_options = self.options_dict
             scene_options['valid_indices'] = valid_indices
-            scenes = Scenes(self.dataset_items, self.tumgaid_root, scene_options)
+            scenes = ScenesTum(self.dataset_items , self.tumgaid_root , scene_options)
             images = scenes[idx]
 
         if self.options_dict['load_scene']:

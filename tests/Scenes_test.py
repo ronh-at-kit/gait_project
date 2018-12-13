@@ -1,6 +1,6 @@
 import unittest
 import cv2
-from gait_analysis import Scenes, settings
+from gait_analysis import ScenesTum, settings
 import numpy as np
 
 def showImage(img):
@@ -16,11 +16,11 @@ class TestAnnotations(unittest.TestCase):
         self.scenes_path = settings.tumgaid_root
 
     def test_len(self):
-        scenes = Scenes(self.dataset_items, self.scenes_path, self.tumgait_default_args)
+        scenes = ScenesTum(self.dataset_items , self.scenes_path , self.tumgait_default_args)
         self.assertEqual(2,len(scenes))
 
     def test_import(self):
-        scenes = Scenes(self.dataset_items, self.scenes_path, self.tumgait_default_args)
+        scenes = ScenesTum(self.dataset_items , self.scenes_path , self.tumgait_default_args)
         scene = scenes[1]
         self.assertEqual(75,len(scene))
         scene_0 = scene[0]
@@ -31,7 +31,7 @@ class TestAnnotations(unittest.TestCase):
         valid_indices[10:14] = True
         self.tumgait_default_args['valid_indices'] = valid_indices
 
-        scenes = Scenes(self.dataset_items, self.scenes_path, self.tumgait_default_args)
+        scenes = ScenesTum(self.dataset_items , self.scenes_path , self.tumgait_default_args)
         scene = scenes[1]
         self.assertEqual(4,len(scene))
         scene_0 = scene[0]

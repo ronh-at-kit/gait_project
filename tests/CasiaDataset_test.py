@@ -19,8 +19,8 @@ class TestCasiaDataset(unittest.TestCase):
 
     def test_import(self):
         datasets = CasiaDataset(self.casia_options_dict)
-        dataset = datasets[1]
-        self.assertEqual(62,len(dataset))
+        annotations = datasets[1]['annotations']
+        self.assertEqual(62,len(annotations))
         # dataset_0 = dataset[0]
         # self.assertEqual(dataset_0.shape, (480, 640, 3))
 

@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 
 
-class Scenes(Dataset):
+class ScenesTum(Dataset):
     '''
     TumGAID_Dataset loader
     '''

@@ -30,7 +30,7 @@ tumgaid_annotations_root = join(tum_root,"annotations/TUM") # ordered by people 
 casia_pose_dir = join(casia_root,"preprocessing/pose/") # ordered by people folders
 casia_flow_dir = join(casia_root,"preprocessing/flow")# ordered by people folders
 casia_crop_dir = join(casia_root,"preprocessing/crop")# ordered by people folders
-casia_images_dir = join(casia_root,"images")# ordered by people folders
+casia_images_dir = join(casia_root,"images",'CASIA','DatasetB')# ordered by people folders
 casia_annotations_dir = join(casia_root,"annotations/CASIA/DatasetB/final_annotations/")# ordered by people folders
 # *********************************************************
 calculate_flow = True

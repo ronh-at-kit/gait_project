@@ -6,13 +6,13 @@ default = {
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
         },
     'flow': {
-        'load':True,
+        'load':False,
         'preprocess' : False,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
         },
-    'frames':{
+    'scenes':{
         'load':True,
         'preprocess': False,
         'gray_scale' : False,
