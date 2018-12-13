@@ -46,5 +46,7 @@ conda install -c conda-forge pyexcel tifffile
 conda install -c soumith pytorch
 conda install -c conda-forge pyexcel-ods3
 pip install pyexcel-ods
+pip install notebook
+
 
 pip install -r requirements.txt
