@@ -7,16 +7,17 @@ from gait_analysis.Config import Config
 import gait_analysis.utils.openpose_utils as op_utils
 import gait_analysis.settings as settings
 from gait_analysis.utils.files import format_data_path
+
 class PosesCasia(Dataset):
     '''
     TumGAID_Dataset loader
     '''
 
     def __init__(self, dataset_items, transform=None):
-        config = Config()
+        c = Config()
         self.poses_path = format_data_path(settings.casia_pose_dir)
         self.dataset_items = dataset_items
-        self.config = config.config
+        self.config = c.config
         self.options = {}
 
 
@@ -52,9 +53,9 @@ class PosesCasia(Dataset):
         # 1. compose the poses json-filenames in pose_files
         def compose_pose_filename(angle,i):
             # the expected name is:
-            # /preprocessing/pose/001/bg-01/bg-01-018/001-bg-01-018-pose-frame-001.json
+            # /preprocessing/pose/001/bg-01/bg-01-018/001-bg-01-018_frame_042_keypoints.json
             return join(pose_folder,'{}-{:03d}'.format(sequence,angle),\
-                        '{}-{}-{:03d}-pose-frame-{:03d}.json'.format(p_num,sequence,angle,i))
+                        '{:03d}-{}-{:03d}_frame_{:03d}_keypoints.json'.format(p_num,sequence,angle,i))
         if 'valid_indices' in self.options:
             valid_indices = self.options['valid_indices']
             pose_files = []

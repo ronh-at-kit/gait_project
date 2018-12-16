@@ -1,16 +1,21 @@
 import subprocess
-from tqdm import tqdm
+import warnings
 import cv2
 import os
+import numpy as np
+from tqdm import tqdm
+from PIL import Image
+
+import gait_analysis.settings as settings
 from gait_analysis.utils.data_loading import list_person_folders, list_sequence_folders
 from gait_analysis.utils.iterators import pairwise
 from gait_analysis.utils.files import makedirs, list_images
 from gait_analysis import fileUtils
 from gait_analysis.utils.ui import query_yes_no
-import numpy as np
-from PIL import Image
-import settings
-import warnings
+from gait_analysis.Config import Config
+c = Config()
+CONFIG  = c.config
+
 
 def abort_overwrite():
     '''
@@ -18,11 +23,11 @@ def abort_overwrite():
     :return:
     '''
     # extract flow
-    if settings.calculate_flow and not fileUtils.is_empty_path(settings.casia_flow_dir):
+    if CONFIG['flow']['preprocess'] and not fileUtils.is_empty_path(settings.casia_flow_dir):
         abort = query_yes_no('The path {} contains files. The process will overwrite data. Do you want to abort?'.format(settings.casia_flow_dir))
         if abort:
             return True
-    if settings.calculate_pose and not fileUtils.is_empty_path(settings.casia_pose_dir):
+    if CONFIG['pose']['preprocess'] and not fileUtils.is_empty_path(settings.casia_pose_dir):
         abort = query_yes_no('The path {} contains files. The process will overwrite data. Do you want to abort?'.format(settings.casia_pose_dir))
         if abort:
             return True
@@ -141,6 +146,8 @@ def visit_person_sequence_casia(person_folder):
     person = os.path.basename(os.path.dirname(person_folder))
     sequence_angle_folders = list_sequence_folders(person_folder, dataset='CASIA')
 
+
+
     for sequence_angle_folder in sequence_angle_folders:
         # Extracts the sequence. The sequence is part of the path
         sequence_angle = os.path.basename(sequence_angle_folder)
@@ -148,7 +155,7 @@ def visit_person_sequence_casia(person_folder):
         print('processing sequence {}/{}'.format(person,sequence_angle))
 
         #extract flow
-        if settings.calculate_flow:
+        if CONFIG['flow']['preprocess']:
             image_sequence = list_images(sequence_angle_folder, "jpg")
             flow_output_dir = os.path.join(settings.casia_flow_dir, person, sequence, sequence_angle)
             makedirs(flow_output_dir)
@@ -156,10 +163,10 @@ def visit_person_sequence_casia(person_folder):
                 prev, next = map(load_image, frame_pair)
                 of = calc_of(prev, next)
                 # flow_out_filename = 'of_{}_{:03d}.tiff'.format(sequence_angle, i)
-                flow_out_filename = 'of_{}_{:03d}.png'.format(sequence_angle, i)
+                flow_out_filename = '{}_{}_frame_{:03d}_flow.png'.format(person,sequence_angle, i)
                 write_of(os.path.join(flow_output_dir, flow_out_filename), of)
 
-        if settings.calculate_pose:
+        if CONFIG['pose']['preprocess']:
             #extract pody keypoints
             pose_output_dir = os.path.join(settings.casia_pose_dir, person, sequence, sequence_angle)
             makedirs(pose_output_dir)
@@ -188,7 +195,7 @@ def preprocess_casia(only_example=False):
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:
-        person_sequence_folders = person_sequence_folders[500:600]
+        person_sequence_folders = person_sequence_folders[0:10]
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
         visit_person_sequence_casia(person_folder)

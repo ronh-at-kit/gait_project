@@ -3,10 +3,11 @@ import fnmatch
 import glob
 
 def is_empty_path(path):
+    print('=====len(list_all_files(path,\'*\')) = ', len(list_all_files(path,'*')))
     if len(list_all_files(path,'*'))>0:
-        return True
-    else:
         return False
+    else:
+        return True
 
 
 def format_data_path(data_path):

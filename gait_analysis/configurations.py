@@ -1,4 +1,12 @@
 default = {
+    'indexing':{
+        #'grouping': 'person_sequence_angle',
+        'selection': 'auto'#,     #  => 'auto'= by final annotation or
+                                 #  => 'manual_people' = uses 'people' list
+                                 #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
+        #'people_selection': [1,2],
+        #'sequences_selection': ['bg-01', 'cl-01']
+        },
     'pose': {
         'load': True,
         'preprocess': False ,
@@ -7,7 +15,7 @@ default = {
         },
     'flow': {
         'load':False,
-        'preprocess' : False,
+        'preprocess' : True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
