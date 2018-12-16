@@ -163,7 +163,7 @@ def visit_person_sequence_casia(person_folder):
                 prev, next = map(load_image, frame_pair)
                 of = calc_of(prev, next)
                 # flow_out_filename = 'of_{}_{:03d}.tiff'.format(sequence_angle, i)
-                flow_out_filename = '{}_{}_frame_{:03d}_flow.png'.format(person,sequence_angle, i)
+                flow_out_filename = '{}-{}_frame_{:03d}_flow.png'.format(person,sequence_angle, i)
                 write_of(os.path.join(flow_output_dir, flow_out_filename), of)
 
         if CONFIG['pose']['preprocess']:
