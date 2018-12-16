@@ -20,6 +20,24 @@ class Config(object):
         else:
             # if not specified select default
             self.config = configurations.default
+    def get_indexing_selection(self):
+        if not 'indexing' in self.config:
+            selection = 'auto'
+        elif not 'selection' in self.config['indexing']:
+            selection = 'auto'
+        else:
+            selection = self.config['indexing']['selection']
+        return selection
+    def get_indexing_grouping(self):
+        if not 'indexing' in self.config:
+            grouping = 'person_sequence'
+        elif not 'grouping' in self.config['indexing']:
+            grouping = 'person_sequence'
+        else:
+            grouping = self.config['indexing']['grouping']
+
+        return grouping
+
 if __name__ == '__main__':
     c = Config()
     print(c.config)

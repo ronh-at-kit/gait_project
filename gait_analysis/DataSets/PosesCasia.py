@@ -14,10 +14,10 @@ class PosesCasia(Dataset):
     '''
 
     def __init__(self, dataset_items, transform=None):
-        c = Config()
+        # c = Config()
         self.poses_path = format_data_path(settings.casia_pose_dir)
         self.dataset_items = dataset_items
-        self.config = c.config
+        self.config = Config()
         self.options = {}
 
 
@@ -44,8 +44,15 @@ class PosesCasia(Dataset):
 
     def _load_pose(self, dataset_item):
 
-        pose_options = self.config['pose']
-        p_num, sequence = dataset_item
+        pose_options = self.config.config['pose']
+        grouping = self.config.get_indexing_grouping()
+        if grouping == 'person_sequence_angle':
+            p_num , sequence , angle = dataset_item
+        elif grouping == 'person_sequence':
+            # +dev: this is hardcoded need to be define how we want the data.
+            # angle = 90
+            p_num , sequence = dataset_item
+            angle = 90
 
         # format pose folder
         pose_folder = join(self.poses_path,'{:03d}'.format(p_num), sequence)
@@ -58,15 +65,11 @@ class PosesCasia(Dataset):
                         '{:03d}-{}-{:03d}_frame_{:03d}_keypoints.json'.format(p_num,sequence,angle,i))
         if 'valid_indices' in self.options:
             valid_indices = self.options['valid_indices']
-            pose_files = []
-            for angle in [18,54,90,126,162]:
-                pose_files += [compose_pose_filename(angle,i) for i, valid in enumerate(valid_indices) if valid]
+            pose_files = [compose_pose_filename(angle,i) for i, valid in enumerate(valid_indices) if valid]
             idx_valid_frames = [i for i, valid in enumerate(valid_indices) if valid]
         else:
-            pose_files = []
-            for angle in [18 , 54 , 90 , 126 , 162]:
-                pose_angle_folder = join(pose_folder,'{}-{:03d}'.format(sequence,angle))
-                pose_files += [join(pose_angle_folder, f) for f in listdir(pose_folder) if f.endswith('.json')]
+            pose_angle_folder = join(pose_folder,'{}-{:03d}'.format(sequence,angle))
+            pose_files = [join(pose_angle_folder, f) for f in listdir(pose_folder) if f.endswith('.json')]
             idx_valid_frames = np.arange(len(pose_files))
             valid_indices = np.asarray([True]*len(pose_files))
 

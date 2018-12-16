@@ -16,10 +16,9 @@ class ScenesCasia(Dataset):
     '''
 
     def __init__(self, dataset_items, transform=None):
-        config = Config()
         self.images_dir = format_data_path(settings.casia_images_dir)
         self.dataset_items = dataset_items
-        self.config = config.config
+        self.config = Config()
         self.options = {}
 
 
@@ -52,7 +51,14 @@ class ScenesCasia(Dataset):
         :param not_nif_frames: a boolean mask indicating the valid frames. True means valid
         :return: a list of np.arrays containing the scene images
         '''
-        p_num, sequence = dataset_item
+        grouping = self.config.get_indexing_grouping()
+        if grouping == 'person_sequence':
+            p_num, sequence = dataset_item
+            # by default we select the 90 degree grom person_sequence grouping
+            angle = 90
+        elif grouping == 'person_sequence_angle':
+            p_num , sequence, angle = dataset_item
+
         scene_folder = os.path.join(self.images_dir,'{:03d}'.format(p_num),sequence)
         def compose_image_filename(angle,i):
             return join(scene_folder , '{}-{:03d}'.format(sequence , angle) , \
@@ -61,14 +67,9 @@ class ScenesCasia(Dataset):
         scene_files = []
         if 'valid_indices' in self.options:
             valid_indices = self.options['valid_indices']
-
-            # filter is already applied to the file paths
-            for angle in [18 , 54 , 90 , 126 , 162]:
-                scene_files += [compose_image_filename(angle , i) for i , valid in enumerate(valid_indices) if valid]
+            scene_files += [compose_image_filename(angle , i) for i , valid in enumerate(valid_indices) if valid]
         else:
-            for angle in [18 , 54 , 90 , 126 , 162]:
-                scene_angle_folder = join(scene_folder , '{}-{:03d}'.format(sequence , angle))
-                scene_files += [join(scene_angle_folder , f) for f in listdir(scene_angle_folder) if f.endswith('.jpg')]
+            scene_files += [join(scene_folder, '{}-{:03d}'.format(sequence , angle) , f) for f in listdir(scene_folder) if f.endswith('.jpg')]
             scene_files.sort()
 
         def read_image(im_file):
