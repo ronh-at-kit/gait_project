@@ -64,7 +64,7 @@ class FlowsCasia(Dataset):
             # 001_bg-01-018_frame_019_flow.png
 
             return join(flow_folder , '{}-{:03d}'.format(sequence , angle) , \
-                    '{:03d}_{}-{:03d}_frame_{:03d}_flow.png'.format(p_num , sequence , angle , i))
+                    '{:03d}-{}-{:03d}_frame_{:03d}_flow.png'.format(p_num , sequence , angle , i))
 
         scene_files = []
         if 'valid_indices' in self.options:
