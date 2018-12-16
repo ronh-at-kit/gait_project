@@ -1,14 +1,14 @@
 default = {
     'indexing':{
         #'grouping': 'person_sequence_angle',
-        'selection': 'auto'#,     #  => 'auto'= by final annotation or
+        'selection': 'manual_people',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        #'people_selection': [1,2],
-        #'sequences_selection': ['bg-01', 'cl-01']
+        'people_selection': [1],
+        'sequences_selection': ['bg-01', 'cl-01']
         },
     'pose': {
-        'load': True,
+        'load': False,
         'preprocess': False ,
         'D': 2 ,
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']

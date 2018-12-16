@@ -45,7 +45,7 @@ class CasiaDataset(Dataset):
             output['scenes'] = self.scenes[idx]
         if hasattr(self , 'flows'):
             self.flows.set_option('valid_indices' , in_frame_indices)
-            output['scenes'] = self.flows[idx]
+            output['flows'] = self.flows[idx]
 
         return output
 
