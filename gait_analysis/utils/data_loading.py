@@ -59,16 +59,16 @@ def load_sequence_annotation(annotation_file, sequence):
     df.frame_id = df.frame_id.astype(int)
     return df
 
-def load_subsequence_angle_annotation(annotation_file, subsequence, angle):
+def load_sequence_angle_annotation(annotation_file , sequence , angle):
     '''
-    Load the specified subsequence angle from the annotaion file
+    Load the specified sequence angle from the annotaion file
     Returns data as a pandas dataframe
     :param annotation_file:
-    :param subsequence:
-    :param angle:
+    :param sequence:
+    :param angle:F
     :return: df: sheet dataframe
     '''
-    sheet_name = subsequence + "-" + '{:03d}'.format(angle)
+    sheet_name = sequence + "-" + '{:03d}'.format(angle)
     data = pe.get_dict(file_name=annotation_file, sheets=[sheet_name])
     df = pd.DataFrame(data)
     df = df.replace('', np.nan).dropna()

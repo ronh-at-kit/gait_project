@@ -14,11 +14,11 @@ class TestCasiaDataset(unittest.TestCase):
         self.casia_options_dict = settings.tumgaid_default_args
 
     def test_len(self):
-        datasets = CasiaDataset(self.casia_options_dict)
+        datasets = CasiaDataset()
         self.assertEqual(415,len(datasets))
 
     def test_import(self):
-        datasets = CasiaDataset(self.casia_options_dict)
+        datasets = CasiaDataset()
         annotations = datasets[1]['annotations']
         self.assertEqual(62,len(annotations))
         # dataset_0 = dataset[0]
