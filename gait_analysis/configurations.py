@@ -27,5 +27,9 @@ default = {
         'load_tracked' : False,
         'sequences': ['bg','cl','nm'],
         'angles': [90]
+    },
+    'heatmaps':{
+        'load':False,
+        'preprocess': False
     }
 }

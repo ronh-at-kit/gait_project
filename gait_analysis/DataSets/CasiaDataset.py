@@ -4,6 +4,7 @@ from gait_analysis import PosesCasia as Poses
 from gait_analysis import ScenesCasia as Scenes
 from gait_analysis import FlowsCasia as Flows
 from gait_analysis import IndexingCasia as Indexing
+from gait_analysis import HeatMapsCasia as HeatMaps
 from gait_analysis.Config import Config
 
 class CasiaDataset(Dataset):
@@ -25,6 +26,8 @@ class CasiaDataset(Dataset):
             self.scenes = Scenes(self.dataset_items)
         if self.config['flow']['load']:
             self.flows = Flows(self.dataset_items)
+        if self.config['heatmaps']['load']:
+            self.heatmaps = HeatMaps(self.dataset_items)
 
     def __len__(self):
         return len(self.dataset_items)
@@ -39,13 +42,16 @@ class CasiaDataset(Dataset):
             self.poses.set_option('valid_indices',in_frame_indices)
             poses, valid_poses = self.poses[idx]
             output['poses'] = poses
-            output['valid_indices'] = valid_poses
+            in_frame_indices = valid_poses
         if hasattr(self,'scenes'):
             self.scenes.set_option('valid_indices' , in_frame_indices)
             output['scenes'] = self.scenes[idx]
         if hasattr(self , 'flows'):
             self.flows.set_option('valid_indices' , in_frame_indices)
             output['flows'] = self.flows[idx]
+        if hasattr(self, 'heatmaps'):
+            self.heatmaps.set_option('valid_indices', in_frame_indices)
+            output['heatmaps'] = self.heatmaps[idx]
 
         return output
 

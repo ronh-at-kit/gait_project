@@ -32,6 +32,7 @@ casia_flow_dir = join(casia_root,"preprocessing/flow")# ordered by people folder
 casia_crop_dir = join(casia_root,"preprocessing/crop")# ordered by people folders
 casia_images_dir = join(casia_root,"images",'CASIA','DatasetB')# ordered by people folders
 casia_annotations_dir = join(casia_root,"annotations/CASIA/DatasetB/final_annotations/")# ordered by people folders
+casia_heatmaps_dir = join(casia_root,"preprocessing/heatmaps/")# ordered by people folders
 # *********************************************************
 calculate_flow = True
 calculate_pose = True
