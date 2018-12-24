@@ -117,6 +117,11 @@ def extract_pose_imagedir(image_dir, pose_dir = None, headmaps_dir = None):
     '''
     Json format can be seen here
     https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md
+    example:
+    ./build/examples/openpose/openpose.bin --image_dir /home/ron/Dokumente/Datasets/Gait/CASIA/images/006/bg-01/bg-01-090/ \
+                --write_json ~/Dokumente/Datasets/Gait/CASIA/preprocessing/pose/006/bg-01/bg-01-090/  \
+                --render_pose 0 --display 0 --heatmaps_add_parts true \
+                --write_heatmaps ~/Dokumente/Datasets/Gait/CASIA/preprocessing/heatmaps/006/bg-01/bg-01-090/
     :param image_dir:
     :param output_dir:
     :return:
@@ -127,6 +132,7 @@ def extract_pose_imagedir(image_dir, pose_dir = None, headmaps_dir = None):
                 openpose_bin,
                 "--image_dir", "{}".format(image_dir),
                 "--write_json", "{}".format(pose_dir),
+                "--heatmaps_add_parts", "true",
                 "--write_headmap" , "{}".format(headmaps_dir) ,
                 "--display", "0",
                 "--render_pose", "0"
@@ -149,7 +155,8 @@ def extract_pose_imagedir(image_dir, pose_dir = None, headmaps_dir = None):
             "--display" , "0" ,
             "--render_pose" , "0"
         ]
-
+    else:
+        return None
     subprocess.call(args, cwd=settings.openpose_root)
 
 
