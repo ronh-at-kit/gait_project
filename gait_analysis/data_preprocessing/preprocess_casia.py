@@ -53,8 +53,9 @@ def write_of(filename, flow, method='tiff'):
     :param method:
     :return:
     '''
+    # test = np.min(flow[..., 0] ** 2 + flow[..., 1] ** 2)
+    norm = np.sqrt((flow[..., 0] ** 2) + (flow[..., 1] ** 2))  # calculate norm as the third parameter
 
-    norm = np.sqrt(flow[..., 0] ** 2 + flow[..., 1] ** 2) #calculate norm as the third parameter
 
     ''' 
     These are max and min values which have been found experimentally on a test dataset. The test dataset 
@@ -113,7 +114,7 @@ def calc_of(prevs, next):
                                       flags=0)
     return of
 
-def extract_pose_imagedir(image_dir, output_dir):
+def extract_pose_imagedir(image_dir, output_dir, heatmap_dir):
     '''
     Json format can be seen here
     https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md
@@ -127,7 +128,9 @@ def extract_pose_imagedir(image_dir, output_dir):
             "--image_dir", "{}".format(image_dir),
             "--write_json", "{}".format(output_dir),
             "--display", "0",
-            "--render_pose", "0"
+            "--render_pose", "0",
+            "--heatmaps_add_parts", "true",
+            "--write_heatmaps", "{}".format(heatmap_dir)
     ]
     subprocess.call(args, cwd=settings.openpose_root)
 
@@ -169,8 +172,11 @@ def visit_person_sequence_casia(person_folder):
         if CONFIG['pose']['preprocess']:
             #extract pody keypoints
             pose_output_dir = os.path.join(settings.casia_pose_dir, person, sequence, sequence_angle)
+            heatmap_output_dir = os.path.join(settings.casia_heatmap_dir, person, sequence, sequence_angle)
             makedirs(pose_output_dir)
-            extract_pose_imagedir(sequence_angle_folder, pose_output_dir)
+
+            makedirs(heatmap_output_dir)
+            extract_pose_imagedir(sequence_angle_folder, pose_output_dir, heatmap_output_dir)
 
 
 def preprocess_casia(only_example=False):
@@ -196,6 +202,8 @@ def preprocess_casia(only_example=False):
     # this is a debug mode.
     if only_example:
         person_sequence_folders = person_sequence_folders[0:10]
+        person_sequence_folders = person_sequence_folders[300:301]
+
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
         visit_person_sequence_casia(person_folder)

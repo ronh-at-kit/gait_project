@@ -24,6 +24,37 @@ keypoints_mapping_coco_18 = {
     #18: "Background" not used
 }
 
+keypoints_pose_body_25 = {
+
+     0:  "Nose",
+     1:  "Neck",
+     2:  "RShoulder",
+     3:  "RElbow",
+     4:  "RWrist",
+     5:  "LShoulder",
+     6:  "LElbow",
+     7:  "LWrist",
+     8:  "MidHip",
+     9:  "RHip",
+     10: "RKnee",
+     11: "RAnkle",
+     12: "LHip",
+     13: "LKnee",
+     14: "LAnkle",
+     15: "REye",
+     16: "LEye",
+     17: "REar",
+     18: "LEar",
+     19: "LBigToe",
+     20: "LSmallToe",
+     21: "LHeel",
+     22: "RBigToe",
+     23: "RSmallToe",
+     24: "RHeel",
+    # 25: "Background",
+ }
+
+
 def load_keypoints_from_file(fname):
     '''
     returns the plain keypoints file as a dictionary
@@ -36,9 +67,9 @@ def load_keypoints_from_file(fname):
 
 def filter_keypoints(pose_dict, include_list, return_list=False, return_confidence=True):
     assert type(include_list) is list, 'include_list hast to be a list'
-    output = {key: val for key, val in pose_dict.iteritems() if key in include_list}
+    output = {key: val for key, val in pose_dict.items() if key in include_list}
     if not return_confidence:
-        output = {key: val[:2] for key, val in output.iteritems()}
+        output = {key: val[:2] for key, val in output.items()}
     if return_list:
         return output.values()
     return  output
@@ -50,7 +81,7 @@ def keypoints_to_posedict(pose):
     :return:
     '''
     pose = np.array(pose).reshape(-1, 3)
-    pose_dict = {point: pose[i, :].squeeze() for i, point in keypoints_mapping_coco_18.iteritems()}
+    pose_dict = {point: pose[i, :].squeeze() for i, point in keypoints_pose_body_25.items()}
     return pose_dict
 
 def random_rgb():

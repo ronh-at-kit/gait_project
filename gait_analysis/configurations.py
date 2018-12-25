@@ -9,7 +9,7 @@ default = {
         },
     'pose': {
         'load': False,
-        'preprocess': False ,
+        'preprocess': True ,
         'D': 2 ,
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
         },

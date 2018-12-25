@@ -78,7 +78,7 @@ class PosesCasia(Dataset):
         people = [k['people'] for k in keypoints]
 
         # 3. filter out the incomplete pose detection.
-        poses = []
+        poses_general = []
         # there can be frames without poses, which affects the validity of those frames
         # here, we use the validity list from the annotations (nif_pos) and give it to _laod_pose
         # we return the updates list of valid frames and the pose_keypoints
@@ -86,7 +86,7 @@ class PosesCasia(Dataset):
         for i in range(len(people)):
             # TODO this is very dirty to use try block. You could use if people if to see if its empty
             try:
-               poses.append(people[i][0]['pose_keypoints_2d'])
+               poses_general.append(people[i][0]['pose_keypoints_2d'])
             except:
                indices_with_no_poses.append(i)
 
@@ -97,15 +97,29 @@ class PosesCasia(Dataset):
             valid_indices[idx_valid_frames[indices_with_no_poses]] = False
 
         #poses = map(lambda x:  x[0]['pose_keypoints_2d'], people)
+        #test = op_utils.keypoints_to_posedict(poses_general[0])
 
-        pose_dicts = map(op_utils.keypoints_to_posedict , poses)
+        pose_dicts = list(map(op_utils.keypoints_to_posedict , poses_general))
 
         include_list = pose_options['body_keypoints_include_list']
         func = partial(op_utils.filter_keypoints , **{'include_list' : include_list,
                                                 'return_list' : True,
                                                 'return_confidence' : False
                                                       })
-        poses = map(func, pose_dicts)
+
+        pose_list = list(map(func, pose_dicts))
+
+        #create numpy array from list of dict_values
+
+        poses = [np.array(list(pose_list[i])) for i in range(len(pose_list))]
+        poses = np.array(poses)
+        poses = np.transpose(poses, (1, 2, 0))
+
+        #print(poses[:,:,0])
+        #print(poses[:, :, 1])
+        #print(poses[:, :, 2])
+        #print('updated version with correct mapping')
+
         return poses, valid_indices
 
 
