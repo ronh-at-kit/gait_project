@@ -7,6 +7,9 @@ from gait_analysis.DataSets.PosesTum import PosesTum
 from gait_analysis.DataSets.PosesCasia import PosesCasia
 from gait_analysis.DataSets.IndexingCasia import IndexingCasia
 from gait_analysis.DataSets.HeatMapsCasia import HeatMapsCasia
+from gait_analysis.Transformers.Composer import Composer
+from gait_analysis.Transformers.Rescale import Rescale
+from gait_analysis.Transformers.ToTensor import ToTensor
 
 from gait_analysis.DataSets.TumGAID_Dataset import TumGAID_Dataset
 from gait_analysis.DataSets.CasiaDataset import CasiaDataset

@@ -31,5 +31,9 @@ default = {
     'heatmaps':{
         'load':False,
         'preprocess': True
+    },
+    'dataloaders':{
+        'Rescale': {'output_size' : 256, 'target': 'heatmaps'},
+        'ToTensor': {}
     }
 }
