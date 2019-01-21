@@ -31,6 +31,7 @@ class Rescale(object):
 
         # h and w are swapped for landmarks because for images,
         # x and y axes are axis 1 and 0 respectively
+        # TODO: use target to change and compose output
         landmarks = landmarks * [new_w / w, new_h / h]
 
         return {'image': img, 'landmarks': landmarks}
