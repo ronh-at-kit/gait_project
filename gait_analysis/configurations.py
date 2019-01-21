@@ -1,10 +1,10 @@
 default = {
     'indexing':{
         #'grouping': 'person_sequence_angle',
-        'selection': 'manual_people',     #  => 'auto'= by final annotation or
+        'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1],
+        'people_selection': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         'sequences_selection': ['bg-01', 'cl-01']
         },
     'pose': {

@@ -53,8 +53,9 @@ def write_of(filename, flow, method='tiff'):
     :param method:
     :return:
     '''
+    # test = np.min(flow[..., 0] ** 2 + flow[..., 1] ** 2)
+    norm = np.sqrt((flow[..., 0] ** 2) + (flow[..., 1] ** 2))  # calculate norm as the third parameter
 
-    norm = np.sqrt(flow[..., 0] ** 2 + flow[..., 1] ** 2) #calculate norm as the third parameter
 
     ''' 
     These are max and min values which have been found experimentally on a test dataset. The test dataset 
@@ -113,7 +114,7 @@ def calc_of(prevs, next):
                                       flags=0)
     return of
 
-def extract_pose_imagedir(image_dir, pose_dir = None, heatmaps_dir = None):
+def extract_pose_imagedir(image_dir, output_dir):
     '''
     Json format can be seen here
     https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md
@@ -235,7 +236,7 @@ def preprocess_casia(only_example=False):
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:
-        person_sequence_folders = person_sequence_folders[10:100]
+        person_sequence_folders = person_sequence_folders[0:10]
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
         visit_person_sequence_casia(person_folder)
