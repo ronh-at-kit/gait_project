@@ -11,7 +11,7 @@ import gait_analysis.settings as settings
 class HeatMapsCasia(Dataset):
     def __init__(self, dataset_items, transform=None):
         self.data_items = dataset_items
-        self.heatmap_dir = settings.casia_heatmaps_dir
+        self.heatmap_dir = settings.casia_heatmap_dir
         self.config = Config()
         self.options = {}
 

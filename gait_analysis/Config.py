@@ -40,9 +40,9 @@ class Config(object):
 
 if __name__ == '__main__':
     c = Config()
-    print(c.config)
-    c.config['pose']['load'] = False
-    c2 = Config()
-    c3 = Config()
-    print(c3.config)
+    # print(c.config)
+    # c.config['pose']['load'] = False
+    # c2 = Config()
+    # c3 = Config()
+    # print(c3.config)
 

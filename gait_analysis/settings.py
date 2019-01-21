@@ -2,7 +2,8 @@ from os.path import join
 from gait_analysis.utils.files import correct_path
 # DEFINE YOUR CONFIGURATION HERE
 openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
-casia_root = "/home/ron/Dokumente/Datasets/Gait/CASIA"
+# casia_root = "/home/ron/Dokumente/Datasets/Gait/CASIA"
+casia_root = "~/gait_project/CASIAData"
 tum_root = "~/gait_project/TUMData"
 configuration = "default"
 
@@ -28,14 +29,14 @@ tumgaid_annotations_root = join(tum_root,"annotations/TUM") # ordered by people 
 # *********************************************************
 # CASIA FOLDERS
 casia_pose_dir = join(casia_root,"preprocessing/pose/") # ordered by people folders
-casia_flow_dir = join(casia_root,"preprocessing/flow")# ordered by people folders
+casia_heatmap_dir = join(casia_root,"preprocessing/heatmaps/") # ordered by people folders
+casia_flow_dir = join(casia_root,"preprocessing/flow/")  # ordered by people folders
 casia_crop_dir = join(casia_root,"preprocessing/crop")# ordered by people folders
 casia_images_dir = join(casia_root,"images")# ordered by people folders
-casia_annotations_dir = join(casia_root,"annotations/CASIA/DatasetB/final_annotations/")# ordered by people folders
-casia_heatmaps_dir = join(casia_root,"preprocessing/heatmaps/")# ordered by people folders
+casia_annotations_dir = join(casia_root,"annotations")# ordered by people folders
 # *********************************************************
-calculate_flow = True
-calculate_pose = True
+# calculate_flow = True
+# calculate_pose = True
 tumgaid_exclude_list = ['back', 'back2']
 casia_include_list = ['018', '054','090','126','162']
 

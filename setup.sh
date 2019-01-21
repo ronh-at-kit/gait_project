@@ -44,8 +44,9 @@ pip install opencv-python==3.4.0.12 tqdm ezodf
 conda install matplotlib numpy pandas xlrd
 conda install -c conda-forge pyexcel tifffile
 conda install -c soumith pytorch
-conda install -c conda-forge pyexcel-ods3
-pip install pyexcel-ods
+conda install -c conda-forge pyexcel pyexcel-ods3 pyexcel-io
+conda install -c conda-forge ezodf
+
 pip install notebook
 pip install
 
