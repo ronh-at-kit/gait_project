@@ -11,6 +11,9 @@ default = {
         'load': False,
         'preprocess': True ,
         'D': 2 ,
+        # the complete list is:
+        #'body_keypoints_include_list': ['LAnkle' , 'RAnkle' , 'LKnee' , 'RKnee' , 'RHip' , 'LHip' , 'RBigToe' ,
+        #                                'LBigToe' , 'RSmallToe' , 'LSmallToe' , 'RHeel' , 'LHeel']
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
         },
     'flow': {
@@ -23,6 +26,7 @@ default = {
     'scenes':{
         'load':True,
         'preprocess': False,
+        'crops' : False,
         'gray_scale' : False,
         'load_tracked' : False,
         'sequences': ['bg','cl','nm'],
@@ -30,10 +34,18 @@ default = {
     },
     'heatmaps':{
         'load':False,
-        'preprocess': True
+        'preprocess': True,
+        'body_keypoints_include_list' : ['LAnkle','RAnkle']
     },
-    'dataloaders':{
-        'Rescale': {'output_size' : 256, 'target': 'heatmaps'},
-        'ToTensor': {}
+    # 'dataset_output' : {
+    #     'data': ["scenes","flow"],
+    #     'label': "annotations"
+    # },
+    'transformers':{
+        # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
+        'SpanImagesList': {'remove':True, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
+        'Rescale': {'output_size' : 256, 'target': ["heatmaps_LAnkle","heatmaps_RAnkle"]},
+        'AnnotationToLabel': {'target': ["annotations"]},
+        'ToTensor': {'target':["heatmaps_LAnkle","heatmaps_RAnkle","scenes","flows","annotations"]}
     }
 }

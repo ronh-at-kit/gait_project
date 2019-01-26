@@ -16,9 +16,13 @@ class ScenesCasia(Dataset):
     '''
 
     def __init__(self, dataset_items, transform=None):
-        self.images_dir = format_data_path(settings.casia_images_dir)
-        self.dataset_items = dataset_items
+
         self.config = Config()
+        if self.config.config['scenes']['crops']:
+            self.images_dir = format_data_path(settings.casia_crops_dir)
+        else:
+            self.images_dir = format_data_path(settings.casia_images_dir)
+        self.dataset_items = dataset_items
         self.options = {}
 
 

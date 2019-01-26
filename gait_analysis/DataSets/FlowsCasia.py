@@ -69,6 +69,7 @@ class FlowsCasia(Dataset):
         scene_files = []
         if 'valid_indices' in self.options:
             valid_indices = self.options['valid_indices']
+            valid_indices = valid_indices[:-1]
             scene_files += [compose_flow_filename(angle , i) for i , valid in enumerate(valid_indices) if valid]
         else:
             scene_files += [join(flow_folder, '{}-{:03d}'.format(sequence , angle) , f) for f in listdir(flow_folder) if f.endswith('.png')]

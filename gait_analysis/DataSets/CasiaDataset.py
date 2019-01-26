@@ -9,7 +9,7 @@ from gait_analysis.Config import Config
 
 class CasiaDataset(Dataset):
     # TODO: options_dict comes from a config reader.
-    def __init__(self):
+    def __init__(self, transform=None):
 
         # TODO: use include scenes to filter out sequences.
         # list(product(person_numbers, options_dict['include_scenes']))
@@ -28,6 +28,8 @@ class CasiaDataset(Dataset):
             self.flows = Flows(self.dataset_items)
         if self.config['heatmaps']['load']:
             self.heatmaps = HeatMaps(self.dataset_items)
+        self.transform = transform
+
 
     def __len__(self):
         return len(self.dataset_items)
@@ -52,8 +54,15 @@ class CasiaDataset(Dataset):
         if hasattr(self, 'heatmaps'):
             self.heatmaps.set_option('valid_indices', in_frame_indices)
             output['heatmaps'] = self.heatmaps[idx]
-
-        return output
+        if self.transform:
+            output = self.transform(output)
+        if 'dataset_output' in self.config:
+            dataset_output = {}
+            for k in self.config['dataset_output']['data']:
+                dataset_output[k] = output[k]
+            return dataset_output, output[self.config['dataset_output']['label']]
+        else:
+            return output
 
 
 

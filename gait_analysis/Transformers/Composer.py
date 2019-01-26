@@ -10,7 +10,7 @@ class Composer():
         Creates a transformes using the configuration.py
         :return:
         '''
-        dataloader_configs = self.config.config['dataloaders']
+        dataloader_configs = self.config.config['transformers']
         transformers = []
         for k in dataloader_configs.keys():
             parameters = dataloader_configs.get(k)
