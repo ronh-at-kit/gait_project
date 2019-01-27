@@ -38,7 +38,7 @@ default = {
         'body_keypoints_include_list' : ['LAnkle','RAnkle']
     },
     # 'dataset_output' : {
-    #     'data': ["scenes","flow"],
+    #     'data': ["scenes","flows","heatmaps"],
     #     'label': "annotations"
     # },
     'transformers':{

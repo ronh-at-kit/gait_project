@@ -56,6 +56,7 @@ class CasiaDataset(Dataset):
             output['heatmaps'] = self.heatmaps[idx]
         if self.transform:
             output = self.transform(output)
+
         if 'dataset_output' in self.config:
             dataset_output = {}
             for k in self.config['dataset_output']['data']:
