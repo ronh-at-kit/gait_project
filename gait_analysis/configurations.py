@@ -44,8 +44,9 @@ default = {
     'transformers':{
         # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
         'SpanImagesList': {'remove':True, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
-        'Rescale': {'output_size' : 256, 'target': ["heatmaps_LAnkle","heatmaps_RAnkle"]},
+        'Rescale': {'output_size' : (640,480), 'target': ["heatmaps_LAnkle","heatmaps_RAnkle"]},
         'AnnotationToLabel': {'target': ["annotations"]},
+        'Transpose' : {'swapping': (2, 0, 1) , 'target': ["scenes","flows"]},
         'ToTensor': {'target':["heatmaps_LAnkle","heatmaps_RAnkle","scenes","flows","annotations"]}
     }
 }
