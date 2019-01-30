@@ -13,7 +13,6 @@ class Transpose(object):
             value = sample[t]
             if isinstance(value,list):
                 v1 = value[0]
-                print(v1.shape)
                 sample[t] = [ v.transpose(self.swapping) for v in value]
             else:
                 sample[t] = value.transpose(self.swapping)
