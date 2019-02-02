@@ -12,6 +12,8 @@ from gait_analysis.DataSets.HeatMapsCasia import HeatMapsCasia
 # TRANSFORMERS
 from gait_analysis.Transformers.Composer import Composer
 from gait_analysis.Transformers.Rescale import Rescale
+from gait_analysis.Transformers.DimensionResize import DimensionResize
+
 from gait_analysis.Transformers.ToTensor import ToTensor
 from gait_analysis.Transformers.SpanImagesList import SpanImagesList
 from gait_analysis.Transformers.Transpose import Transpose
