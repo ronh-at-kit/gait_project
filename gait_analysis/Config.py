@@ -12,14 +12,12 @@ class Config(object):
     def __init__(self ):
         configuration = settings.configuration
         print('loading configuration ', configuration)
-        if configuration == 'default': # more configuration schemes could come later
+        self.config = getattr(configurations , configuration , None)
+        if not self.config: # more configuration schemes could come later
+            print('configuration selected in \'settings.py\' does not exist. Loading default')
             self.config = configurations.default
-        # TODO: create a tum_gait Config when refactor
-        # else if configuration == 'tum'
-        #     self.config = configurations.tum
         else:
-            # if not specified select default
-            self.config = configurations.default
+            print('[OK]')
     def get_indexing_selection(self):
         if not 'indexing' in self.config:
             selection = 'auto'
