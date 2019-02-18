@@ -154,7 +154,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
         test_loader = train_loader
 
     n_batches = len(train_loader)
-
+    print('number of batches in the train loader: ',n_batches)
     # Time for printing
     training_start_time = time.time()
     learning_rate = c.config['network']['learning_rate']
@@ -195,16 +195,15 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
                 # Reset running loss and time
                 running_loss = 0.0
                 start_time = time.time()
-
+        print('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
         if (epoch+1)%10 == 0:
             # Reducing learning rate by 50% each 10 epochs
             learning_rate = 0.5*learning_rate
             print("new learning rate = {}, old learning rate = {}".format(learning_rate,2*learning_rate))
             # test after each 10 epoch on the training set
             test(model,test_loader,device)
-        print('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
 
-    print('...Training finished. Total time of training: {} [hours]'.format((time.time()-training_start_time))/3600)
+    print('...Training finished. Total time of training: {} [hours]'.format((time.time()-training_start_time)/3600))
     return model
 
 def main():

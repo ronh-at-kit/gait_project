@@ -157,7 +157,7 @@ one_angle = {
     'transformers':{
         'AnnotationToLabel': {'target': ["annotations"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["scenes"]},
-        'DimensionResize' : {'dimension': 10, 'target': ["scenes","annotations"]},
+        'DimensionResize' : {'dimension': 40, 'target': ["scenes","annotations"]},
         'ToTensor': {'target':["scenes","annotations"]}
     },
     'network': {
@@ -175,7 +175,7 @@ one_angle = {
         'LSTM_IO_SIZE': 18 * 13 ,
         'LSTM_HIDDEN_SIZE': 18 * 13 ,
         'RGB_CHANNELS': 3 ,
-        'TIMESTEPS': 10 ,  # size videos
+        'TIMESTEPS': 40 ,  # size videos
         'BATCH_SIZE': 5  # until now just batch_size = 1
     } ,
 }
