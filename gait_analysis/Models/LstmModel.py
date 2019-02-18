@@ -13,7 +13,7 @@ import os
 import os.path as path
 import copy
 from torch.utils.data.sampler import SubsetRandomSampler
-
+import matplotlib.pyplot as plt
 
 from gait_analysis import AnnotationsCasia as Annotations
 from gait_analysis import CasiaDataset
@@ -149,6 +149,7 @@ def test(model,dataloader,device='cpu'):
     print('Accuracy {:.2f}%'.format(100 * correct / total))
     print('...testing finished')
 
+
 def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu'):
     if not test_loader:
         test_loader = train_loader
@@ -159,8 +160,9 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
     training_start_time = time.time()
 
     print('Start training...')
+    train_loss_hist = np.zeros(c.config['network']['epochs'])
     for epoch in range(c.config['network']['epochs']):
-        print("Epoch: {}".format(epoch))
+        print("Epoch: {}/{}".format(epoch,c.config['network']['epochs']))
         print_every = n_batches // 10
         if print_every == 0:
             print_every = 1
@@ -197,9 +199,14 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
                 start_time = time.time()
         # test after each epoch
         test(model,test_loader,device)
+        train_loss_hist[epoch] = total_train_loss
         print('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
 
     print('...Training finished. Total time of training: {} [hours]'.format((time.time()-training_start_time))/3600)
+    plt.plot(train_loss_hist)
+    plt.title('train loss history')
+    plt.xlabel('epoch number')
+    plt.ylabel('train loss for all epoch')
     return model
 
 def main():
@@ -220,11 +227,14 @@ def main():
 
     # instantiates dataset
     dataset = get_dataset()
+    print('dataset lenght: ', len(dataset))
+    print('dataset elements: ',dataset.dataset_items)
 
     # creates dataloders
     train_dataloader, test_dataloader = get_dataloaders(dataset)
 
     # training
+    print('configuration: {}'.format(c.config))
     model = train(model,optimizer,criterion,train_dataloader,device=device)
 
     # testing

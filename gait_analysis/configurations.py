@@ -166,7 +166,7 @@ one_angle = {
         'momentum': 0.9 ,
         'randomized_seed': 10 ,
         'shuffle_dataset': False ,
-        'epochs': 100 ,
+        'epochs': 20 ,
         'NR_LSTM_UNITS': 2 ,
         'IMAGE_INPUT_SIZE_W': 640 ,
         'IMAGE_INPUT_SIZE_H': 480 ,
