@@ -111,14 +111,14 @@ only_scenes = {
 }
 
 
-trial2 = {
+one_angle = {
     'indexing':{
-        #'grouping': 'person_sequence_angle',
+        'grouping': 'person_sequence',
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        'sequences_selection': ['bg-01', 'cl-01']
+        'people_selection': [1, 2, 3, 5, 6, 7, 8, 9, 10],
+        'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02']
         },
     'pose': {
         'load': False,
@@ -162,7 +162,7 @@ trial2 = {
         # 'Transpose': {'swapping': (2, 0, 1), 'target': ["scenes", "flows"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["scenes"]},
         #'DimensionResize' : {'dimension': 10, 'target': ["heatmaps_LAnkle","heatmaps_RAnkle","scenes","flows","annotations"]},
-        'DimensionResize' : {'dimension': 10, 'target': ["scenes","annotations"]},
+        'DimensionResize' : {'dimension': 40, 'target': ["scenes","annotations"]},
         'ToTensor': {'target':["scenes","annotations"]}
     }
 }

@@ -22,5 +22,5 @@ class AnnotationToLabel(object):
         # Capture the codes from the categories
         annotations['codes'] = annotations.combined.cat.codes
         # update the annotations in the sample as numeric categories
-        values = annotations.codes.values.astype(np.float)
+        values = annotations.codes.values.astype(np.long)
         return values
