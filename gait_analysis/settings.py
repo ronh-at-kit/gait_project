@@ -5,7 +5,7 @@ openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
 # casia_root = "/home/ron/Dokumente/Datasets/Gait/CASIA"
 casia_root = "~/gait_project/CASIAData"
 tum_root = "~/gait_project/TUMData"
-configuration = "default"
+configuration = "one_angle"
 
 # ==========================================================
 # ==========================================================

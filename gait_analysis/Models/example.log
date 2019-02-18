@@ -1,0 +1,134 @@
+INFO:root:Device in usage: cpu
+INFO:root:Start training...
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:import pyexcel.plugins.sources.file_input.ReadExcelFromFile
+DEBUG:pyexcel.internal.plugins.IOPluginManager:import pyexcel.plugins.parsers.excel.ExcelParser
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:import pyexcel_ods3.odsr.ODSBook
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+INFO:root:Epoch 1, 22% 	 train_loss(mean): 2.36 took: 19.42s
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+INFO:root:Epoch 1, 44% 	 train_loss(mean): 2.18 took: 22.88s
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+INFO:root:Epoch 1, 66% 	 train_loss(mean): 2.18 took: 26.83s
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+INFO:root:Device in usage: cpu
+INFO:root:Start training...
+INFO:root:Epoch: 0
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:import pyexcel.plugins.sources.file_input.ReadExcelFromFile
+DEBUG:pyexcel.internal.plugins.IOPluginManager:import pyexcel.plugins.parsers.excel.ExcelParser
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:import pyexcel_ods3.odsr.ODSBook
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
+DEBUG:pyexcel.internal.source_plugin.SourcePluginManager:load me now:sheet-read
+DEBUG:pyexcel.internal.plugins.IOPluginManager:load <class 'pyexcel.plugins.parsers.excel.ExcelParser'> now for 'ods'
+DEBUG:pyexcel_io.plugins.IOManager:load <class 'pyexcel_ods3.odsr.ODSBook'> now for 'ods'
