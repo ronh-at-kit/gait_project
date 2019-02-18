@@ -158,11 +158,11 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
 
     # Time for printing
     training_start_time = time.time()
-
+    learning_rate = c.config['network']['learning_rate']
     print('Start training...')
     train_loss_hist = np.zeros(c.config['network']['epochs'])
     for epoch in range(c.config['network']['epochs']):
-        print("Epoch: {}/{}".format(epoch,c.config['network']['epochs']))
+        print("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
         print_every = n_batches // 10
         if print_every == 0:
             print_every = 1
@@ -197,8 +197,14 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
                 # Reset running loss and time
                 running_loss = 0.0
                 start_time = time.time()
-        # test after each epoch
-        test(model,test_loader,device)
+
+        if (epoch+1)%10 == 0:
+            # Reducing learning rate by 50% each 10 epochs
+            learning_rate = 0.5*learning_rate
+            print("new learning rate = {}, old learning rate = {}".format(learning_rate,2*learning_rate))
+            # test after each 10 epoch on the training set
+            test(model,test_loader,device)
+        # storing info to plot
         train_loss_hist[epoch] = total_train_loss
         print('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
 
@@ -239,7 +245,7 @@ def main():
 
     # testing
 
-    test(model,test_dataloader,device)
+    test(model,test_dataloader,device=device)
 
 if __name__== '__main__':
     main()
