@@ -15,7 +15,7 @@ class CasiaDataset(Dataset):
         # list(product(person_numbers, options_dict['include_scenes']))
         # self.person_numbers = [item[1] for item in dataset_items]
 
-        itemizer = Indexing();
+        itemizer = Indexing()
         self.dataset_items = itemizer.get_items()
         config = Config()
         self.config = config.config
