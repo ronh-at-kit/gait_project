@@ -56,7 +56,7 @@ default = {
 
 scenes = {
     'indexing':{
-        #'grouping': 'person_sequence_angle',
+        'grouping': 'person_sequence_angle',
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
@@ -94,10 +94,10 @@ scenes = {
         'preprocess': True,
         'body_keypoints_include_list' : ['LAnkle','RAnkle']
     },
-    # 'dataset_output' : {
-    #     'data': ["scenes","flows","heatmaps"],
-    #     'label': "annotations"
-    # },
+    'dataset_output' : {
+        'data': ["scenes"],
+        'label': "annotations"
+    },
     'transformers':{
         # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
         # 'SpanImagesList': {'remove':True, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
@@ -108,6 +108,24 @@ scenes = {
         #'DimensionResize' : {'dimension': 10, 'target': ["heatmaps_LAnkle","heatmaps_RAnkle","scenes","flows","annotations"]},
         'DimensionResize' : {'dimension': 10, 'target': ["scenes","annotations"]},
         'ToTensor': {'target':["scenes","annotations"]}
+    },
+    'network': {
+        'learning_rate': 0.01 ,
+        'validation_split': 0.2,
+        'momentum': 0.9 ,
+        'randomized_seed': 10,
+        'shuffle_dataset': False,
+        'epochs': 100 ,
+        'NR_LSTM_UNITS': 2 ,
+        'IMAGE_INPUT_SIZE_W': 640 ,
+        'IMAGE_INPUT_SIZE_H': 480 ,
+        'IMAGE_AFTER_CONV_SIZE_W': 18 ,
+        'IMAGE_AFTER_CONV_SIZE_H': 13 ,
+        'LSTM_IO_SIZE': 18 * 13 ,
+        'LSTM_HIDDEN_SIZE': 18 * 13 ,
+        'RGB_CHANNELS': 3 ,
+        'TIMESTEPS': 10,  # size videos
+        'BATCH_SIZE': 1  # until now just batch_size = 1
     }
 }
 
@@ -178,7 +196,7 @@ one_angle = {
         'RGB_CHANNELS': 3 ,
         'TIMESTEPS': 40 ,  # size videos
         'BATCH_SIZE': 5  # until now just batch_size = 1
-    } ,
+    },
 }
 
 flows = {
