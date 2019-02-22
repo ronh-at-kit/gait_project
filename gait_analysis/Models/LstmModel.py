@@ -171,17 +171,27 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
         running_loss = 0.0
         for i , batch in enumerate(train_loader):
             inputs , labels = batch
-            scenes = [s.to(device) for s in inputs['scenes']]
-            labels = labels.unsqueeze(-1).to(device)
             if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
                 # skip uncompleted batch size NN is fixed to BATCH_SIZE
                 continue
+            scenes = [s.to(device) for s in inputs['scenes']]
+            labels = labels.to(device)
             optimizer.zero_grad()
             outputs = model(scenes)
-            outputs = outputs.unsqueeze(-1)
-            #         print("Out:", len(outputs), outputs.size())
-            #         print("Labels:", len(labels), labels.size())
-            loss = criterion(outputs , labels.long())
+            # print("====> Raw Out:", len(outputs), outputs.size())
+            # print("====> Raw Labels:", len(labels), labels.size())
+            #
+            # outputs = outputs.unsqueeze(-1)
+            # outputs = outputs.permute(0, 2, 1, 3).squeeze(3).squeeze(0)
+            # labels = labels.unsqueeze(-1)
+            # labels = labels.squeeze(2).squeeze(0)
+
+            # outputs = outputs.view(c.config['network']['BATCH_SIZE'], 3, 1, -1)
+            # labels = labels.view(c.config['network']['BATCH_SIZE'],1,-1).to(device)
+
+            # print("====> Out:", len(outputs), outputs.size())
+            # print("====> Labels:", len(labels), labels.size())
+            loss = criterion(outputs , labels)
             loss.backward()
             optimizer.step()
 
@@ -198,20 +208,24 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
                 running_loss = 0.0
                 start_time = time.time()
         print('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
-        if (epoch+1)%10 == 0:
+        if (epoch+1)%200 == 0:
             # Reducing learning rate by 50% each 10 epochs
             learning_rate = 0.5*learning_rate
             print("new learning rate = {}, old learning rate = {}".format(learning_rate,2*learning_rate))
             # test after each 10 epoch on the training set
-            test(model,test_loader,device)
+            test(model,train_loader,device)
         # storing info to plot
         train_loss_hist[epoch] = total_train_loss
 
-    print('...Training finished. Total time of training: {} [hours]'.format((time.time()-training_start_time)/3600))
+    print('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
     plt.plot(train_loss_hist)
     plt.title('train loss history')
     plt.xlabel('epoch number')
     plt.ylabel('train loss for all epoch')
+    plt.show()
+    print('Training in the testing set:...')
+    test(model, test_loader, device)
+
     return model
 
 def main():
