@@ -163,6 +163,9 @@ def test(model,dataloader,device='cpu'):
             # print('predicted',predicted)
             correct += predicted.numel() - n_errors
             # print('labels',labels)
+    if total==0:
+        logger.info('Warning: no enough data to perform the test')
+        return
     logger.info('Accuracy {:.2f}%'.format(100 * correct / total))
     logger.info('...testing finished')
 
