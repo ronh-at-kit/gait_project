@@ -252,6 +252,10 @@ def plot_train_loss_hist(train_loss_hist):
     plt.xlabel('epoch number')
     plt.ylabel('train loss for all epoch')
     plt.draw()
+    filename = "{0}/{1}-{2}".format(log_folder , str(datetime.datetime.now()).replace(' ' , '_') ,
+                             c.config['logger']['plot_file'])
+    logger.info('saving figure in: {}'.format(filename))
+    plt.savefig(filename)
 
 
 def main():
