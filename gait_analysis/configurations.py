@@ -110,22 +110,27 @@ scenes = {
         'ToTensor': {'target':["scenes","annotations"]}
     },
     'network': {
-        'learning_rate': 0.01 ,
+        'learning_rate': 0.01,
         'validation_split': 0.2,
-        'momentum': 0.9 ,
+        'momentum': 0.9,
         'randomized_seed': 10,
         'shuffle_dataset': False,
-        'epochs': 100 ,
+        'epochs': 10,
         'NR_LSTM_UNITS': 2 ,
         'IMAGE_INPUT_SIZE_W': 640 ,
         'IMAGE_INPUT_SIZE_H': 480 ,
         'IMAGE_AFTER_CONV_SIZE_W': 18 ,
         'IMAGE_AFTER_CONV_SIZE_H': 13 ,
-        'LSTM_IO_SIZE': 18 * 13 ,
-        'LSTM_HIDDEN_SIZE': 18 * 13 ,
-        'RGB_CHANNELS': 3 ,
+        'LSTM_IO_SIZE': 18 * 13,
+        'LSTM_HIDDEN_SIZE': 18 * 13,
+        'RGB_CHANNELS': 3,
         'TIMESTEPS': 10,  # size videos
         'BATCH_SIZE': 1  # until now just batch_size = 1
+    },
+    'logger':{
+        'log_file': 'one_angle_test_1.log',
+        'log_folder': '~/gait_project/logs',
+        'plot_file': 'one_angle_test_1.png'
     }
 }
 
@@ -197,6 +202,11 @@ one_angle = {
         'TIMESTEPS': 40 ,  # size videos
         'BATCH_SIZE': 5  # until now just batch_size = 1
     },
+    'logger':{
+        'log_file': 'one_angle_test_1.log',
+        'log_folder': '~/gait_project/logs',
+        'plot_file': 'one_angle_test_1.png'
+    }
 }
 
 flows = {

@@ -13,16 +13,33 @@ import os
 import os.path as path
 import copy
 from torch.utils.data.sampler import SubsetRandomSampler
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+
+import datetime
 
 from gait_analysis import AnnotationsCasia as Annotations
 from gait_analysis import CasiaDataset
 from gait_analysis.Config import Config
 from gait_analysis import Composer
-
+from gait_analysis.utils import files
 # GLOBAL VARIABLES
-logging.basicConfig(filename='example.log',level=logging.DEBUG)
 c = Config()
+log_folder = files.format_data_path(c.config['logger']['log_folder'])
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s-[%(threadName)-12.12s]-[%(levelname)-5.5s]  %(message)s",
+    handlers=[
+        logging.FileHandler("{0}/{1}-{2}".format(
+            log_folder,
+            str(datetime.datetime.now()).replace(' ','_'),
+            c.config['logger']['log_file'])),
+        logging.StreamHandler()
+    ])
+logger = logging.getLogger()
+
 
 class CNNLSTM(nn.Module):
     def __init__(self):
@@ -125,7 +142,7 @@ def get_dataset():
 
 def test(model,dataloader,device='cpu'):
 
-    print('Start testing...')
+    logger.info('Start testing...')
     correct = 0
     total = 0
     with torch.no_grad():
@@ -146,8 +163,8 @@ def test(model,dataloader,device='cpu'):
             # print('predicted',predicted)
             correct += predicted.numel() - n_errors
             # print('labels',labels)
-    print('Accuracy {:.2f}%'.format(100 * correct / total))
-    print('...testing finished')
+    logger.info('Accuracy {:.2f}%'.format(100 * correct / total))
+    logger.info('...testing finished')
 
 
 def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu'):
@@ -155,14 +172,14 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
         test_loader = train_loader
 
     n_batches = len(train_loader)
-    print('number of batches in the train loader: ',n_batches)
+    logger.info('number of batches in the train loader: {}'.format(n_batches))
     # Time for printing
     training_start_time = time.time()
     learning_rate = c.config['network']['learning_rate']
-    print('Start training...')
+    logger.info('Start training...')
     train_loss_hist = np.zeros(c.config['network']['epochs'])
     for epoch in range(c.config['network']['epochs']):
-        print("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
+        logger.info("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
         print_every = n_batches // 10
         if print_every == 0:
             print_every = 1
@@ -202,37 +219,43 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
 
             # Print every 10th batch of an epoch
             if (i + 1) % (print_every + 1) == 0:
-                print("Epoch {}, {:d}% \t train_loss(mean): {:.2f} took: {:.2f}s".format(
+                logger.info("Epoch {}, {:d}% \t train_loss(mean): {:.2f} took: {:.2f}s".format(
                     epoch + 1 , int(100 * (i + 1) / n_batches) , running_loss / print_every , time.time() - start_time))
                 # Reset running loss and time
                 running_loss = 0.0
                 start_time = time.time()
-        print('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
+        logger.info('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
         if (epoch+1)%200 == 0:
             # Reducing learning rate by 50% each 10 epochs
             learning_rate = 0.5*learning_rate
-            print("new learning rate = {}, old learning rate = {}".format(learning_rate,2*learning_rate))
+            logger.info("new learning rate = {}, old learning rate = {}".format(learning_rate,2*learning_rate))
             # test after each 10 epoch on the training set
             test(model,train_loader,device)
         # storing info to plot
         train_loss_hist[epoch] = total_train_loss
 
-    print('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
-    plt.plot(train_loss_hist)
+    logger.info('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
+    plot_train_loss_hist(train_loss_hist)
+    logger.info('Training in the testing set:...')
+    test(model, test_loader, device)
+    plt.show()
+    return model
+
+
+def plot_train_loss_hist(train_loss_hist):
+    plt.clf()
+    plt.plot(train_loss_hist[train_loss_hist!=0])
     plt.title('train loss history')
     plt.xlabel('epoch number')
     plt.ylabel('train loss for all epoch')
-    plt.show()
-    print('Training in the testing set:...')
-    test(model, test_loader, device)
+    plt.draw()
 
-    return model
 
 def main():
     # TRAINING
     # Defines the device (cuda:0) is available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("Device in usage: {}".format(device))
+    logger.info("Device in usage: {}".format(device))
 
     # creates the network
     model = CNNLSTM()
@@ -246,14 +269,14 @@ def main():
 
     # instantiates dataset
     dataset = get_dataset()
-    print('dataset lenght: ', len(dataset))
-    print('dataset elements: ',dataset.dataset_items)
+    logger.info('dataset lenght: {}'.format(len(dataset)))
+    logger.info('dataset elements: {}'.format(dataset.dataset_items))
 
     # creates dataloders
     train_dataloader, test_dataloader = get_dataloaders(dataset)
 
     # training
-    print('configuration: {}'.format(c.config))
+    logger.info('configuration: {}'.format(c.config))
     model = train(model,optimizer,criterion,train_dataloader,device=device)
 
     # testing
