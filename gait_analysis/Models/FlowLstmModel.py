@@ -148,7 +148,7 @@ def test(model,dataloader,device='cpu'):
     with torch.no_grad():
         for i , batch in enumerate(dataloader):
             inputs , labels = batch
-            scenes = [s.to(device) for s in inputs['scenes']]
+            scenes = [s.to(device) for s in inputs['flows']]
             labels = labels.to(device)
             if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
                 # skip uncompleted batch size NN is fixed to BATCHSIZE
@@ -194,7 +194,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
             if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
                 # skip uncompleted batch size NN is fixed to BATCH_SIZE
                 continue
-            scenes = [s.to(device) for s in inputs['scenes']]
+            scenes = [s.to(device) for s in inputs['flows']]
             labels = labels.to(device)
             optimizer.zero_grad()
             outputs = model(scenes)
