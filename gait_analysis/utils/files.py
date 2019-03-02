@@ -1,6 +1,10 @@
 import os
 import fnmatch
 import glob
+# from gait_analysis.Config import Config
+import datetime
+import logging
+
 
 def is_empty_path(path):
     print('=====len(list_all_files(path,\'*\')) = ', len(list_all_files(path,'*')))
@@ -66,3 +70,20 @@ def list_images(dir, extension, sort=True):
     if sort:
         return sorted(image_list)
     return image_list
+
+def set_logger(name, config, time_stamp = None):
+    if not time_stamp:
+        time_stamp = str(datetime.datetime.now()).replace(' ' , '_')
+    log_folder = format_data_path(config.config['logger']['log_folder'])
+    log_folder = os.path.join(log_folder,'{}-{}'.format(name,time_stamp))
+    makedirs(log_folder)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s-[ %(threadName)-12.12s]-[ %(levelname)-5.5s] : %(message)s",
+        handlers=[
+            logging.FileHandler("{0}/{1}-{2}".format(
+                log_folder,time_stamp,
+                config.config['logger']['log_file'])),
+            logging.StreamHandler()
+        ])
+    return logging.getLogger(), log_folder
