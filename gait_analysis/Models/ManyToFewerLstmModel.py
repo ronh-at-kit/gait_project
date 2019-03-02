@@ -1,4 +1,3 @@
-import logging
 
 import torch
 import torch.nn as nn
@@ -9,9 +8,6 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
 import numpy as np
 import time
-import os
-import os.path as path
-import copy
 from torch.utils.data.sampler import SubsetRandomSampler
 import matplotlib
 matplotlib.use("TkAgg")
@@ -19,26 +15,17 @@ import matplotlib.pyplot as plt
 
 import datetime
 
-from gait_analysis import AnnotationsCasia as Annotations
 from gait_analysis import CasiaDataset
 from gait_analysis.Config import Config
 from gait_analysis import Composer
 from gait_analysis.utils import files
+from gait_analysis.settings import configuration
+
 # GLOBAL VARIABLES
 c = Config()
-log_folder = files.format_data_path(c.config['logger']['log_folder'])
+time_stamp = str(datetime.datetime.now()).replace(' ' , '_')
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s-[ %(threadName)-12.12s]-[ %(levelname)-5.5s] : %(message)s",
-    handlers=[
-        logging.FileHandler("{0}/{1}-{2}".format(
-            log_folder,
-            str(datetime.datetime.now()).replace(' ','_'),
-            c.config['logger']['log_file'])),
-        logging.StreamHandler()
-    ])
-logger = logging.getLogger()
+logger, log_folder = files.set_logger('MANY_TO_FEWER' , c , time_stamp=time_stamp)
 
 
 class CNNLSTM(nn.Module):
@@ -47,22 +34,29 @@ class CNNLSTM(nn.Module):
         self.c = Config()
         self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
 
-        self.conv1 = nn.Conv2d(3 , 6 , 3)  # input 640x480
+        self.conv1 = nn.Conv2d(3 , 16 , 3)  # input 640x480
+        torch.nn.init.xavier_uniform(self.conv1.weight)
         self.pool1 = nn.MaxPool2d(2 , 2)  # input 638x478 output 319x239
-        self.conv2 = nn.Conv2d(6 , 16 , 3)  # input 319x239 output 317x237
+        self.conv2 = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
+        torch.nn.init.xavier_uniform(self.conv2.weight)
         self.pool2 = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
         self.conv3 = nn.Conv2d(16 , 6 , 3)  # input 158x118 output 156x116
+        # self.conv3.weight.fill_(0.5)
+        torch.nn.init.xavier_uniform(self.conv3.weight)
         self.pool3 = nn.MaxPool2d(2 , 2)  # input 156x116 output 78x58
         self.conv4 = nn.Conv2d(6 , 3 , 3)  # input 78x58 output 76x56
+        torch.nn.init.xavier_uniform(self.conv4.weight)
         self.pool4 = nn.MaxPool2d(2 , 2)  # input 76x56 output 39x29
         self.conv5 = nn.Conv2d(3 , 1 , 3)  # input 39x29 output 37x27
+        torch.nn.init.xavier_uniform(self.conv5.weight)
         self.pool5 = nn.MaxPool2d(2 , 2)  # output 37x27 output 18x13
+        # last_block = self.c.config['network']['many_to_fewer']
         self.lstm1 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
                              self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
                              self.c.config['network']['TIMESTEPS'])  # horizontal direction
-        self.lstm2 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
-                             self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
-                             self.c.config['network']['TIMESTEPS'])  # horizontal direction
+        # self.lstm2 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
+        #                      self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
+        #                      self.c.config['network']['many_to_fewer'])  # horizontal direction
         self.fc1 = nn.Linear(self.c.config['network']['LSTM_IO_SIZE'] , 120)
         self.fc2 = nn.Linear(120 , 20)
         self.fc3 = nn.Linear(20 , 3)
@@ -90,10 +84,10 @@ class CNNLSTM(nn.Module):
             x_tmp_c3 = self.pool3(F.relu(self.conv3(x_tmp_c2)))
             x_tmp_c4 = self.pool4(F.relu(self.conv4(x_tmp_c3)))
             x_tmp_c5 = self.pool5(F.relu(self.conv5(x_tmp_c4)))
-            x_arr[i] = x_tmp_c5  # torch.squeeze(x_tmp_c5)
+            x_arr[i] = torch.squeeze(x_tmp_c5)
 
         x , hidden = self.lstm1(x_arr.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
-        x , hidden = self.lstm2(x , self.hidden)
+        # x , hidden = self.lstm2(x , self.hidden)
         # the reshaping was taken from the documentation... and makes scense
         x = x.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , self.c.config['network']['LSTM_HIDDEN_SIZE'])  # output.view(seq_len, batch, num_dir*hidden_size)
         #         x = torch.squeeze(x)
@@ -149,11 +143,13 @@ def test(model,dataloader,device='cpu'):
         for i , batch in enumerate(dataloader):
             inputs , labels = batch
             scenes = [s.to(device) for s in inputs['scenes']]
-            labels = labels.to(device)
+            labels = labels[:,c.config['network']['many_to_fewer']-1:-1].to(device)
             if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
                 # skip uncompleted batch size NN is fixed to BATCHSIZE
                 continue
             outputs = model(scenes)
+            outputs = outputs[:,:,c.config['network']['many_to_fewer']-1:-1]
+
             #             print("Out:", len(outputs), outputs.size())
             #             print("Labels:", len(labels), labels.size())
             _ , predicted = torch.max(outputs.data , 1)
@@ -195,7 +191,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
                 # skip uncompleted batch size NN is fixed to BATCH_SIZE
                 continue
             scenes = [s.to(device) for s in inputs['scenes']]
-            labels = labels.to(device)
+            labels = labels[:,c.config['network']['many_to_fewer']-1:-1].to(device)
             optimizer.zero_grad()
             outputs = model(scenes)
             logger.debug("====> Raw Out: {} {}".format( len(outputs), outputs.size()))
@@ -209,6 +205,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
             # outputs = outputs.view(c.config['network']['BATCH_SIZE'], 3, 1, -1)
             # labels = labels.view(c.config['network']['BATCH_SIZE'],1,-1).to(device)
 
+            outputs = outputs[:,:,c.config['network']['many_to_fewer']-1:-1]
             logger.debug("====> Out: {} {}".format( len(outputs), outputs.size()))
             logger.debug("====> Labels: {} {}".format( len(labels), labels.size()))
             loss = criterion(outputs , labels)
@@ -250,7 +247,7 @@ def plot_train_loss_hist(train_loss_hist):
     plt.xlabel('epoch number')
     plt.ylabel('train loss for all epoch')
     plt.draw()
-    filename = "{0}/{1}-{2}".format(log_folder , str(datetime.datetime.now()).replace(' ' , '_') ,
+    filename = "{0}/{1}-{2}".format(log_folder , time_stamp,
                              c.config['logger']['plot_file'])
     logger.info('saving figure in: {}'.format(filename))
     plt.savefig(filename)

@@ -138,11 +138,11 @@ scenes = {
 scenes_40 = {
     'indexing':{
         'grouping': 'person_sequence_angle',
-        'selection': 'manual_people',     #  => 'auto'= by final annotation or
+        'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,5,6,7,8,9,10,40,41,42,42,43,44,45,46,47,48,49],
-        #'sequences_selection': ['bg-01']
+        'people_selection': [1], # ,5,6,7,8,9,10,40,41,42,42,43,44,45,46,47,48,49],
+        'sequences_selection': ['bg-01']
         #'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
     'pose': {
@@ -159,7 +159,7 @@ scenes_40 = {
         'preprocess' : True,
         'method' : 'dense',
         'load_patches' : True,
-        'patch_size' : 5
+        'patch_size' : 5,
         },
     'scenes':{
         'load':True,
@@ -191,7 +191,7 @@ scenes_40 = {
         'ToTensor': {'target':["scenes","annotations"]}
     },
     'network': {
-        'learning_rate': 0.01,
+        'learning_rate': 0.007,
         'validation_split': 0.2,
         'momentum': 0.9,
         'randomized_seed': 10,
@@ -206,8 +206,9 @@ scenes_40 = {
         'LSTM_HIDDEN_SIZE': 18 * 13,
         'RGB_CHANNELS': 3,
         'TIMESTEPS': 40,  # size videos
-        'BATCH_SIZE': 5, # batch_size
-        'device': "cuda:1"
+        'BATCH_SIZE': 1, # batch_size
+        'device': "cuda:1",
+        'many_to_fewer': 10 # this used for many to fewer model. EXAMPLE =20, means from the 20th to the end
     },
     'logger':{
         'log_file': 'scenes_20_people_20_timesteps_attemp_1.log',
@@ -280,7 +281,7 @@ one_angle = {
         'LSTM_IO_SIZE': 18 * 13 ,
         'LSTM_HIDDEN_SIZE': 18 * 13 ,
         'RGB_CHANNELS': 3 ,
-        'TIMESTEPS': 40 ,  # size videos
+        'TIMESTEPS': 40,  # size videos
         'BATCH_SIZE': 5  # until now just batch_size = 1
     },
     'logger':{
@@ -423,3 +424,4 @@ flows_40 = {
         'plot_file': 'flows_20_people_attemp_1.png'
     }
 }
+
