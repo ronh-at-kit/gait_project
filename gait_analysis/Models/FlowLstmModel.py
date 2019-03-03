@@ -221,15 +221,8 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
                 running_loss = 0.0
                 start_time = time.time()
         logger.info('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
-        if (epoch+1)%200 == 0:
-            # Reducing learning rate by 50% each 10 epochs
-            learning_rate = 0.5*learning_rate
-            logger.info("new learning rate = {}, old learning rate = {}".format(learning_rate,2*learning_rate))
-            # test after each 10 epoch on the training set
-            test(model,train_loader,device)
-        # storing info to plot
         train_loss_hist[epoch] = total_train_loss
-        lr_scheduler.step(total_train_loss)
+        scheduler.step(total_train_loss)
 
     logger.info('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
     plot_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['plot_file'])
