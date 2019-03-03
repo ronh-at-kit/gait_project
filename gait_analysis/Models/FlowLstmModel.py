@@ -9,9 +9,7 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
 import numpy as np
 import time
-import os
-import os.path as path
-import copy
+
 from torch.utils.data.sampler import SubsetRandomSampler
 import matplotlib
 matplotlib.use("TkAgg")
@@ -30,7 +28,7 @@ from gait_analysis.utils import files
 c = Config()
 
 time_stamp = training.get_time_stamp()
-logger, log_folder =  set_logger('SCENES40',c,time_stamp=time_stamp)
+logger, log_folder =  set_logger('FLOWS40',c,time_stamp=time_stamp)
 
 
 class CNNLSTM(nn.Module):
@@ -173,6 +171,9 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
     learning_rate = c.config['network']['learning_rate']
     logger.info('Start training...')
     train_loss_hist = np.zeros(c.config['network']['epochs'])
+
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, verbose=True, threshold=1e-7)
+
     for epoch in range(c.config['network']['epochs']):
         logger.info("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
         print_every = n_batches // 10
@@ -228,6 +229,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
             test(model,train_loader,device)
         # storing info to plot
         train_loss_hist[epoch] = total_train_loss
+        lr_scheduler.step(total_train_loss)
 
     logger.info('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
     plot_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['plot_file'])
