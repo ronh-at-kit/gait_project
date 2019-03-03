@@ -4,8 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-
-from torch.optim import lr_scheduler
+from os.path import join
 import numpy as np
 import time
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -19,11 +18,11 @@ from gait_analysis import CasiaDataset
 from gait_analysis.Config import Config
 from gait_analysis import Composer
 from gait_analysis.utils import files
-from gait_analysis.settings import configuration
+from gait_analysis.utils import training
 
 # GLOBAL VARIABLES
 c = Config()
-time_stamp = str(datetime.datetime.now()).replace(' ' , '_')
+time_stamp = training.get_time_stamp()
 
 logger, log_folder = files.set_logger('MANY_TO_FEWER' , c , time_stamp=time_stamp)
 
@@ -35,20 +34,20 @@ class CNNLSTM(nn.Module):
         self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
 
         self.conv1 = nn.Conv2d(3 , 16 , 3)  # input 640x480
-        torch.nn.init.xavier_uniform(self.conv1.weight)
+        torch.nn.init.xavier_uniform_(self.conv1.weight)
         self.pool1 = nn.MaxPool2d(2 , 2)  # input 638x478 output 319x239
         self.conv2 = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
-        torch.nn.init.xavier_uniform(self.conv2.weight)
+        torch.nn.init.xavier_uniform_(self.conv2.weight)
         self.pool2 = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
         self.conv3 = nn.Conv2d(16 , 6 , 3)  # input 158x118 output 156x116
         # self.conv3.weight.fill_(0.5)
-        torch.nn.init.xavier_uniform(self.conv3.weight)
+        torch.nn.init.xavier_uniform_(self.conv3.weight)
         self.pool3 = nn.MaxPool2d(2 , 2)  # input 156x116 output 78x58
         self.conv4 = nn.Conv2d(6 , 3 , 3)  # input 78x58 output 76x56
-        torch.nn.init.xavier_uniform(self.conv4.weight)
+        torch.nn.init.xavier_uniform_(self.conv4.weight)
         self.pool4 = nn.MaxPool2d(2 , 2)  # input 76x56 output 39x29
         self.conv5 = nn.Conv2d(3 , 1 , 3)  # input 39x29 output 37x27
-        torch.nn.init.xavier_uniform(self.conv5.weight)
+        torch.nn.init.xavier_uniform_(self.conv5.weight)
         self.pool5 = nn.MaxPool2d(2 , 2)  # output 37x27 output 18x13
         # last_block = self.c.config['network']['many_to_fewer']
         self.lstm1 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
@@ -235,22 +234,11 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
         train_loss_hist[epoch] = total_train_loss
 
     logger.info('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
-    plot_train_loss_hist(train_loss_hist)
-
+    plot_file_name = "{0}/{1}-{2}".format(log_folder, time_stamp ,c.config['logger']['plot_file'])
+    training.plot_train_loss_hist(train_loss_hist, save=True,filename=plot_file_name)
+    logger.info('saving figure in: {}'.format(plot_file_name))
     return model
 
-
-def plot_train_loss_hist(train_loss_hist):
-    plt.clf()
-    plt.plot(train_loss_hist[train_loss_hist!=0])
-    plt.title('train loss history')
-    plt.xlabel('epoch number')
-    plt.ylabel('train loss for all epoch')
-    plt.draw()
-    filename = "{0}/{1}-{2}".format(log_folder , time_stamp,
-                             c.config['logger']['plot_file'])
-    logger.info('saving figure in: {}'.format(filename))
-    plt.savefig(filename)
 
 
 def main():
@@ -286,6 +274,15 @@ def main():
     test(model, train_dataloader, device)
     logger.info('Training in the testing set:...')
     test(model, test_dataloader, device)
+
+    # save model
+    model_file_name = "{0}/{1}-{2}".format(log_folder, time_stamp ,c.config['logger']['model_file'])
+    training.save_model(model_file_name, model, optimizer=optimizer)
+
+    # # load model: just for testing
+    # model = CNNLSTM()
+    # optimizer = get_optimizer(model)
+    # model, optimizer, epoch, loss = training.load_model(model_file_name,model,optimizer)
 
     plt.show()
 

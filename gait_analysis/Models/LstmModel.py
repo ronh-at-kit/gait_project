@@ -17,28 +17,19 @@ import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
-import datetime
 
 from gait_analysis import AnnotationsCasia as Annotations
 from gait_analysis import CasiaDataset
 from gait_analysis.Config import Config
 from gait_analysis import Composer
+from gait_analysis.utils.files import set_logger
+from gait_analysis.utils import training
 from gait_analysis.utils import files
 # GLOBAL VARIABLES
 c = Config()
-log_folder = files.format_data_path(c.config['logger']['log_folder'])
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s-[ %(threadName)-12.12s]-[ %(levelname)-5.5s] : %(message)s",
-    handlers=[
-        logging.FileHandler("{0}/{1}-{2}".format(
-            log_folder,
-            str(datetime.datetime.now()).replace(' ','_'),
-            c.config['logger']['log_file'])),
-        logging.StreamHandler()
-    ])
-logger = logging.getLogger()
+time_stamp = training.get_time_stamp()
+logger, log_folder =  set_logger('SCENES40',c,time_stamp=time_stamp)
 
 
 class CNNLSTM(nn.Module):
@@ -238,23 +229,11 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
         train_loss_hist[epoch] = total_train_loss
 
     logger.info('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
-    plot_train_loss_hist(train_loss_hist)
+    plot_file_name = "{0}/{1}-{2}".format(log_folder, time_stamp ,c.config['logger']['plot_file'])
+    training.plot_train_loss_hist(train_loss_hist, save=True,filename=plot_file_name)
+    logger.info('saving figure in: {}'.format(plot_file_name))
 
     return model
-
-
-def plot_train_loss_hist(train_loss_hist):
-    plt.clf()
-    plt.plot(train_loss_hist[train_loss_hist!=0])
-    plt.title('train loss history')
-    plt.xlabel('epoch number')
-    plt.ylabel('train loss for all epoch')
-    plt.draw()
-    filename = "{0}/{1}-{2}".format(log_folder , str(datetime.datetime.now()).replace(' ' , '_') ,
-                             c.config['logger']['plot_file'])
-    logger.info('saving figure in: {}'.format(filename))
-    plt.savefig(filename)
-
 
 def main():
     # TRAINING
@@ -285,10 +264,14 @@ def main():
     model = train(model,optimizer,criterion,train_dataloader,device=device)
 
     # testing
-    logger.info('Training in the training set:...')
+    logger.info('Testing in the training set:...')
     test(model, train_dataloader, device)
-    logger.info('Training in the testing set:...')
+    logger.info('Testing in the testing set:...')
     test(model, test_dataloader, device)
+
+    # save model
+    model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
+    training.save_model(model_file_name)
 
     plt.show()
 
