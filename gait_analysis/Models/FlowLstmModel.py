@@ -173,7 +173,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
     train_loss_hist = np.zeros(c.config['network']['epochs'])
 
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, verbose=True, threshold=1e-7)
-
+    inputs_buffer, labels_buffer = training.get_initial_training_vectors(train_loader,'flows',device)
     for epoch in range(c.config['network']['epochs']):
         logger.info("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
         print_every = n_batches // 10
@@ -187,10 +187,11 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
             if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
                 # skip uncompleted batch size NN is fixed to BATCH_SIZE
                 continue
-            scenes = [s.to(device) for s in inputs['flows']]
-            labels = labels.to(device)
+            for i, s in enumerate(inputs['flows']):
+                inputs_buffer[i] = s
+            labels_buffer = labels
             optimizer.zero_grad()
-            outputs = model(scenes)
+            outputs = model(inputs_buffer)
             logger.debug("====> Raw Out: {} {}".format( len(outputs), outputs.size()))
             logger.debug("====> Raw Labels: {} {}".format( len(labels), labels.size()))
             #
@@ -204,7 +205,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
 
             logger.debug("====> Out: {} {}".format( len(outputs), outputs.size()))
             logger.debug("====> Labels: {} {}".format( len(labels), labels.size()))
-            loss = criterion(outputs , labels)
+            loss = criterion(outputs , labels_buffer)
             loss.backward()
             optimizer.step()
 
