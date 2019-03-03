@@ -71,14 +71,27 @@ def list_images(dir, extension, sort=True):
         return sorted(image_list)
     return image_list
 
-def set_logger(name, config, time_stamp = None):
+def set_logger(name, config, time_stamp = None, level = 'INFO'):
     if not time_stamp:
         time_stamp = str(datetime.datetime.now()).replace(' ' , '_')
     log_folder = format_data_path(config.config['logger']['log_folder'])
     log_folder = os.path.join(log_folder,'{}-{}'.format(name,time_stamp))
     makedirs(log_folder)
+
+    # selecting the level/parsing level input
+    if level == 'INFO':
+        level_selected = logging.INFO
+    elif level == 'WARN':
+        level_selected = logging.WARN
+    elif level == 'DEBUG':
+        level_selected = logging.DEBUG
+    else:
+        print('Logging selected critical: from {}'.format(level))
+        level_selected = logging.CRITICAL
+
+
     logging.basicConfig(
-        level=logging.INFO,
+        level=level_selected,
         format="%(asctime)s-[ %(threadName)-12.12s]-[ %(levelname)-5.5s] : %(message)s",
         handlers=[
             logging.FileHandler("{0}/{1}-{2}".format(

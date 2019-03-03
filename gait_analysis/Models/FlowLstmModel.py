@@ -1,5 +1,3 @@
-import logging
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -14,7 +12,9 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-
+import os, gc
+import psutil
+from sys import getsizeof
 
 from gait_analysis.utils.files import set_logger
 from gait_analysis.utils import training
@@ -28,7 +28,7 @@ from gait_analysis.utils import files
 c = Config()
 
 time_stamp = training.get_time_stamp()
-logger, log_folder =  set_logger('FLOWS40',c,time_stamp=time_stamp)
+logger, log_folder =  set_logger('FLOWS40',c,time_stamp=time_stamp, level='INFO')
 
 
 class CNNLSTM(nn.Module):
@@ -54,8 +54,10 @@ class CNNLSTM(nn.Module):
                              self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
                              self.c.config['network']['TIMESTEPS'])  # horizontal direction
         self.fc1 = nn.Linear(self.c.config['network']['LSTM_IO_SIZE'] , 120)
-        self.fc2 = nn.Linear(120 , 20)
-        self.fc3 = nn.Linear(20 , 3)
+        self.fc2 = nn.Linear(120, 90)
+        self.fc3 = nn.Linear(90, 90)
+        self.fc4 = nn.Linear(90, 20)
+        self.fc5 = nn.Linear(20 , 3)
 
         # initialize hidden states of LSTM
         self.hidden = self.init_hidden()
@@ -89,7 +91,9 @@ class CNNLSTM(nn.Module):
         #         x = torch.squeeze(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = F.relu(self.fc3(x))
+        x = F.relu(self.fc4(x))
+        x = self.fc5(x)
         x = x.permute(1 , 2 , 0)
         return x
 
@@ -174,6 +178,14 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
 
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, verbose=True, threshold=1e-7)
     inputs_dev, labels_dev = training.get_training_vectors_device(train_loader , 'flows' , device)
+
+    pid = os.getpid()
+    logger.info('Process running in PID: {}'.format(pid))
+    py = psutil.Process(pid)
+    prev_mem = 0
+    it = 0
+    # torch.backends.cudnn.enabled = False
+
     for epoch in range(c.config['network']['epochs']):
         logger.info("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
         print_every = n_batches // 10
@@ -184,16 +196,17 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
         running_loss = 0.0
         for i , batch in enumerate(train_loader):
             inputs , labels = batch
+            del batch
             if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
                 # skip uncompleted batch size NN is fixed to BATCH_SIZE
                 continue
-            for i, s in enumerate(inputs['flows']):
-                inputs_dev[i] = s
-            labels_dev = labels
+            for ii, s in enumerate(inputs['flows']):
+                inputs_dev[ii].copy_(s)
+            labels_dev.copy_(labels)
             optimizer.zero_grad()
             outputs = model(inputs_dev)
             logger.debug("====> Raw Out: {} {}".format( len(outputs), outputs.size()))
-            logger.debug("====> Raw Labels: {} {}".format( len(labels), labels.size()))
+            logger.debug("====> Raw Labels: {} {}".format( len(labels_dev), labels_dev.size()))
             #
             # outputs = outputs.unsqueeze(-1)
             # outputs = outputs.permute(0, 2, 1, 3).squeeze(3).squeeze(0)
@@ -204,18 +217,35 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
             # labels = labels.view(c.config['network']['BATCH_SIZE'],1,-1).to(device)
 
             logger.debug("====> Out: {} {}".format( len(outputs), outputs.size()))
-            logger.debug("====> Labels: {} {}".format( len(labels), labels.size()))
+            logger.debug("====> Labels: {} {}".format( len(labels_dev), labels_dev.size()))
             loss = criterion(outputs , labels_dev)
             loss.backward()
             optimizer.step()
 
             # Print statistics
             # print(loss.data.item())
-            running_loss += loss.data.item()
-            total_train_loss += loss.data.item()
+            running_loss += loss.detach().data.item()
+            total_train_loss += loss.detach().data.item()
+            # memory look at:
+            logger.info('---------------------------------------------------------')
+            it+=1
+            cur_mem = (int(open('/proc/%s/statm' % pid, 'r').read().split()[1]) + 0.0) / 256
+            add_mem = cur_mem - prev_mem
+            prev_mem = cur_mem
+            logger.info("train iterations: {}, added mem: {}M, current mem: {}M".format(it, add_mem, cur_mem))
+            for var, obj in locals().items():
+                if not var.startswith('__'):
+                    logger.info("memory size ({}): {}  ".format(var,training.get_size(obj)))
+            logger.info('---------------------------------------------------------')
 
             # Print every 10th batch of an epoch
             if (i + 1) % (print_every + 1) == 0:
+                gc.collect()
+                # memoryUse = py.memory_info()[0] / 2. ** 20  # memory use in MB...I think
+                # logger.info('---------------------------------------------------------')
+                # logger.info('iteration {}: memory use: {}MB'.format(i, memoryUse))
+                # logger.info('---------------------------------------------------------')
+
                 logger.info("Epoch {}, {:d}% \t train_loss(mean): {:.2f} took: {:.2f}s".format(
                     epoch + 1 , int(100 * (i + 1) / n_batches) , running_loss / print_every , time.time() - start_time))
                 # Reset running loss and time

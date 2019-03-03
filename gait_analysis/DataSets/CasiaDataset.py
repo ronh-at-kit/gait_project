@@ -61,7 +61,8 @@ class CasiaDataset(Dataset):
             dataset_output = {}
             for k in self.config['dataset_output']['data']:
                 dataset_output[k] = output[k]
-            return dataset_output, output[self.config['dataset_output']['label']]
+            labels_output = output[self.config['dataset_output']['label']]
+            return dataset_output, labels_output
         else:
             return output
 
