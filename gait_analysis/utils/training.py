@@ -68,3 +68,12 @@ def plot_train_loss_hist(train_loss_hist, save=False, filename=None):
 
 def get_time_stamp():
     return str(datetime.datetime.now()).replace(' ' , '_').replace(':' , 'i')
+
+def get_training_vectors_device(dataloader , field , device):
+
+    inputs , labels = iter(dataloader).next()
+    input_init = torch.zeros_like(inputs[field][0])
+    labels_init = torch.zeros_like(labels)
+    inputs_init = [input_init.to(device) for s in inputs[field]]
+    labels_init = labels_init.to(device)
+    return inputs_init, labels_init

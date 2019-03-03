@@ -82,8 +82,8 @@ class CNNLSTM(nn.Module):
             x_tmp_c5 = self.pool5(F.relu(self.conv5(x_tmp_c4)))
             x_arr[i] = x_tmp_c5  # torch.squeeze(x_tmp_c5)
 
-        x , hidden = self.lstm1(x_arr.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
-        x , hidden = self.lstm2(x , self.hidden)
+        x , _ = self.lstm1(x_arr.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
+        x , _ = self.lstm2(x , self.hidden)
         # the reshaping was taken from the documentation... and makes scense
         x = x.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , self.c.config['network']['LSTM_HIDDEN_SIZE'])  # output.view(seq_len, batch, num_dir*hidden_size)
         #         x = torch.squeeze(x)
@@ -173,7 +173,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
     train_loss_hist = np.zeros(c.config['network']['epochs'])
 
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, verbose=True, threshold=1e-7)
-    inputs_buffer, labels_buffer = training.get_initial_training_vectors(train_loader,'flows',device)
+    inputs_dev, labels_dev = training.get_training_vectors_device(train_loader , 'flows' , device)
     for epoch in range(c.config['network']['epochs']):
         logger.info("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
         print_every = n_batches // 10
@@ -188,10 +188,10 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
                 # skip uncompleted batch size NN is fixed to BATCH_SIZE
                 continue
             for i, s in enumerate(inputs['flows']):
-                inputs_buffer[i] = s
-            labels_buffer = labels
+                inputs_dev[i] = s
+            labels_dev = labels
             optimizer.zero_grad()
-            outputs = model(inputs_buffer)
+            outputs = model(inputs_dev)
             logger.debug("====> Raw Out: {} {}".format( len(outputs), outputs.size()))
             logger.debug("====> Raw Labels: {} {}".format( len(labels), labels.size()))
             #
@@ -205,7 +205,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
 
             logger.debug("====> Out: {} {}".format( len(outputs), outputs.size()))
             logger.debug("====> Labels: {} {}".format( len(labels), labels.size()))
-            loss = criterion(outputs , labels_buffer)
+            loss = criterion(outputs , labels_dev)
             loss.backward()
             optimizer.step()
 
