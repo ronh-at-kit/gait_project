@@ -62,7 +62,8 @@ def plot_train_loss_hist(train_loss_hist, save=False, filename=None):
     plt.xlabel('epoch number')
     plt.ylabel('train loss for all epoch')
     plt.draw()
-    plt.savefig(filename)
+    if save:
+        plt.savefig(filename)
 
 
 
@@ -77,6 +78,18 @@ def get_training_vectors_device(dataloader , field , device):
     inputs_init = [input_init.to(device) for s in inputs[field]]
     labels_init = labels_init.to(device)
     return inputs_init, labels_init
+
+def print_memory_size(environment, logger=None):
+    if logger:
+        for var , obj in environment.items():
+            if not var.startswith('__'):
+                logger.info("memory size ({}): {}  ".format(var , get_size(obj)))
+        logger.info('---------------------------------------------------------')
+    else:
+        for var , obj in environment.items():
+            if not var.startswith('__'):
+                print("memory size ({}): {}  ".format(var , get_size(obj)))
+        print('---------------------------------------------------------')
 
 
 def get_size(obj, seen=None):

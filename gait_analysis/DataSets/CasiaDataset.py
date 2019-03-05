@@ -6,7 +6,10 @@ from gait_analysis import FlowsCasia as Flows
 from gait_analysis import IndexingCasia as Indexing
 from gait_analysis import HeatMapsCasia as HeatMaps
 from gait_analysis.Config import Config
+from gait_analysis.utils import training
+from memory_profiler import profile
 
+import logging
 class CasiaDataset(Dataset):
     # TODO: options_dict comes from a config reader.
     def __init__(self, transform=None):
@@ -29,11 +32,12 @@ class CasiaDataset(Dataset):
         if self.config['heatmaps']['load']:
             self.heatmaps = HeatMaps(self.dataset_items)
         self.transform = transform
+        self.logger = logging.getLogger()
 
 
     def __len__(self):
         return len(self.dataset_items)
-
+    # @profile()
     def __getitem__(self, idx):
         output = {}
         # annotations are always in the output:
@@ -62,6 +66,10 @@ class CasiaDataset(Dataset):
             for k in self.config['dataset_output']['data']:
                 dataset_output[k] = output[k]
             labels_output = output[self.config['dataset_output']['label']]
+            # del output
+            # del annotations
+            # self.logger.info('Memory stats inside the Casia Dataset')
+            # training.print_memory_size(locals(), self.logger)
             return dataset_output, labels_output
         else:
             return output

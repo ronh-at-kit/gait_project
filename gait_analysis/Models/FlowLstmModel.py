@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import os, gc
 import psutil
 from sys import getsizeof
+from memory_profiler import profile
 
 from gait_analysis.utils.files import set_logger
 from gait_analysis.utils import training
@@ -23,6 +24,7 @@ from gait_analysis import AnnotationsCasia as Annotations
 from gait_analysis import CasiaDataset
 from gait_analysis.Config import Config
 from gait_analysis import Composer
+# from guppy import hpy
 from gait_analysis.utils import files
 # GLOBAL VARIABLES
 c = Config()
@@ -163,7 +165,7 @@ def test(model,dataloader,device='cpu'):
     logger.info('Accuracy {:.2f}%'.format(100 * correct / total))
     logger.info('...testing finished')
 
-
+@profile
 def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu'):
     if not test_loader:
         test_loader = train_loader
@@ -194,63 +196,9 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
         start_time = time.time()
         total_train_loss = 0
         running_loss = 0.0
-        for i , batch in enumerate(train_loader):
-            inputs , labels = batch
-            del batch
-            if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
-                # skip uncompleted batch size NN is fixed to BATCH_SIZE
-                continue
-            for ii, s in enumerate(inputs['flows']):
-                inputs_dev[ii].copy_(s)
-            labels_dev.copy_(labels)
-            optimizer.zero_grad()
-            outputs = model(inputs_dev)
-            logger.debug("====> Raw Out: {} {}".format( len(outputs), outputs.size()))
-            logger.debug("====> Raw Labels: {} {}".format( len(labels_dev), labels_dev.size()))
-            #
-            # outputs = outputs.unsqueeze(-1)
-            # outputs = outputs.permute(0, 2, 1, 3).squeeze(3).squeeze(0)
-            # labels = labels.unsqueeze(-1)
-            # labels = labels.squeeze(2).squeeze(0)
-
-            # outputs = outputs.view(c.config['network']['BATCH_SIZE'], 3, 1, -1)
-            # labels = labels.view(c.config['network']['BATCH_SIZE'],1,-1).to(device)
-
-            logger.debug("====> Out: {} {}".format( len(outputs), outputs.size()))
-            logger.debug("====> Labels: {} {}".format( len(labels_dev), labels_dev.size()))
-            loss = criterion(outputs , labels_dev)
-            loss.backward()
-            optimizer.step()
-
-            # Print statistics
-            # print(loss.data.item())
-            running_loss += loss.detach().data.item()
-            total_train_loss += loss.detach().data.item()
-            # memory look at:
-            logger.info('---------------------------------------------------------')
-            it+=1
-            cur_mem = (int(open('/proc/%s/statm' % pid, 'r').read().split()[1]) + 0.0) / 256
-            add_mem = cur_mem - prev_mem
-            prev_mem = cur_mem
-            logger.info("train iterations: {}, added mem: {}M, current mem: {}M".format(it, add_mem, cur_mem))
-            for var, obj in locals().items():
-                if not var.startswith('__'):
-                    logger.info("memory size ({}): {}  ".format(var,training.get_size(obj)))
-            logger.info('---------------------------------------------------------')
-
-            # Print every 10th batch of an epoch
-            if (i + 1) % (print_every + 1) == 0:
-                gc.collect()
-                # memoryUse = py.memory_info()[0] / 2. ** 20  # memory use in MB...I think
-                # logger.info('---------------------------------------------------------')
-                # logger.info('iteration {}: memory use: {}MB'.format(i, memoryUse))
-                # logger.info('---------------------------------------------------------')
-
-                logger.info("Epoch {}, {:d}% \t train_loss(mean): {:.2f} took: {:.2f}s".format(
-                    epoch + 1 , int(100 * (i + 1) / n_batches) , running_loss / print_every , time.time() - start_time))
-                # Reset running loss and time
-                running_loss = 0.0
-                start_time = time.time()
+        total_train_loss = train_epoch(criterion , epoch , inputs_dev , it , labels_dev , model , n_batches ,
+                                       optimizer , prev_mem , print_every , py , running_loss , start_time ,
+                                       total_train_loss , train_loader)
         logger.info('total training loss for epoch {}: {:.6f}'.format(epoch + 1 , total_train_loss))
         train_loss_hist[epoch] = total_train_loss
         scheduler.step(total_train_loss)
@@ -260,6 +208,59 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
     training.plot_train_loss_hist(train_loss_hist , save=True , filename=plot_file_name)
     logger.info('saving figure in: {}'.format(plot_file_name))
     return model
+
+@profile()
+def run_batch(inputs , labels , optimizer , model , criterion,py):
+    logger.info(" ====> MEMORY AT THE BEGINNING OF THE BATCH: {}".format(py.memory_info()[0] / 2. ** 20 ))
+    optimizer.zero_grad()
+    outputs = model(inputs)
+    logger.debug("====> Raw Out: {} {}".format(len(outputs) , outputs.size()))
+    logger.debug("====> Raw Labels: {} {}".format(len(labels) , labels.size()))
+    logger.debug("====> Out: {} {}".format(len(outputs) , outputs.size()))
+    logger.debug("====> Labels: {} {}".format(len(labels) , labels.size()))
+    loss = criterion(outputs , labels)
+    loss.backward()
+    optimizer.step()
+    return loss.detach().numpy()
+
+
+
+
+
+@profile()
+def train_epoch(criterion , epoch , inputs_dev , it , labels_dev , model , n_batches , optimizer , prev_mem ,
+                print_every , py , running_loss , start_time , total_train_loss , train_loader):
+    for i , batch in enumerate(train_loader):
+        inputs , labels = batch
+        if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
+            # skip uncompleted batch size NN is fixed to BATCH_SIZE
+            continue
+        for ii , s in enumerate(inputs['flows']):
+            inputs_dev[ii].copy_(s)
+        labels_dev.copy_(labels)
+        loss = run_batch(inputs_dev, labels_dev, optimizer, model, criterion, py)
+        logger.info(" ===> MEMORY AT THE END OF THE BATCH: {}".format(py.memory_info()[0] / 2. ** 20))
+        # Print statistics
+        running_loss += loss #loss.detach().data.item()
+        total_train_loss += loss #loss.detach().data.item()
+        # Print every 10th batch of an epoch
+        if (i + 1) % (print_every + 1) == 0:
+            logger.info("Epoch {}, {:d}% \t train_loss(mean): {:.2f} took: {:.2f}s".format(
+                epoch + 1 , int(100 * (i + 1) / n_batches) , running_loss / print_every , time.time() - start_time))
+            # Reset running loss and time
+            running_loss = 0.0
+            start_time = time.time()
+        gc.collect()
+        # memory look at:
+        logger.info('---------------------------------------------------------')
+        it += 1
+        cur_mem = py.memory_info()[0] / 2. ** 20  # memory use in MB...I think
+        add_mem = cur_mem - prev_mem
+        prev_mem = cur_mem
+        logger.info("train iterations: {}, added mem: {}M, current mem: {}M".format(it , add_mem , cur_mem))
+
+    return total_train_loss
+
 
 def main():
     # TRAINING
@@ -296,8 +297,8 @@ def main():
     test(model , test_dataloader , device)
 
     # save model
-    model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
-    training.save_model(model_file_name)
+    # model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
+    # training.save_model(model_file_name)
 
     plt.show()
 
