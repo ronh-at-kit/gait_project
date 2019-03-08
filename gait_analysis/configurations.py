@@ -212,8 +212,9 @@ scenes_40 = {
     },
     'logger':{
         'log_file': 'scenes_20_people_20_timesteps_attemp_1.log',
-        'log_folder': '/home/ron/Dokumente/Datasets/Gait/logs',
-        'plot_file': 'scenes_20_people_20_timesteps_attemp_1.png'
+        'log_folder': '~/gait_project/logs',
+        'plot_file': 'scenes_20_people_20_timesteps_attemp_1.png',
+        'model_file': 'scenes_20_people_20_timesteps_attemp_1.tar'
     }
 }
 
@@ -420,8 +421,9 @@ flows_40 = {
     },
     'logger':{
         'log_file': 'flows_20_people_attemp_1.log',
-        'log_folder': '/home/ron/Dokumente/Datasets/Gait/logs',
-        'plot_file': 'flows_20_people_attemp_1.png'
+        'log_folder': '~/gait_project/logs',
+        'plot_file': 'flows_20_people_attemp_1.png',
+        'model_file': 'scenes_20_people_20_timesteps_attemp_1.tar'
     }
 }
 

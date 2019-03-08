@@ -11,13 +11,7 @@ from memory_profiler import profile
 
 import logging
 class CasiaDataset(Dataset):
-    # TODO: options_dict comes from a config reader.
     def __init__(self, transform=None):
-
-        # TODO: use include scenes to filter out sequences.
-        # list(product(person_numbers, options_dict['include_scenes']))
-        # self.person_numbers = [item[1] for item in dataset_items]
-
         itemizer = Indexing()
         self.dataset_items = itemizer.get_items()
         config = Config()

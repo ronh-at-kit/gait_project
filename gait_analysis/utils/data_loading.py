@@ -1,3 +1,4 @@
+from cv2 import imread, cvtColor, COLOR_BGR2RGB
 import glob
 import os
 import pandas as pd
@@ -121,3 +122,15 @@ def mkdir_p(path):
         #    pass
         #else:
         #    raise
+
+def read_image(im_file):
+    if not os.path.isfile(im_file):
+        raise ValueError('{} don\'t exist.'.format(im_file))
+    im = imread(im_file, -1)
+    im = cvtColor(im, COLOR_BGR2RGB)
+    return im
+
+def extract_pnum(abspath):
+    path = os.path.basename(abspath)
+    p_num = path[-7:-4]
+    return int(p_num)

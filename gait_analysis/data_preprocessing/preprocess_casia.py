@@ -5,17 +5,35 @@ import os
 import numpy as np
 from tqdm import tqdm
 from PIL import Image
+import pickle
 
 import gait_analysis.settings as settings
 from gait_analysis.utils.data_loading import list_person_folders, list_sequence_folders
 from gait_analysis.utils.iterators import pairwise
 from gait_analysis.utils.files import makedirs, list_images
 from gait_analysis import fileUtils
+from gait_analysis.utils.data_loading import not_NIF_frame_nums, load_sequence_angle_annotation, remove_nif
 from gait_analysis.utils.ui import query_yes_no
 from gait_analysis.Config import Config
+
 c = Config()
 CONFIG  = c.config
 
+
+
+
+def load_annotation(annotations_path , person , sequence , angle):
+    '''
+                    :param person:
+                    :param sequence:
+                    :return: annotations with NIF included (raw data).
+                    '''
+    annotation_file = os.path.join(annotations_path,
+                                   person + '-' + sequence + '-semiautomatic.ods')
+    annotations = load_sequence_angle_annotation(annotation_file , sequence , int(angle))
+    IF_indices = np.array(not_NIF_frame_nums(annotations))
+    annotations = remove_nif(annotations , IF_indices)
+    return annotations , IF_indices
 
 def abort_overwrite():
     '''
@@ -194,6 +212,23 @@ def visit_person_sequence_casia(person_folder):
                 # flow_out_filename = 'of_{}_{:03d}.tiff'.format(sequence_angle, i)
                 flow_out_filename = '{}-{}_frame_{:03d}_flow.png'.format(person,sequence_angle, i)
                 write_of(os.path.join(flow_output_dir, flow_out_filename), of)
+        # create csv annotations
+        if CONFIG['annotations']['preprocess']:
+            annotation_folder = os.path.abspath(os.path.join(sequence_angle_folder.replace('images' , 'annotations'), os.pardir))
+            parts = sequence_angle_folder.split(os.sep)
+            person_a = parts[-3]
+            sequence_a = parts[-2]
+            sequence_angle_a = parts[-1]
+            angle_a = sequence_angle_a[-3:]
+            if os.path.exists(annotation_folder):
+                annotations, nif  =load_annotation(annotation_folder,person_a,sequence_a,angle_a)
+                annotation_csv = os.path.join(annotation_folder,person_a+'-'+sequence_angle_a+'-'+'annotations.csv')
+                nif_pickle = os.path.join(annotation_folder , person_a + '-' + sequence_angle_a + '-' + 'nif.p')
+                annotations.to_csv(annotation_csv)
+                pickle.dump( nif, open( nif_pickle, "wb" ) )
+
+
+
 
         if CONFIG['pose']['preprocess'] and CONFIG['heatmaps']['preprocess']:
             #extract pody keypoints
@@ -229,10 +264,10 @@ def preprocess_casia(only_example=False):
     person_sequence_folders = list_person_folders(images_dir, dataset='CASIA')
 
     # Waring to don't overwrite:
-    if abort_overwrite():
-        # if user
-        warnings.warn("pre-nprocess aborted by user! ", UserWarning)
-        return
+    # if abort_overwrite():
+    #     # if user
+    #     warnings.warn("pre-nprocess aborted by user! ", UserWarning)
+    #     return
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:

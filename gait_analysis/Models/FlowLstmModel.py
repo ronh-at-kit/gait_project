@@ -165,7 +165,7 @@ def test(model,dataloader,device='cpu'):
     logger.info('Accuracy {:.2f}%'.format(100 * correct / total))
     logger.info('...testing finished')
 
-@profile
+# @profile
 def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu'):
     if not test_loader:
         test_loader = train_loader
@@ -178,7 +178,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
     logger.info('Start training...')
     train_loss_hist = np.zeros(c.config['network']['epochs'])
 
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=10, verbose=True, threshold=1e-7)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
     inputs_dev, labels_dev = training.get_training_vectors_device(train_loader , 'flows' , device)
 
     pid = os.getpid()
@@ -209,7 +209,7 @@ def train(model,optimizer, criterion, train_loader,test_loader=None, device='cpu
     logger.info('saving figure in: {}'.format(plot_file_name))
     return model
 
-@profile()
+# @profile()
 def run_batch(inputs , labels , optimizer , model , criterion,py):
     logger.info(" ====> MEMORY AT THE BEGINNING OF THE BATCH: {}".format(py.memory_info()[0] / 2. ** 20 ))
     optimizer.zero_grad()
@@ -227,7 +227,7 @@ def run_batch(inputs , labels , optimizer , model , criterion,py):
 
 
 
-@profile()
+# @profile()
 def train_epoch(criterion , epoch , inputs_dev , it , labels_dev , model , n_batches , optimizer , prev_mem ,
                 print_every , py , running_loss , start_time , total_train_loss , train_loader):
     for i , batch in enumerate(train_loader):
@@ -297,8 +297,8 @@ def main():
     test(model , test_dataloader , device)
 
     # save model
-    # model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
-    # training.save_model(model_file_name)
+    model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
+    training.save_model(model_file_name)
 
     plt.show()
 

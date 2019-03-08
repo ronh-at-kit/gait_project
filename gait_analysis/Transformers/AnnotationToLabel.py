@@ -1,11 +1,12 @@
 import pandas as pd
 import numpy as np
-
+import logging
 
 class AnnotationToLabel(object):
 
     def __init__(self,parameters):
         self.target = parameters['target']
+        self.logger = logging.getLogger()
     def __call__(self,sample):
         for target in self.target:
             annotations = sample[target]
@@ -16,11 +17,17 @@ class AnnotationToLabel(object):
 
     def __annotation_to_labels(self , annotations):
         # Create the combination of annotations
-        annotations['combined'] = annotations["left_foot"] + annotations["right_foot"]
-        # Convert into categorical type of data
-        annotations.combined = pd.Categorical(annotations.combined)
-        # Capture the codes from the categories
-        annotations['codes'] = annotations.combined.cat.codes
-        # update the annotations in the sample as numeric categories
-        values = annotations.codes.values.astype(np.long)
-        return values
+        values = []
+        for left, right in zip(annotations["left_foot"],annotations["right_foot"]):
+            if left =='IN_THE_AIR' and right=='ON_GROUND':
+                values.append(0)
+            elif left == 'ON_GROUND' and right=='IN_THE_AIR':
+                values.append(1)
+            elif left == 'ON_GROUND' and right == 'ON_GROUND':
+                values.append(2)
+            elif left == 'ON_THE_AIR' and right == 'ON_THE_AIR':
+                self.logger.error('Error: double air. Please verify your annotations files.')
+                self.logger.error('==================================')
+                self.logger.error(annotations)
+
+        return np.array(values)
