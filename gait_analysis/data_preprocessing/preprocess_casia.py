@@ -264,14 +264,14 @@ def preprocess_casia(only_example=False):
     person_sequence_folders = list_person_folders(images_dir, dataset='CASIA')
 
     # Waring to don't overwrite:
-    # if abort_overwrite():
-    #     # if user
-    #     warnings.warn("pre-nprocess aborted by user! ", UserWarning)
-    #     return
+    if abort_overwrite():
+        # if user
+        warnings.warn("pre-nprocess aborted by user! ", UserWarning)
+        return
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:
-        person_sequence_folders = person_sequence_folders[0:10]
+        person_sequence_folders = person_sequence_folders[390:601]
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
         visit_person_sequence_casia(person_folder)

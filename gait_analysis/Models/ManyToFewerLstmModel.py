@@ -41,7 +41,7 @@ class CNNLSTM(nn.Module):
         self.pool2 = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
         self.conv3 = nn.Conv2d(16 , 6 , 3)  # input 158x118 output 156x116
         # self.conv3.weight.fill_(0.5)
-        torch.nn.init.xavier_uniform_(self.conv3.weight)
+        torch.nn.init.constant_(self.conv3.weight,0.5)
         self.pool3 = nn.MaxPool2d(2 , 2)  # input 156x116 output 78x58
         self.conv4 = nn.Conv2d(6 , 3 , 3)  # input 78x58 output 76x56
         torch.nn.init.xavier_uniform_(self.conv4.weight)
