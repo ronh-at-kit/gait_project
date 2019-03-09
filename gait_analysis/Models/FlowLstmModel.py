@@ -1,3 +1,5 @@
+import argparse
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -188,9 +190,9 @@ def train(model,optimizer, criterion, train_loader,scheduler =None, test_loader=
     plot_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['plot_file'])
     training.plot_train_loss_hist(train_loss_hist , save=True , filename=plot_file_name)
     logger.info('saving figure in: {}'.format(plot_file_name))
-    return model
+    return model, total_train_loss
 
-def run_batch(inputs , labels , optimizer , model , criterion,py):
+def run_batch(inputs , labels , optimizer , model , criterion):
     optimizer.zero_grad()
     outputs = model(inputs)
     logger.debug("====> Raw Out: {} {}".format(len(outputs) , outputs.size()))
@@ -227,7 +229,7 @@ def train_epoch(criterion , epoch , inputs_dev , labels_dev , model , n_batches 
     return total_train_loss
 
 
-def main():
+def main(input_path=None,lr=None):
     # TRAINING
     # Defines the device (cuda:0) is available
     device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
@@ -241,7 +243,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     # creates optimizer
-    optimizer = get_optimizer(model)
+    optimizer = get_optimizer(model, learning_rate=lr)
 
     # instantiates dataset
     dataset = get_dataset()
@@ -252,12 +254,12 @@ def main():
     train_dataloader, test_dataloader = get_dataloaders(dataset)
 
     # creates scheduler
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
+    scheduler = None #lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
 
     # training
     logger.info('configuration: {}'.format(c.config))
 
-    model = train(model,optimizer,criterion,train_dataloader,scheduler=scheduler, device=device)
+    model, loss = train(model,optimizer,criterion,train_dataloader,scheduler=scheduler, device=device)
 
     # testing
     logger.info('Testing in the training set:...')
@@ -267,9 +269,17 @@ def main():
 
     # save model
     model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
-    training.save_model(model_file_name)
+    logger.info('saving model at: {}'.format(model_file_name))
+    training.save_model(model_file_name,model,optimizer=optimizer,epoch=15, loss=loss)
 
     plt.show()
 
 if __name__== '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Flow-lstm script')
+    parser.add_argument('-m', '--model', metavar='path to model', type=str,
+                        help='path to the model')
+    parser.add_argument('-l', '--lr', metavar='learning rate', help='value of the training rate', type=float)
+    args = parser.parse_args()
+    input_path = files.correct_path(args.model) if args.model else None
+    learning_rate = args.lr if args.lr else None
+    main(input_path, learning_rate)
