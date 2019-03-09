@@ -125,7 +125,7 @@ def get_optimizer(model,learning_rate=None,momentum=None):
         learning_rate = c.config['network']['learning_rate']
     if not momentum:
         momentum = c.config['network']['momentum']
-
+    logger.info('Create optimizer SGD with lr = {} and momentum = {}'.format(learning_rate,momentum))
     optimizer = optim.SGD(model.parameters() , lr= learning_rate,
                           momentum=momentum)
     return optimizer
@@ -158,26 +158,31 @@ def test(model,dataloader,device='cpu'):
     logger.info('Accuracy {:.2f}%'.format(100 * correct / total))
     logger.info('...testing finished')
 
-def train(model,optimizer, criterion, train_loader,scheduler =None, test_loader=None, device=torch.device('cpu')):
-    logger.info('Start training...')
-    if not test_loader:
-        test_loader = train_loader
+def train(model , optimizer , criterion , train_loader , scheduler=None , epoch_count=0, loss=0, hist = [], device=torch.device('cpu')):
+
+    ## INITIALIZATIONS:
+    # print every calculation
     n_batches = len(train_loader)
     logger.info('number of batches in the train loader: {}'.format(n_batches))
+    print_every = n_batches // 10
+    if print_every == 0:
+        print_every = 1
 
     # Time for printing
     training_start_time = time.time()
-    train_loss_hist = np.zeros(c.config['network']['epochs'])
 
+    # initialize train loss history and epoch_counter
+    epoch_total = c.config['network']['epochs'] + epoch_count
+    train_loss_hist = np.concatenate((hist,np.zeros(c.config['network']['epochs'])))
+
+    # initialize vectors train
     inputs_dev, labels_dev = training.get_training_vectors_device(train_loader , 'flows' , device)
-
-    for epoch in range(c.config['network']['epochs']):
-        logger.info("Epoch: {}/{}".format(epoch+1,c.config['network']['epochs']))
-        print_every = n_batches // 10
-        if print_every == 0:
-            print_every = 1
+    ## TRAINING
+    logger.info("======== Start Training ==========")
+    for epoch in range(epoch_count,epoch_total):
+        logger.info("Epoch: {}/{}".format(epoch+1,epoch_total))
         start_time = time.time()
-        total_train_loss = 0
+        total_train_loss = loss
         total_train_loss = train_epoch(criterion , epoch , inputs_dev , labels_dev , model , n_batches ,
                                        optimizer, print_every, start_time,
                                        total_train_loss , train_loader)
@@ -185,12 +190,9 @@ def train(model,optimizer, criterion, train_loader,scheduler =None, test_loader=
         train_loss_hist[epoch] = total_train_loss
         if scheduler:
             scheduler.step(total_train_loss)
-
+    ## SAVE AND RETURN COMPUTATIONS
     logger.info('...Training finished. Total time of training: {:.2f} [mins]'.format((time.time()-training_start_time)/60))
-    plot_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['plot_file'])
-    training.plot_train_loss_hist(train_loss_hist , save=True , filename=plot_file_name)
-    logger.info('saving figure in: {}'.format(plot_file_name))
-    return model, total_train_loss
+    return model, total_train_loss, train_loss_hist
 
 def run_batch(inputs , labels , optimizer , model , criterion):
     optimizer.zero_grad()
@@ -232,18 +234,24 @@ def train_epoch(criterion , epoch , inputs_dev , labels_dev , model , n_batches 
 def main(input_path=None,lr=None):
     # TRAINING
     # Defines the device (cuda:0) is available
-    device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
+    target_device = c.config['network']['device'] if torch.cuda.is_available() else "cpu"
+    device = torch.device(target_device)
     logger.info("Device in usage: {}".format(device))
 
     # creates the network
     model = CNNLSTM()
-    model.to(device)
+    if input_path:
+        model = training.load_model(input_path, model, target=target_device)
+    else:
+        model.to(device)
 
     # Defines new criterion
     criterion = nn.CrossEntropyLoss()
 
     # creates optimizer
     optimizer = get_optimizer(model, learning_rate=lr)
+    if input_path:
+        optimizer = training.load_optimizer(input_path,optimizer,target=target_device)
 
     # instantiates dataset
     dataset = get_dataset()
@@ -258,8 +266,17 @@ def main(input_path=None,lr=None):
 
     # training
     logger.info('configuration: {}'.format(c.config))
+    if input_path:
+        loss, hist, epoch = training.load_status(input_path)
+        model , loss , hist = train(model , optimizer , criterion , train_dataloader , scheduler=scheduler ,
+                                    loss=loss, hist=hist, epoch_count=epoch, device=device)
+    else:
+        model, loss, hist = train(model , optimizer , criterion , train_dataloader , scheduler=scheduler , device=device)
 
-    model, loss = train(model,optimizer,criterion,train_dataloader,scheduler=scheduler, device=device)
+    # plot hist
+    plot_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['plot_file'])
+    training.plot_train_loss_hist(hist , save=True , filename=plot_file_name)
+    logger.info('saving figure in: {}'.format(plot_file_name))
 
     # testing
     logger.info('Testing in the training set:...')
@@ -270,7 +287,8 @@ def main(input_path=None,lr=None):
     # save model
     model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
     logger.info('saving model at: {}'.format(model_file_name))
-    training.save_model(model_file_name,model,optimizer=optimizer,epoch=15, loss=loss)
+    training.save_model(model_file_name , model , optimizer=optimizer , epoch=c.config['network']['epochs'] , loss=loss , hist=hist ,
+                        source=target_device)
 
     plt.show()
 
