@@ -90,12 +90,12 @@ def load_optimizer(path, optimizer, target):
             # GPU to GPU
             checkpoint = torch.load(path)
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            optimizer.to(device)
+            #optimizer.to(device)
         else:
             # CPU to GPU
             checkpoint = torch.load(path , map_location=c.config['network']['device'])
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            optimizer.to(device)
+            #optimizer.to(device)
         return optimizer
     else:
         return optimizer
@@ -111,6 +111,16 @@ def plot_train_loss_hist(train_loss_hist, save=False, filename=None):
     plt.title('train loss history')
     plt.xlabel('epoch number')
     plt.ylabel('train loss for all epoch')
+    plt.draw()
+    if save:
+        plt.savefig(filename)
+def plot_train_accu_hist(train_accu_hist, save=False, filename=None):
+    c = Config()
+    plt.clf()
+    plt.plot(train_accu_hist[train_accu_hist != 0])
+    plt.title('train accuracy history')
+    plt.xlabel('epoch number')
+    plt.ylabel('train accuracy for all epochs')
     plt.draw()
     if save:
         plt.savefig(filename)

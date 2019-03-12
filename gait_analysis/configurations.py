@@ -394,10 +394,10 @@ flows_40 = {
     'transformers':{
         # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
         #'SpanImagesList': {'remove':False, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
-        'Rescale': {'output_size' : (480,640), 'target': ["flows"]},
+        # 'Rescale': {'output_size' : (480,640), 'target': ["flows"]},
         'AnnotationToLabel': {'target': ["annotations"]},
-        'Transpose' : {'swapping': (2, 1, 0) , 'target': ["flows"]},
-        'DimensionResize' : {'dimension': 10, 'target': ["flows","annotations"]},
+        'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
+        'DimensionResize' : {'start':10,'dimension': 20, 'target': ["flows","annotations"]},
         'ToTensor': {'target':["flows","annotations"]}
     },
     'network': {
