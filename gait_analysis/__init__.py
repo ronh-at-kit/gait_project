@@ -13,6 +13,8 @@ from gait_analysis.DataSets.HeatMapsCasia import HeatMapsCasia
 from gait_analysis.Transformers.Composer import Composer
 from gait_analysis.Transformers.Rescale import Rescale
 from gait_analysis.Transformers.DimensionResize import DimensionResize
+from gait_analysis.Transformers.Normalizer import Normalizer
+
 
 from gait_analysis.Transformers.ToTensor import ToTensor
 from gait_analysis.Transformers.SpanImagesList import SpanImagesList

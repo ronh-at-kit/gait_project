@@ -398,7 +398,8 @@ flows_40 = {
         'AnnotationToLabel': {'target': ["annotations"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
         'DimensionResize' : {'start':10,'dimension': 20, 'target': ["flows","annotations"]},
-        'ToTensor': {'target':["flows","annotations"]}
+        'ToTensor': {'target':["flows","annotations"]},
+        'Normalizer': {'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225],'target':["flows"]}
     },
     'network': {
         'learning_rate': 0.01,

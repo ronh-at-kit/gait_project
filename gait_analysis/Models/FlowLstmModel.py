@@ -10,7 +10,7 @@ from torch.optim import lr_scheduler
 import numpy as np
 import time
 
-from torch.utils.data.sampler import SubsetRandomSampler
+from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
@@ -120,10 +120,13 @@ def get_dataloaders(dataset):
     if c.config['network']['shuffle_dataset']:
         np.random.seed(c.config['network']['randomized_seed'])
         np.random.shuffle(indices)
-    train_indices , test_indices = indices[split:] , indices[:split]
-    train_sampler = SubsetRandomSampler(train_indices)
-    test_sampler = SubsetRandomSampler(test_indices)
-
+        train_indices , test_indices = indices[split:] , indices[:split]
+        train_sampler = SubsetRandomSampler(train_indices)
+        test_sampler = SubsetRandomSampler(test_indices)
+    else:
+        train_indices , test_indices = indices[split:] , indices[:split]
+        train_sampler = SequentialSampler(train_indices)
+        test_sampler = SequentialSampler(test_indices)
     train_loader = torch.utils.data.DataLoader(dataset , batch_size=c.config['network']['BATCH_SIZE'] , sampler=train_sampler)
     test_loader = torch.utils.data.DataLoader(dataset , batch_size=c.config['network']['BATCH_SIZE'] , sampler=test_sampler)
     return train_loader, test_loader
