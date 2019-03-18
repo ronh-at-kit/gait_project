@@ -9,6 +9,7 @@ from gait_analysis.DataSets.PosesCasia import PosesCasia
 from gait_analysis.DataSets.IndexingCasia import IndexingCasia
 from gait_analysis.DataSets.HeatMapsCasia import HeatMapsCasia
 
+
 # TRANSFORMERS
 from gait_analysis.Transformers.Composer import Composer
 from gait_analysis.Transformers.Rescale import Rescale
@@ -22,6 +23,7 @@ from gait_analysis.Transformers.Transpose import Transpose
 from gait_analysis.DataSets.TumGAID_Dataset import TumGAID_Dataset
 from gait_analysis.DataSets.CasiaDataset import CasiaDataset
 from gait_analysis.Transformers.AnnotationToLabel import AnnotationToLabel
+from gait_analysis.DataSets.FlowStackDataset import FlowStackDataset
 
 # EXTRA-LIBRARIES
 import gait_analysis.utils.files as fileUtils

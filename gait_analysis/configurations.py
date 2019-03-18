@@ -371,7 +371,9 @@ flows_40 = {
         'preprocess' : True,
         'method' : 'dense',
         'load_patches' : True,
-        'patch_size' : 5
+        'patch_size' : 5,
+        'angles' : [54,90,126],
+        'axis' : 1
         },
     'scenes':{
         'load':False,
