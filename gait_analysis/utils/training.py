@@ -139,6 +139,15 @@ def get_training_vectors_device(dataloader , field , device):
     labels_init = labels_init.to(device)
     return inputs_init, labels_init
 
+def get_training_vectors_device_stack(dataloader , field , device):
+
+    inputs , labels = iter(dataloader).next()
+    input_init = torch.zeros_like(inputs[field][0])
+    labels_init = torch.zeros_like(labels)
+    inputs_init = [input_init.to(device) for s in inputs[field]]
+    labels_init = labels_init.to(device)
+    return inputs_init, labels_init
+
 def print_memory_size(environment, logger=None):
     if logger:
         for var , obj in environment.items():

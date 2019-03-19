@@ -49,7 +49,6 @@ class FlowStackDataset(Dataset):
         idx = self.dataset_items[idx]
 
         # item = [self.dataset[self.dataset.dataset_items.index((idx[0] , idx[1] , a))] for a in angles]
-        print('idx = ', idx)
         item = [self.dataset[self.dataset.dataset_items.index((idx[0] , idx[1] , a))] for a in angles]
         # make annotation pooling
         annotations = tuple([item[i][1].reshape(1 , -1) for i in range(len(angles))])

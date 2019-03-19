@@ -18,6 +18,7 @@ class Config(object):
             self.config = configurations.default
         else:
             print('[OK]')
+
     def get_indexing_selection(self):
         if not 'indexing' in self.config:
             selection = 'auto'
