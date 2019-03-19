@@ -142,9 +142,9 @@ def get_training_vectors_device(dataloader , field , device):
 def get_training_vectors_device_stack(dataloader , field , device):
 
     inputs , labels = iter(dataloader).next()
-    input_init = torch.zeros_like(inputs[field][0])
+    inputs_init = torch.zeros_like(inputs)
     labels_init = torch.zeros_like(labels)
-    inputs_init = [input_init.to(device) for s in inputs[field]]
+    inputs_init = inputs_init.to(device)
     labels_init = labels_init.to(device)
     return inputs_init, labels_init
 
