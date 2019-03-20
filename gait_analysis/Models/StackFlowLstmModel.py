@@ -340,8 +340,8 @@ def main(input_path=None,lr=None):
     train_dataloader, test_dataloader = get_dataloaders(dataset)
 
     # creates scheduler
-    # scheduler = None
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
+    scheduler = None
+    # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
     # scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,30], gamma=0.1)
     # training
     logger.info('configuration: {}'.format(c.config))

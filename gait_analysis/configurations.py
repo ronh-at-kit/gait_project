@@ -16,6 +16,9 @@ default = {
         #                                'LBigToe' , 'RSmallToe' , 'LSmallToe' , 'RHeel' , 'LHeel']
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
         },
+    'annotations': {
+        'preprocess': False
+    },
     'flow': {
         'load':False,
         'preprocess' : True,
@@ -162,7 +165,7 @@ scenes_40 = {
         'preprocess' : False,
         'method' : 'dense',
         'load_patches' : True,
-        'patch_size' : 5,
+        'patch_size' : 5
         },
     'scenes':{
         'load': True,
