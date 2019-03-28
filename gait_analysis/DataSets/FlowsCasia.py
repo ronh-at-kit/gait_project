@@ -79,7 +79,10 @@ class FlowsCasia(Dataset):
             if not os.path.isfile(im_file):
                 raise ValueError('{} don\'t exist.'.format(im_file))
             im = cv2.imread(im_file, -1)
-            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+            #im = cv2.astype('uint8')#
+            #im = cv2.cvtColor(im.astype('uint8'), cv2.COLOR_BGR2RGB)
+            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)#original
+            #im = im.astype('uint8')#
             return im
         scene_images = [read_image(f) for f in scene_files]
         return scene_images

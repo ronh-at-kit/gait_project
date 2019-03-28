@@ -1,11 +1,14 @@
 import os
+import pickle
+
 import numpy as np
 import gait_analysis.settings as settings
 from gait_analysis.utils.data_loading import not_NIF_frame_nums, load_sequence_angle_annotation, remove_nif
+from gait_analysis.utils.files import parse_csv
 from torch.utils.data import Dataset
 from gait_analysis.utils.files import format_data_path
 from gait_analysis.Config import Config
-
+import pandas as pd
 
 
 class AnnotationsCasia(Dataset):
@@ -45,15 +48,15 @@ class AnnotationsCasia(Dataset):
             angle = 90
 
         # load raw annotations
-        annotations = self._load_annotation(p_num , sequence, angle)
+        annotations, IF_indices = self.load_annotation(p_num , sequence , angle)
         # NIF stands for Not In Frame, IF stands for In Frame
 
 
-        IF_indices = np.array(not_NIF_frame_nums(annotations))
-        annotations = remove_nif(annotations, IF_indices)
+        # IF_indices = self.load_nif() #np.array(not_NIF_frame_nums(annotations))
+        # annotations = remove_nif(annotations, IF_indices)
         return annotations, IF_indices
 
-    def _load_annotation(self , person , sequence, angle):
+    def load_annotation(self , person , sequence , angle):
 
         '''
                         :param person:
@@ -61,10 +64,16 @@ class AnnotationsCasia(Dataset):
                         :return: annotations with NIF included (raw data).
                         '''
         person = '{:03d}'.format(person)
-        annotation_file = os.path.join(self.annotations_path, person, sequence,
-                                       person + '-' + sequence + '-semiautomatic.ods')
-        df = load_sequence_angle_annotation(annotation_file , sequence , angle)
-        return df
+        angle = '{:03d}'.format(angle)
+        annotation_file = os.path.join(self.annotations_path , person , sequence ,
+                                       person + '-' + sequence + '-' + angle + '-annotations.csv')
+        nif_file = os.path.join(self.annotations_path , person , sequence ,
+                                person + '-' + sequence + '-' + angle + '-nif.p')
+
+        annotations = parse_csv(annotation_file)
+        IF_indices = pickle.load(open(nif_file , "rb"))
+
+        return annotations, IF_indices
 
 
 if __name__ == '__main__':

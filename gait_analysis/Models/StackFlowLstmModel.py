@@ -16,21 +16,28 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import os, gc
 import psutil
+import torchvision.models as models
+
 
 from gait_analysis.utils.files import set_logger
 from gait_analysis.utils import training
 
-from gait_analysis import CasiaDataset
+from gait_analysis import FlowStackDataset
 from gait_analysis.Config import Config
 from gait_analysis import Composer
 from gait_analysis.utils import files
-
+###############################
 # GLOBAL VARIABLES
+#############################
+
 c = Config()
 time_stamp = training.get_time_stamp()
 logger, log_folder =  set_logger('FLOWS40PLATEAU100epoch',c,time_stamp=time_stamp, level='INFO')
 #logger, log_folder =  set_logger('test_delete_after',c,time_stamp=time_stamp, level='DEBUG')
 
+###############################
+# MODELS DEFINITIONS
+#############################
 
 class CNNLSTM(nn.Module):
     def __init__(self):
@@ -38,22 +45,25 @@ class CNNLSTM(nn.Module):
         self.c = Config()
         self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
 
-        self.conv1 = nn.Conv2d(3 , 16 , 3)  # input 640x480
+        self.conv1a = nn.Conv2d(1 , 8 , 3)  # input 640x480
+        self.conv1b = nn.Conv2d(8 , 8 , 3)  # input 640x480
         self.pool1 = nn.MaxPool2d(2 , 2)  # input 638x478 output 319x239
         # new layers
-        self.conv2a = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
-        self.pool2a = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
-        self.conv2b = nn.Conv2d(16, 16, 3)  # input 319x239 output 317x237
-        self.pool2b = nn.MaxPool2d(2, 2)  # input 317x237 output 158x118
-        self.conv2c = nn.Conv2d(16, 16, 3)  # input 319x239 output 317x237
-        self.pool2c = nn.MaxPool2d(2, 2)  # input 317x237 output 158x118
+        self.conv2a = nn.Conv2d(8 , 16 , 3)  # input 319x239 output 317x237
+        self.conv2b = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
+        self.pool2 = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
 
-        self.conv3 = nn.Conv2d(16 , 6 , 3)  # input 158x118 output 156x116
+        self.conv3a = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
+        self.conv3b = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
+        self.conv3c = nn.Conv2d(16 , 6 , 3)  # input 319x239 output 317x237
         self.pool3 = nn.MaxPool2d(2 , 2)  # input 156x116 output 78x58
-        self.conv4 = nn.Conv2d(6 , 3 , 3)  # input 78x58 output 76x56
+
+        self.conv4a = nn.Conv2d(6 , 3 , 3)  # input 78x58 output 76x56
+        self.conv4b = nn.Conv2d(3 , 3 , 3)  # input 78x58 output 76x56
+        self.conv4c = nn.Conv2d(3 , 1 , 3)  # input 78x58 output 76x56
         self.pool4 = nn.MaxPool2d(2 , 2)  # input 76x56 output 39x29
-        self.conv5 = nn.Conv2d(3 , 1 , 3)  # input 39x29 output 37x27
-        self.pool5 = nn.MaxPool2d(2 , 2)  # output 37x27 output 18x13
+
+
         self.lstm1 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
                              self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
                              self.c.config['network']['TIMESTEPS'])  # horizontal direction
@@ -83,22 +93,26 @@ class CNNLSTM(nn.Module):
         #         print("Input elemens size:", x[0].size())
         #         c.config['network']['BATCH_SIZE'] = x[0].size()[0]
 
-        x_arr = torch.zeros(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , 1 , self.c.config['network']['IMAGE_AFTER_CONV_SIZE_H'] , self.c.config['network']['IMAGE_AFTER_CONV_SIZE_W']).to(
-            self.avialable_device)
+        x = torch.squeeze(x).float().to(self.avialable_device)
+        x_arr = [] # DIMENSIONS: TS X BZ X ? X ?
+
         ## print("X arr size", x_arr.size())
         for i in range(self.c.config['network']['TIMESTEPS']):  # parallel convolutions which are later concatenated for LSTM
-            x_tmp_c1 = self.pool1(F.relu(self.conv1(x[i].float())))
-            # new layer
-            x_tmp_c2 = self.pool2a(F.relu(self.conv2a(x_tmp_c1)))
-            x_tmp_c2 = self.pool2b(F.relu(self.conv2b(x_tmp_c1)))
-            x_tmp_c2 = self.pool2c(F.relu(self.conv2c(x_tmp_c1)))
-
-            x_tmp_c3 = self.pool3(F.relu(self.conv3(x_tmp_c2)))
-            x_tmp_c4 = self.pool4(F.relu(self.conv4(x_tmp_c3)))
-            x_tmp_c5 = self.pool5(F.relu(self.conv5(x_tmp_c4)))
-            x_arr[i] = x_tmp_c5  # torch.squeeze(x_tmp_c5)
-
-        x , _ = self.lstm1(x_arr.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
+            x_in = torch.unsqueeze(x[:,i,:,:],1)
+            x_in = F.relu(self.conv1a(x_in))
+            x_in = self.pool1(F.relu(self.conv1b(x_in)))
+            x_in = F.relu(self.conv2a(x_in))
+            x_in = self.pool2(F.relu(self.conv2b(x_in)))
+            x_in = F.relu(self.conv3a(x_in))
+            x_in = F.relu(self.conv3b(x_in))
+            x_in = self.pool3(F.relu(self.conv3c(x_in)))
+            x_in = F.relu(self.conv4a(x_in))
+            x_in = F.relu(self.conv4b(x_in))
+            x_in = self.pool4(F.relu(self.conv4c(x_in)))
+            x_arr.append(x_in)
+        x = torch.cat(x_arr,1)
+        x = x.permute(1,0,2,3)
+        x , _ = self.lstm1(x.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
         x , _ = self.lstm2(x , self.hidden)
         x , _ = self.lstm3(x , self.hidden)
         # the reshaping was taken from the documentation... and makes scense
@@ -112,6 +126,14 @@ class CNNLSTM(nn.Module):
         x = x.permute(1 , 2 , 0)
         return x
 
+
+
+
+
+
+###############################
+# DATA FUNCTIONS
+#############################
 
 def get_dataloaders(dataset):
     dataset_size = len(dataset)
@@ -148,10 +170,23 @@ def get_optimizer(model,learning_rate=None,momentum=None):
                           momentum=momentum)
     optimizer.param_groups
     return optimizer
+
 def get_dataset():
     composer = Composer()
-    transformer = composer.compose()
-    return CasiaDataset(transform=transformer)
+    # transformer = composer.compose()
+    # return CasiaDataset(transform=transformer)
+    return FlowStackDataset()
+
+###############################
+# TRAINING FUNCTIONS
+#############################
+
+def pred_errors(labels, outputs):
+    with torch.no_grad():
+        _, predicted = torch.max(outputs.data, 1)
+        n_errors = torch.nonzero(torch.abs(labels.long() - predicted)).size(0)
+        total = predicted.numel()
+    return n_errors, total
 
 def test(model,dataloader,device='cpu'):
 
@@ -160,8 +195,8 @@ def test(model,dataloader,device='cpu'):
     total = 0
     with torch.no_grad():
         for i , batch in enumerate(dataloader):
-            inputs , labels = batch
-            scenes = [s.to(device) for s in inputs['flows']]
+            scenes , labels = batch
+            scenes = scenes.to(device)
             labels = labels.to(device)
             if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
                 # skip uncompleted batch size NN is fixed to BATCHSIZE
@@ -178,12 +213,6 @@ def test(model,dataloader,device='cpu'):
     logger.info('...testing finished')
 
 
-def pred_errors(labels, outputs):
-    with torch.no_grad():
-        _, predicted = torch.max(outputs.data, 1)
-        n_errors = torch.nonzero(torch.abs(labels.long() - predicted)).size(0)
-        total = predicted.numel()
-    return n_errors, total
 
 def train(model , optimizer , criterion , train_loader , scheduler=None , epoch_count=0, loss=0, hist = [], device=torch.device('cpu')):
 
@@ -212,7 +241,7 @@ def train(model , optimizer , criterion , train_loader , scheduler=None , epoch_
 
 
     # initialize vectors train
-    inputs_dev, labels_dev = training.get_training_vectors_device(train_loader , 'flows' , device)
+    inputs_dev, labels_dev = training.get_training_vectors_device_stack(train_loader , 'flows' , device)
     ## TRAINING
     logger.info("======== Start Training ==========")
     for epoch in range(epoch_count,epoch_total):
@@ -231,23 +260,6 @@ def train(model , optimizer , criterion , train_loader , scheduler=None , epoch_
     return model, epoch_loss, train_hist
 
 
-
-
-def run_batch(inputs , labels , optimizer , model , criterion):
-    optimizer.zero_grad()
-    outputs = model(inputs)
-    logger.debug("====> Raw Out: {} {}".format(len(outputs) , outputs.size()))
-    logger.debug("====> Raw Labels: {} {}".format(len(labels) , labels.size()))
-    logger.debug("====> Out: {} {}".format(len(outputs) , outputs.size()))
-    logger.debug("====> Labels: {} {}".format(len(labels) , labels.size()))
-    loss = criterion(outputs , labels)
-    loss.backward()
-    optimizer.step()
-    n_errors, total = pred_errors(labels, outputs)
-    accuracy = 100*(total-n_errors)/total
-    logger.debug("====> Accuracy of the batch {}".format(accuracy))
-    return loss.detach().cpu().numpy(), accuracy, n_errors, total
-
 def train_epoch(criterion, epoch, inputs_dev, labels_dev, model, n_batches, optimizer, print_every, start_time,
                 train_loader):
     epoch_loss = 0.0
@@ -260,8 +272,7 @@ def train_epoch(criterion, epoch, inputs_dev, labels_dev, model, n_batches, opti
         if not labels.size()[0] == c.config['network']['BATCH_SIZE']:
             # skip uncompleted batch size NN is fixed to BATCH_SIZE
             continue
-        for ii , s in enumerate(inputs['flows']):
-            inputs_dev[ii].copy_(s)
+        inputs_dev.copy_(inputs)
         labels_dev.copy_(labels)
         loss, accuracy, n_errors, total = run_batch(inputs_dev, labels_dev, optimizer, model, criterion)
         # Print statistics
@@ -281,6 +292,20 @@ def train_epoch(criterion, epoch, inputs_dev, labels_dev, model, n_batches, opti
     epoch_accuracy = 100*(epoch_samples - epoch_errors)/epoch_samples
     return epoch_loss, epoch_accuracy
 
+def run_batch(inputs , labels , optimizer , model , criterion):
+    optimizer.zero_grad()
+    outputs = model(inputs)
+    logger.debug("====> Raw Out: {} {}".format(len(outputs) , outputs.size()))
+    logger.debug("====> Raw Labels: {} {}".format(len(labels) , labels.size()))
+    logger.debug("====> Out: {} {}".format(len(outputs) , outputs.size()))
+    logger.debug("====> Labels: {} {}".format(len(labels) , labels.size()))
+    loss = criterion(outputs , labels)
+    loss.backward()
+    optimizer.step()
+    n_errors, total = pred_errors(labels, outputs)
+    accuracy = 100*(total-n_errors)/total
+    logger.debug("====> Accuracy of the batch {}".format(accuracy))
+    return loss.detach().cpu().numpy(), accuracy, n_errors, total
 
 def main(input_path=None,lr=None):
     # TRAINING
@@ -315,8 +340,8 @@ def main(input_path=None,lr=None):
     train_dataloader, test_dataloader = get_dataloaders(dataset)
 
     # creates scheduler
-    # scheduler = None
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
+    scheduler = None
+    # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
     # scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,30], gamma=0.1)
     # training
     logger.info('configuration: {}'.format(c.config))

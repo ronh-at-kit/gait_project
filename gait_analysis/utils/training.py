@@ -6,7 +6,7 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import sys
 
-def save_model(path,model, optimizer = None, epoch=0, loss=0):
+def save_model(path , model , optimizer=None , epoch=0 , loss=0 , hist=[] , source='cpu'):
     '''
     you can save a dict to be load as:
     {
@@ -23,18 +23,22 @@ def save_model(path,model, optimizer = None, epoch=0, loss=0):
         'epoch': epoch ,
         'model_state_dict': model.state_dict() ,
         'optimizer_state_dict': optimizer.state_dict() ,
-        'loss': loss},
+        'loss': loss,
+        'hist': hist,
+        'source': source},
             path)
     else:
         torch.save({
         'epoch': epoch ,
         'model_state_dict': model.state_dict() ,
         'optimizer_state_dict': None,
-        'loss': loss},
+        'loss': loss,
+        'hist': hist,
+        'source': source},
             path)
 
 
-def load_model(path, model, optimizer, source=None, target=None):
+def load_model(path, model, target=None):
     '''
     load a model in a form a dictionary and initialize the model and the optimizer
     :param source: it Is the device from where we are reading.
@@ -44,15 +48,61 @@ def load_model(path, model, optimizer, source=None, target=None):
     :param optimizer: optimizer to be parametrized/
     :return: model, optiizer,epoch and loss
     '''
-
     checkpoint = torch.load(path)
-    print('checkpoint[optimizer_state_dict]',checkpoint)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    source = checkpoint['source']
+    c = Config()
+    device = torch.device(target)
+    if source=='cpu' and target=='cpu':
+        # CPU to CPU
+        checkpoint = torch.load(path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+    elif not source == 'cpu' and target == 'cpu':
+        # GPU to CPU
+        checkpoint = torch.load(path , map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+    elif not source == 'cpu' and not target == 'cpu':
+        # GPU to GPU
+        checkpoint = torch.load(path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        model.to(device)
+    else:
+        # CPU to GPU
+        checkpoint = torch.load(path , map_location=c.config['network']['device'])
+        model.load_state_dict(checkpoint['model_state_dict'])
+        model.to(device)
+    return model
+
+def load_optimizer(path, optimizer, target):
+    checkpoint = torch.load(path)
     if checkpoint['optimizer_state_dict']:
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
-    loss = checkpoint['loss']
-    return model, optimizer, epoch, loss
+        source = checkpoint['source']
+        c = Config()
+        device = torch.device(target)
+        if source == 'cpu' and target == 'cpu':
+            # CPU to CPU
+            checkpoint = torch.load(path)
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        elif not source == 'cpu' and target == 'cpu':
+            # GPU to CPU
+            checkpoint = torch.load(path , map_location=device)
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        elif not source == 'cpu' and not target == 'cpu':
+            # GPU to GPU
+            checkpoint = torch.load(path)
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            #optimizer.to(device)
+        else:
+            # CPU to GPU
+            checkpoint = torch.load(path , map_location=c.config['network']['device'])
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            #optimizer.to(device)
+        return optimizer
+    else:
+        return optimizer
+
+def load_status(path):
+    checkpoint = torch.load(path)
+    return checkpoint['loss'], checkpoint['hist'], checkpoint['epoch']
 
 def plot_train_loss_hist(train_loss_hist, save=False, filename=None):
     c = Config()
@@ -62,7 +112,18 @@ def plot_train_loss_hist(train_loss_hist, save=False, filename=None):
     plt.xlabel('epoch number')
     plt.ylabel('train loss for all epoch')
     plt.draw()
-    plt.savefig(filename)
+    if save:
+        plt.savefig(filename)
+def plot_train_accu_hist(train_accu_hist, save=False, filename=None):
+    c = Config()
+    plt.clf()
+    plt.plot(train_accu_hist[train_accu_hist != 0])
+    plt.title('train accuracy history')
+    plt.xlabel('epoch number')
+    plt.ylabel('train accuracy for all epochs')
+    plt.draw()
+    if save:
+        plt.savefig(filename)
 
 
 
@@ -77,6 +138,27 @@ def get_training_vectors_device(dataloader , field , device):
     inputs_init = [input_init.to(device) for s in inputs[field]]
     labels_init = labels_init.to(device)
     return inputs_init, labels_init
+
+def get_training_vectors_device_stack(dataloader , field , device):
+
+    inputs , labels = iter(dataloader).next()
+    inputs_init = torch.zeros_like(inputs)
+    labels_init = torch.zeros_like(labels)
+    inputs_init = inputs_init.to(device)
+    labels_init = labels_init.to(device)
+    return inputs_init, labels_init
+
+def print_memory_size(environment, logger=None):
+    if logger:
+        for var , obj in environment.items():
+            if not var.startswith('__'):
+                logger.info("memory size ({}): {}  ".format(var , get_size(obj)))
+        logger.info('---------------------------------------------------------')
+    else:
+        for var , obj in environment.items():
+            if not var.startswith('__'):
+                print("memory size ({}): {}  ".format(var , get_size(obj)))
+        print('---------------------------------------------------------')
 
 
 def get_size(obj, seen=None):

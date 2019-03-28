@@ -1,3 +1,4 @@
+import csv
 import os
 import fnmatch
 import glob
@@ -5,6 +6,32 @@ import glob
 import datetime
 import logging
 
+def parse_csv(filename, with_header = True):
+    '''
+    Parse file names and output a dict of lists
+    :param filename:
+    :return: dict of columns: {'col name': 'values list'}
+    '''
+    if not os.path.exists(filename):
+        logger = logging.getLogger()
+        logger.error('File {} doesn\'t exists'.format(filename))
+        raise FileExistsError
+    with open(filename, 'rt', encoding= 'utf-8') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=',', quotechar='/')
+        columns = {}
+        if with_header:
+            headers = csvreader.__next__()
+            for h in headers:
+                columns[h] = []
+        else:
+            first_row = csvreader.__next__()
+            headers = range(0,len(first_row))
+            for h,v in  zip(headers,first_row):
+                columns[h] = [v]
+        for row in csvreader:
+            for h, v in zip(headers, row):
+                columns[h].append(v)
+    return columns
 
 def is_empty_path(path):
     print('=====len(list_all_files(path,\'*\')) = ', len(list_all_files(path,'*')))

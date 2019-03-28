@@ -1,4 +1,5 @@
 import logging
+import psutil
 
 import torch
 import torch.nn as nn
@@ -9,7 +10,7 @@ from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
 import numpy as np
 import time
-import os
+import os, gc
 import os.path as path
 import copy
 from torch.utils.data.sampler import SubsetRandomSampler
@@ -253,27 +254,46 @@ def main():
 
     # instantiates dataset
     dataset = get_dataset()
-    logger.info('dataset lenght: {}'.format(len(dataset)))
-    logger.info('dataset elements: {}'.format(dataset.dataset_items))
+    pid = os.getpid()
+    logger.info('Process running in PID: {}'.format(pid))
+    py = psutil.Process(pid)
+    it = 0
+    prev_mem = py.memory_info()[0] / 2. ** 20
+    stop_val = len(dataset)
+    for i in range(10):
+        d = dataset[i]
+        gc.collect()
+        it+=1
+        cur_mem = py.memory_info()[0] / 2. ** 20
+        add_mem = cur_mem - prev_mem
+        logger.info(" ===> MEMORY iteration{}: {}M +{}M  ==>>> {}M".format(it ,prev_mem, add_mem, cur_mem))
+        prev_mem = cur_mem
 
-    # creates dataloders
-    train_dataloader, test_dataloader = get_dataloaders(dataset)
 
-    # training
-    logger.info('configuration: {}'.format(c.config))
-    model = train(model,optimizer,criterion,train_dataloader,device=device)
 
-    # testing
-    logger.info('Testing in the training set:...')
-    test(model, train_dataloader, device)
-    logger.info('Testing in the testing set:...')
-    test(model, test_dataloader, device)
-
-    # save model
-    model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
-    training.save_model(model_file_name)
-
-    plt.show()
+        # print(d)
+    #
+    # logger.info('dataset lenght: {}'.format(len(dataset)))
+    # logger.info('dataset elements: {}'.format(dataset.dataset_items))
+    #
+    # # creates dataloders
+    # train_dataloader, test_dataloader = get_dataloaders(dataset)
+    #
+    # # training
+    # logger.info('configuration: {}'.format(c.config))
+    # model = train(model,optimizer,criterion,train_dataloader,device=device)
+    #
+    # # testing
+    # logger.info('Testing in the training set:...')
+    # test(model, train_dataloader, device)
+    # logger.info('Testing in the testing set:...')
+    # test(model, test_dataloader, device)
+    #
+    # # save model
+    # model_file_name = "{0}/{1}-{2}".format(log_folder , time_stamp , c.config['logger']['model_file'])
+    # training.save_model(model_file_name)
+    #
+    # plt.show()
 
 if __name__== '__main__':
     main()
