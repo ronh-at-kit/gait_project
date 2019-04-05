@@ -7,7 +7,7 @@ class DimensionResize(object):
     """
 
     def __init__(self, parameters):
-        self.start = parameters['start'] if hasattr(parameters,'start') else 0
+        self.start = parameters['start'] if ('start' in parameters) else 0
         self.dimension = parameters['dimension']
         self.target = parameters['target']
 
