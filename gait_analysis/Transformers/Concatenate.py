@@ -20,12 +20,10 @@ class Concatenate(object):
             if t == 'annotations':
                 # print("Annotation:",sample[t])
                 label = sample[t]
-                label = label[self.pos_label]
-                sample[t] = np.array(np.expand_dims(label, axis=0))
+                sample[t] = np.array(label[self.pos_label])
             else:
                 image_list = sample[t]
                 # print("Flow size:", len(image_list))
                 image_list_new = np.concatenate(image_list,axis=0)
-                # print(image_list_new.shape)
                 sample[t] = image_list_new
         return sample
