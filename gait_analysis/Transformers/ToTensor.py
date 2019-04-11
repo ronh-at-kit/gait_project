@@ -12,9 +12,9 @@ class ToTensor(object):
             value = sample[t]
             if isinstance(value,list):
                 # print("List or value")
-                sample[t] = [torch.from_numpy(v) for v in value]
+                sample[t] = [torch.from_numpy(v).float() for v in value]
             else:
                 # print("No list")
                 # add one matrix dimension here
-                sample[t] = torch.from_numpy(value)
+                sample[t] = torch.from_numpy(value).float()
         return sample
