@@ -418,7 +418,7 @@ flows_1 = {
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,4,5],
+        'people_selection': [1],
         #'sequences_selection': ['nm-01']
         'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
@@ -462,6 +462,7 @@ flows_1 = {
         'Rescale': {'output_size' : (640,480), 'target': ["flows"]},
         'AnnotationToLabel': {'target': ["annotations"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
+        'Normalize': {'target': ["flows"]},
         'DimensionResize' : {'start': 10, 'dimension': 10, 'target': ["flows","annotations"]},
         'ToTensor': {'target':["flows","annotations"]}
     }
