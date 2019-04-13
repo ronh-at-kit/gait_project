@@ -586,7 +586,7 @@ vgg_224 = {
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,4,5],
+        'people_selection': [1],
         #'sequences_selection': ['nm-01']
         'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
@@ -600,14 +600,14 @@ vgg_224 = {
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
         },
     'flow': {
-        'load':False,
+        'load':True,
         'preprocess' : True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
         },
     'scenes':{
-        'load':True,
+        'load':False,
         'preprocess': False,
         'crops' : False,
         'gray_scale' : False,
@@ -621,18 +621,19 @@ vgg_224 = {
         'body_keypoints_include_list' : ['LAnkle','RAnkle']
     },
     'dataset_output' : {
-        'data': ["scenes"],
+        'data': ["flows"],
         'label': "annotations"
     },
     'transformers':{
         # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
         #'SpanImagesList': {'remove':False, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
-        'Rescale': {'output_size' : (224,224), 'target': ["scenes"]},
+        'Rescale': {'output_size' : (224,224), 'target': ["flows"]},
         'AnnotationToLabel': {'target': ["annotations"]},
-        'DimensionResize' : {'start': 1, 'dimension': 10, 'target': ["scenes","annotations"]},
-        'Transpose' : {'swapping': (2,1,0) , 'target': ["scenes"]},
+        'DimensionResize' : {'start': 1, 'dimension': 10, 'target': ["flows","annotations"]},
+        'Transpose' : {'swapping': (2,1,0) , 'target': ["flows"]},
+        'Normalize' : {'target': ["flows"]},
         # 'Concatenate': {'target': ["scenes","annotations"], 'quantity': 1, 'pos_label': 1},
-        'ToTensor': {'target':["scenes","annotations"]}
+        'ToTensor': {'target':["flows","annotations"]}
     }
 }
 
