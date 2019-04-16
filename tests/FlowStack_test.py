@@ -14,12 +14,8 @@ class TestCasiaDataset(unittest.TestCase):
 
     def test_import(self):
         datasets = FlowStackDataset()
-        inputs, annotations = datasets[1]
-        # dataset_0 = dataset[0]
-        # self.assertEqual(dataset_0.shape, (480, 640, 3))
-
-
-
+        item = datasets[0]
+        print(item)
 
 
 
