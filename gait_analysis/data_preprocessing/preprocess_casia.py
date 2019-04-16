@@ -132,7 +132,7 @@ def calc_of(prevs, next):
                                       flags=0)
     return of
 
-def extract_pose_imagedir(image_dir, output_dir):
+def extract_pose_imagedir(image_dir, output_dir, pose_dir = None, heatmaps_dir=None):
     '''
     Json format can be seen here
     https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md
