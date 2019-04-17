@@ -22,13 +22,7 @@ default = {
     'flow': {
         'load':False,
         'preprocess' : True,
-        'method' : 'dense',
-        'load_patches' : True,
-        'patch_size' : 5
-        },
-    'crops_flow': {
-        'load': False,
-        'preprocess' : True,
+        'crops' : True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
@@ -87,13 +81,7 @@ crops = {
     'flow': {
         'load': True,
         'preprocess' : True,
-        'method' : 'dense',
-        'load_patches' : True,
-        'patch_size' : 5
-        },
-    'crops_flow': {
-        'load': False,
-        'preprocess' : True,
+        'crops': True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
@@ -448,6 +436,7 @@ flows_1 = {
     'flow': {
         'load':True,
         'preprocess' : True,
+        'crops': True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5

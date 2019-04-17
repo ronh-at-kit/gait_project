@@ -14,9 +14,12 @@ class FlowsCasia(Dataset):
     '''
 
     def __init__(self, dataset_items, transform=None):
-        self.flow_dir = format_data_path(settings.casia_flow_dir)
-        self.dataset_items = dataset_items
         self.config = Config()
+        if self.config.config['flow']['crops']:
+            self.flow_dir = format_data_path(settings.casia_crops_flow_dir)
+        else:
+            self.flow_dir = format_data_path(settings.casia_flow_dir)
+        self.dataset_items = dataset_items
         self.options = {}
 
 

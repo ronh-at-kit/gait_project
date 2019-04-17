@@ -3,7 +3,6 @@ from gait_analysis import AnnotationsCasia as Annotations
 from gait_analysis import PosesCasia as Poses
 from gait_analysis import ScenesCasia as Scenes
 from gait_analysis import FlowsCasia as Flows
-from gait_analysis import CropsFlowCasia as CropsFlow
 from gait_analysis import IndexingCasia as Indexing
 from gait_analysis import HeatMapsCasia as HeatMaps
 from gait_analysis.Config import Config
@@ -24,8 +23,6 @@ class CasiaDataset(Dataset):
             self.scenes = Scenes(self.dataset_items)
         if self.config['flow']['load']:
             self.flows = Flows(self.dataset_items)
-        if self.config['crops_flow']['load']:
-            self.crops_flow = CropsFlow(self.dataset_items)
         if self.config['heatmaps']['load']:
             self.heatmaps = HeatMaps(self.dataset_items)
         self.transform = transform
