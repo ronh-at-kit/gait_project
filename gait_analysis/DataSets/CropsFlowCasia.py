@@ -8,13 +8,13 @@ from gait_analysis.utils.files import format_data_path
 import gait_analysis.settings as settings
 from gait_analysis.Config import Config
 
-class FlowsCasia(Dataset):
+class CropsFlowCasia(Dataset):
     '''
     TumGAID_Dataset loader
     '''
 
     def __init__(self, dataset_items, transform=None):
-        self.flow_dir = format_data_path(settings.casia_flow_dir)
+        self.crop_flow_dir = format_data_path(settings.casia_crop_flow_dir)
         self.dataset_items = dataset_items
         self.config = Config()
         self.options = {}
@@ -36,13 +36,13 @@ class FlowsCasia(Dataset):
         output = {}
 
         # Loading scene images
-        images = self._load_flow(dataset_item)
+        images = self._load_crop_flow(dataset_item)
         return images
 
     def set_option(self,key, value):
         self.options[key] = value
 
-    def _load_flow(self , dataset_item):
+    def _load_crop_flow(self , dataset_item):
         '''
         Loads scene sequence given a dataset item.
         :param dataset_item: the tuple indicating the dataset item
@@ -57,18 +57,18 @@ class FlowsCasia(Dataset):
         elif grouping == 'person_sequence_angle':
             p_num , sequence, angle = dataset_item
 
-        flow_folder = os.path.join(self.flow_dir , '{:03d}'.format(p_num) , sequence)
-        def compose_flow_filename(angle,i):
-            # 001_bg-01-018_frame_019_flow.png
+        crop_flow_folder = os.path.join(self.crop_flow_dir , '{:03d}'.format(p_num) , sequence)
+        def compose_crops_flow_filename(angle,i):
+            # 001_bg-01-018_frame_019_flow_crop.png
 
-            return join(flow_folder , '{}-{:03d}'.format(sequence , angle) , \
-                    '{:03d}-{}-{:03d}_frame_{:03d}_flow.png'.format(p_num , sequence , angle , i))
+            return join(crop_flow_folder , '{}-{:03d}'.format(sequence , angle) , \
+                    '{:03d}-{}-{:03d}_frame_{:03d}_flow_crop.png'.format(p_num , sequence , angle , i))
 
         scene_files = []
         if 'valid_indices' in self.options:
             valid_indices = self.options['valid_indices']
             valid_indices = valid_indices[:-1]
-            scene_files += [compose_flow_filename(angle , i) for i , valid in enumerate(valid_indices) if valid]
+            scene_files += [compose_crops_flow_filename(angle , i) for i , valid in enumerate(valid_indices) if valid]
         else:
             scene_files += [join(flow_folder, '{}-{:03d}'.format(sequence , angle) , f) for f in listdir(flow_folder) if f.endswith('.png')]
             scene_files.sort()
