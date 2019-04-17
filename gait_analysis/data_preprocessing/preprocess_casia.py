@@ -132,7 +132,7 @@ def calc_of(prevs, next):
                                       flags=0)
     return of
 
-def extract_pose_imagedir(image_dir, output_dir):
+def extract_pose_imagedir(image_dir, output_dir, pose_dir = None, heatmaps_dir=None):
     '''
     Json format can be seen here
     https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md
@@ -233,7 +233,7 @@ def visit_person_sequence_casia(person_folder):
         if CONFIG['pose']['preprocess'] and CONFIG['heatmaps']['preprocess']:
             #extract pody keypoints
             pose_output_dir = os.path.join(settings.casia_pose_dir, person, sequence, sequence_angle)
-            heatmaps_output_dir = os.path.join(settings.casia_heatmaps_dir , person , sequence , sequence_angle)
+            heatmaps_output_dir = os.path.join(settings.casia_heatmap_dir , person , sequence , sequence_angle)
             makedirs(pose_output_dir)
             makedirs(heatmaps_output_dir)
             extract_pose_imagedir(sequence_angle_folder, pose_dir=pose_output_dir, heatmaps_dir = heatmaps_output_dir)
@@ -244,7 +244,7 @@ def visit_person_sequence_casia(person_folder):
             extract_pose_imagedir(sequence_angle_folder , pose_dir=pose_output_dir)
         elif CONFIG['heatmaps']['preprocess']:
             # extract pody keypoints
-            heatmaps_output_dir = os.path.join(settings.casia_heatmaps_dir , person , sequence , sequence_angle)
+            heatmaps_output_dir = os.path.join(settings.casia_heatmap_dir , person , sequence , sequence_angle)
             makedirs(heatmaps_output_dir)
             extract_pose_imagedir(sequence_angle_folder , heatmaps_dir=heatmaps_output_dir)
 
