@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 class WeightWatcher(object):
     """Monitors weight changes in layers
@@ -16,6 +17,7 @@ class WeightWatcher(object):
             self.layer_init_dic[layer] = weights
             self.layer_var[layer] = []
             self.layer_mean[layer] = []
+        self.loss_list = []
 
     # def __call__(self,model):
     #     print("Do nothing")
@@ -32,8 +34,16 @@ class WeightWatcher(object):
             # print("Mean",mean)
             # print("Var",var)
 
+    def update_loss(self,loss):
+        if type(loss) == torch.Tensor:
+            self.loss_list.append(loss.data.item())
+        elif type(loss) == float:
+            self.loss_list.append(loss)
+        else:
+            print("Warning, unknown type, only accepts torch.Tensor or float (from either loss or loss.data.item()")
+
     def __get_model_weights(self,net,str):
-        # this is nasty with "exec()"
+        # this is nasty with "exec(), but one line"
         exec("self._weights = list(net." + str + ".parameters())[0].detach().numpy().flatten()")
         return self._weights
 
@@ -45,6 +55,9 @@ class WeightWatcher(object):
             for layer in layers:
                 var_list.append(self.layer_var[layer])
             return var_list
+
+    def get_loss(self):
+        return self.loss_list
 
         # if str == 'conv1':
         #     return list(net.conv1.parameters())[0].detach.numpy().flatten()
