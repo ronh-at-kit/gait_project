@@ -19,10 +19,6 @@ class WeightWatcher(object):
             self.layer_mean[layer] = []
         self.loss_list = []
 
-    # def __call__(self,model):
-    #     print("Do nothing")
-    #     # model = test_net
-
     def update_weights(self,net,layers):
         for layer in layers:
             weights_tmp = self.__get_model_weights(net,layer)
@@ -31,8 +27,6 @@ class WeightWatcher(object):
             var = np.var(weights_tmp - weights_init)
             self.layer_mean[layer].append(mean)
             self.layer_var[layer].append(var)
-            # print("Mean",mean)
-            # print("Var",var)
 
     def update_loss(self,loss):
         if type(loss) == torch.Tensor:
@@ -58,22 +52,4 @@ class WeightWatcher(object):
 
     def get_loss(self):
         return self.loss_list
-
-        # if str == 'conv1':
-        #     return list(net.conv1.parameters())[0].detach.numpy().flatten()
-        # elif str == 'conv2':
-        #     return list(net.conv2.parameters())[0].detach.numpy().flatten()
-        # elif str == 'conv3':
-        #     return list(net.conv3.parameters())[0].detach.numpy().flatten()
-        # elif str == 'conv4':
-        #     return list(net.conv4.parameters())[0].detach.numpy().flatten()
-        # elif str == 'conv5':
-        #     return list(net.conv5.parameters())[0].detach.numpy().flatten()
-        # elif str == 'fc1':
-        #     return list(net.fc1.parameters())[0].detach.numpy().flatten()
-        # elif str == 'fc2':
-        #     return list(net.fc2.parameters())[0].detach.numpy().flatten()
-        # elif str == 'fc3':
-        #     return list(net.fc3.parameters())[0].detach.numpy().flatten()
-
 
