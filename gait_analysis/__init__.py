@@ -17,6 +17,8 @@ from gait_analysis.Transformers.DimensionResize import DimensionResize
 from gait_analysis.Transformers.Normalizer import Normalizer
 from gait_analysis.Transformers.Normalize import Normalize
 
+from gait_analysis.Entomologists.WeightWatcher import WeightWatcher
+from gait_analysis.Entomologists.AccuracyTracker import AccuracyTracker
 
 from gait_analysis.Transformers.ToTensor import ToTensor
 from gait_analysis.Transformers.SpanImagesList import SpanImagesList
