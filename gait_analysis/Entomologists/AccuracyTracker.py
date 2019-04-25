@@ -1,3 +1,6 @@
+import csv
+import torch
+
 class AccuracyTracker(object):
     """Takes labels and predictions and analyzes prediciton accuracy on each class
     Assumes that the labels are [0,1,2] since our class will always have those labels
@@ -37,7 +40,7 @@ class AccuracyTracker(object):
     def get_acc_graph(self):
         return self.acc_graph
 
-    def get_total_acc_graph(self):
+    def get_acc_tot_graph(self):
         return self.total_acc_graph
 
     def reset_graph(self):
@@ -46,7 +49,12 @@ class AccuracyTracker(object):
         self.total_acc_graph = []
 
     def update_loss(self,loss):
-        self.loss_graph.append(loss)
+        if type(loss) == torch.Tensor:
+            self.loss_graph.append(loss.data.item())
+        elif type(loss) == float:
+            self.loss_graph.append(loss)
+        else:
+            print("Warning, unknown type, only accepts torch.Tensor or float (from either loss or loss.data.item()")
 
     def reset_loss(self):
         self.loss_graph = []
@@ -79,7 +87,20 @@ class AccuracyTracker(object):
         return self.correctly
 
     def get_total_acc(self):
-        return sum(self.correctly)/sum(self.total)
+        total_mod = [1 if word == 0 else word for word in self.total]
+        return sum(self.correctly)/sum(total_mod)
 
-
-
+    def write_to_csv(self,path):
+        with open(path + "acc_tot.csv", 'w') as file:
+            wr = csv.writer(file)
+            wr.writerow(self.total_acc_graph)
+        with open(path + "loss.csv", 'w') as file:
+            wr = csv.writer(file)
+            wr.writerow(self.loss_graph)
+        with open(path + "lr.csv", 'w') as file:
+            wr = csv.writer(file)
+            wr.writerow(self.lr_graph())
+        for i in range(len(self.acc_graph)):
+            with open(path + "acc" + str(i) + ".csv", 'w') as file:
+                wr = csv.writer(file)
+                wr.writerow(self.acc_graph[i])

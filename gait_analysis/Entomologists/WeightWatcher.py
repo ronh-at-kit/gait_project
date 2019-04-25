@@ -9,6 +9,8 @@ class WeightWatcher(object):
     # TODO LOSS
     def __init__(self,net,layers):
         # layer_list = ['conv1', 'fc3']
+        print("Layers:",net.parameters)
+        print("Input: e.g. ['conv1','features[3]','classifier[2]'")
         self.layer_init_dic = {}
         self.layer_var = {}
         self.layer_mean = {}
@@ -17,7 +19,6 @@ class WeightWatcher(object):
             self.layer_init_dic[layer] = weights
             self.layer_var[layer] = []
             self.layer_mean[layer] = []
-        self.loss_list = []
 
     def update_weights(self,net,layers):
         for layer in layers:
@@ -27,14 +28,6 @@ class WeightWatcher(object):
             var = np.var(weights_tmp - weights_init)
             self.layer_mean[layer].append(mean)
             self.layer_var[layer].append(var)
-
-    def update_loss(self,loss):
-        if type(loss) == torch.Tensor:
-            self.loss_list.append(loss.data.item())
-        elif type(loss) == float:
-            self.loss_list.append(loss)
-        else:
-            print("Warning, unknown type, only accepts torch.Tensor or float (from either loss or loss.data.item()")
 
     def __get_model_weights(self,net,str):
         # this is nasty with "exec(), but one line"
@@ -49,7 +42,4 @@ class WeightWatcher(object):
             for layer in layers:
                 var_list.append(self.layer_var[layer])
             return var_list
-
-    def get_loss(self):
-        return self.loss_list
 
