@@ -912,3 +912,60 @@ not_normalized_flows = {
         # 'ToTensor': {'target':["flows","scenes","annotations"]}
     }
 }
+
+cnn_flows_pretrain = {
+    'indexing':{
+        #'grouping': 'person_sequence_angle',
+        'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
+                                 #  => 'manual_people' = uses 'people' list
+                                 #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
+        'people_selection': [1],
+        'sequences_selection': ['nm-01']
+        # 'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
+        },
+    'pose': {
+        'load': False,
+        'preprocess': False,
+        'D': 2 ,
+        # the complete list is:
+        #'body_keypoints_include_list': ['LAnkle' , 'RAnkle' , 'LKnee' , 'RKnee' , 'RHip' , 'LHip' , 'RBigToe' ,
+        #                                'LBigToe' , 'RSmallToe' , 'LSmallToe' , 'RHeel' , 'LHeel']
+        'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
+        },
+    'flow': {
+        'load':True,
+        'preprocess' : True,
+        'crops': True,
+        'method' : 'dense',
+        'load_patches' : True,
+        'patch_size' : 5
+        },
+    'scenes':{
+        'load':False,
+        'preprocess': False,
+        'crops' : False,
+        'gray_scale' : False,
+        'load_tracked' : False,
+        'sequences': ['nm'],
+        'angles': [90]
+    },
+    'heatmaps':{
+        'load':False,
+        'preprocess': False,
+        'body_keypoints_include_list' : ['LAnkle','RAnkle']
+    },
+    'dataset_output' : {
+        'data': ["flows"],
+        'label': "annotations"
+    },
+    'transformers':{
+        # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
+        # 'SpanImagesList': {'remove':True, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
+        # 'Rescale': {'output_size' : (640,480), 'target': ["flows"]},
+        'AnnotationToLabel': {'target': ["annotations"]},
+        'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
+        'Normalize': {'target': ["flows"]},
+        'DimensionResize' : {'start': 15, 'dimension': 40, 'target': ["flows","annotations"]},
+        'ToTensor': {'target':["flows","annotations"]}
+    }
+}
