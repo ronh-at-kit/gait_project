@@ -1,4 +1,5 @@
 import csv
+import numpy as np
 import torch
 
 class AccuracyTracker(object):
@@ -13,9 +14,9 @@ class AccuracyTracker(object):
         self.acc_graph = []
         for _ in range(len(possible_labels)):
             self.acc_graph.append([])
-        self.total_acc_graph = []
         self.loss_graph = []
         self.lr_graph = []
+        self.acc_tot_graph = []
 
     def reset_acc(self):
         self.correctly = [0]*len(self.different_labels)
@@ -35,18 +36,18 @@ class AccuracyTracker(object):
     def update_graph(self):
         for i in range(len(self.different_labels)):
             self.acc_graph[i].append(self.get_acc()[i])
-        self.total_acc_graph.append(self.get_total_acc())
+        self.acc_tot_graph.append(self.get_acc_tot())
 
     def get_acc_graph(self):
-        return self.acc_graph
+        return np.around(self.acc_graph)
 
     def get_acc_tot_graph(self):
-        return self.total_acc_graph
+        return np.around(self.acc_tot_graph)
 
     def reset_graph(self):
         for i in range(len(possible_labels)):
             self.acc_graph[i] = []
-        self.total_acc_graph = []
+        self.acc_tot_graph = []
 
     def update_loss(self,loss):
         if type(loss) == torch.Tensor:
@@ -60,7 +61,7 @@ class AccuracyTracker(object):
         self.loss_graph = []
 
     def get_loss_graph(self):
-        return self.loss_graph
+        return np.around(self.loss_graph,decimals=3)
 
     def update_lr(self,lr):
         self.lr_graph.append(lr)
@@ -69,7 +70,7 @@ class AccuracyTracker(object):
         self.lr_graph = []
 
     def get_lr_graph(self):
-        return self.lr_graph
+        return np.around(self.lr_graph,decimals=3)
 
     # def reset_graph(self):
     # def get_acc_graph(self)
@@ -77,7 +78,7 @@ class AccuracyTracker(object):
     def get_acc(self):
         total_mod = [1 if word == 0 else word for word in self.total]
         # returns 0 if no elements in this class
-        acc = [c/t for c,t in zip(self.correctly,total_mod)]
+        acc = [np.around(c/t,decimals=3) for c,t in zip(self.correctly,total_mod)]
         return acc
 
     def get_labels_distribution(self):
@@ -86,14 +87,14 @@ class AccuracyTracker(object):
     def get_abs_predictions(self):
         return self.correctly
 
-    def get_total_acc(self):
+    def get_acc_tot(self):
         total_mod = [1 if word == 0 else word for word in self.total]
-        return sum(self.correctly)/sum(total_mod)
+        return np.around(sum(self.correctly)/sum(total_mod),decimals=3)
 
     def write_to_csv(self,path):
         with open(path + "acc_tot.csv", 'w') as file:
             wr = csv.writer(file)
-            wr.writerow(self.total_acc_graph)
+            wr.writerow(self.acc_tot_graph)
         with open(path + "loss.csv", 'w') as file:
             wr = csv.writer(file)
             wr.writerow(self.loss_graph)
