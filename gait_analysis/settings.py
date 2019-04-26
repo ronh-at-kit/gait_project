@@ -2,12 +2,13 @@ from os.path import join
 from gait_analysis.utils.files import correct_path
 # DEFINE YOUR CONFIGURATION HERE
 openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
-# casia_root = "/home/ron/Dokumente/Datasets/Gait/CASIA"
-casia_root = "~/gait_project/CASIAData"
+casia_root = "/home/ron/PycharmProjects/Gait2019/CASIA"
+# casia_root = "~/gait_project/CASIAData"
 tum_root = "~/gait_project/TUMData"
-configuration = "scenes"
+#configuration = "heatmaps_1"
 # configuration = "one_angle"
-
+# configuration = "c3d"
+configuration = "cnn_flows_pretrain"
 # ==========================================================
 # ==========================================================
 # ==========================================================
@@ -32,8 +33,8 @@ tumgaid_annotations_root = join(tum_root,"annotations/TUM") # ordered by people 
 casia_pose_dir = join(casia_root,"preprocessing/pose/") # ordered by people folders
 casia_heatmap_dir = join(casia_root,"preprocessing/heatmaps/") # ordered by people folders
 casia_flow_dir = join(casia_root,"preprocessing/flow/")  # ordered by people folders
-casia_crops_flow_dir = join(casia_root,"preprocessing/crops_flow/")
 casia_crops_dir = join(casia_root,"preprocessing/crops")# ordered by people folders
+casia_crops_flow_dir = join(casia_root, "preprocessing/crops_flow")
 casia_images_dir = join(casia_root,"images")# ordered by people folders
 casia_annotations_dir = join(casia_root,"annotations")# ordered by people folders
 # *********************************************************

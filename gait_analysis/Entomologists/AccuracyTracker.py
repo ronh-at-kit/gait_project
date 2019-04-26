@@ -100,7 +100,7 @@ class AccuracyTracker(object):
             wr.writerow(self.loss_graph)
         with open(path + "lr.csv", 'w') as file:
             wr = csv.writer(file)
-            wr.writerow(self.lr_graph())
+            wr.writerow(self.lr_graph)
         for i in range(len(self.acc_graph)):
             with open(path + "acc" + str(i) + ".csv", 'w') as file:
                 wr = csv.writer(file)

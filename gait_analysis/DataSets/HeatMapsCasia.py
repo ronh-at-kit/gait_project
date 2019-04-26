@@ -2,6 +2,7 @@ import cv2
 import os
 from os.path import join
 from os import listdir
+import numpy as np
 
 from torch.utils.data import Dataset
 from gait_analysis.Config import Config
@@ -95,4 +96,7 @@ class HeatMapsCasia(Dataset):
                     for keypoint in include_list]
 
         scene_images = [separate(read_image(f)) for f in head_map]
-        return scene_images
+
+        scene_images_array = [np.stack(htm, axis=0) for htm in scene_images]
+        scene_images_array = [np.transpose(htm,(1,2,0)) for htm in scene_images_array]
+        return scene_images_array

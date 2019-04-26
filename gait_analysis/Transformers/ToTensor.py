@@ -12,6 +12,10 @@ class ToTensor(object):
             value = sample[t]
             if isinstance(value,list):
                 # print("List or value")
+#                if isinstance(value[0],list):
+#                    for i in range(len(value)):  #added for heatmaps
+#                        sample[t] = [torch.from_numpy(v).float() for v in value[i]]
+#                else:
                 sample[t] = [torch.from_numpy(v).float() for v in value]
             else:
                 # print("No list")

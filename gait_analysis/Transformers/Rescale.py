@@ -36,5 +36,5 @@ class Rescale(object):
         else:
             new_h , new_w = self.output_size
         new_h , new_w = int(new_h) , int(new_w)
-        image_resized = resize(image , (new_h , new_w))
+        image_resized = resize(image , (new_w , new_h))
         return image_resized

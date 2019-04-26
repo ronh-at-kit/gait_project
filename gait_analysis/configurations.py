@@ -22,7 +22,6 @@ default = {
     'flow': {
         'load':False,
         'preprocess' : True,
-        'crops' : True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
@@ -79,9 +78,8 @@ crops = {
         'preprocess': False
     },
     'flow': {
-        'load': True,
+        'load':False,
         'preprocess' : True,
-        'crops': True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
@@ -93,7 +91,7 @@ crops = {
         'gray_scale' : False,
         'load_tracked' : False,
         'sequences': ['bg','cl','nm'],
-        'angles': [18,36,54,73,90,108,126,144,162,180]
+        'angles': [18,54,90,126,162]
     },
     'heatmaps':{
         'load':False,
@@ -110,7 +108,7 @@ crops = {
         #'Rescale': {'output_size' : (640,480), 'target': ["heatmaps_LAnkle","heatmaps_RAnkle"]},
         'AnnotationToLabel': {'target': ["annotations"]},
         # 'Transpose': {'swapping': (2, 0, 1), 'target': ["scenes", "flows"]},
-        # 'Transpose' : {'swapping': (1, 0, 2) , 'target': ["scenes"]},
+        'Transpose' : {'swapping': (2, 0, 1) , 'target': ["scenes"]},
         #'DimensionResize' : {'dimension': 10, 'target': ["heatmaps_LAnkle","heatmaps_RAnkle","scenes","flows","annotations"]},
         'DimensionResize' : {'dimension': 10, 'target': ["scenes","annotations"]},
         'ToTensor': {'target':["scenes","annotations"]}
@@ -420,7 +418,7 @@ flows_1 = {
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1],
+        'people_selection': [1,2,3,4,5],
         #'sequences_selection': ['nm-01']
         'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
@@ -436,7 +434,6 @@ flows_1 = {
     'flow': {
         'load':True,
         'preprocess' : True,
-        'crops': True,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
@@ -465,7 +462,7 @@ flows_1 = {
         'Rescale': {'output_size' : (640,480), 'target': ["flows"]},
         'AnnotationToLabel': {'target': ["annotations"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
-        'Normalize': {'target': ["flows"]},
+        'Normalize': {'target':["flows"]},
         'DimensionResize' : {'start': 10, 'dimension': 10, 'target': ["flows","annotations"]},
         'ToTensor': {'target':["flows","annotations"]}
     }
@@ -589,7 +586,7 @@ vgg_224 = {
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1],
+        'people_selection': [40,41,42,43,44],
         #'sequences_selection': ['nm-01']
         'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
@@ -603,20 +600,20 @@ vgg_224 = {
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
         },
     'flow': {
-        'load':True,
-        'preprocess' : True,
+        'load':False,
+        'preprocess' : False,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
         },
     'scenes':{
-        'load':False,
+        'load':True,
         'preprocess': False,
         'crops' : False,
         'gray_scale' : False,
         'load_tracked' : False,
-        'sequences': ['nm'],
-        'angles': [90]
+        #'sequences': ['nm'],
+        #'angles': [90]
     },
     'heatmaps':{
         'load':False,
@@ -624,19 +621,86 @@ vgg_224 = {
         'body_keypoints_include_list' : ['LAnkle','RAnkle']
     },
     'dataset_output' : {
-        'data': ["flows"],
+        'data': ["scenes"],
         'label': "annotations"
     },
     'transformers':{
         # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
         #'SpanImagesList': {'remove':False, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
-        'Rescale': {'output_size' : (224,224), 'target': ["flows"]},
+        'Rescale': {'output_size' : (240,320), 'target': ["scenes"]},
         'AnnotationToLabel': {'target': ["annotations"]},
-        'DimensionResize' : {'start': 1, 'dimension': 10, 'target': ["flows","annotations"]},
-        'Transpose' : {'swapping': (2,1,0) , 'target': ["flows"]},
-        'Normalize' : {'target': ["flows"]},
+        'Transpose' : {'swapping': (2,1,0) , 'target': ["scenes"]},
+        #'Normalize': {'target':["scenes"]},
+        'DimensionResize' : {'start': 1, 'dimension': 10, 'target': ["scenes","annotations"]},
         # 'Concatenate': {'target': ["scenes","annotations"], 'quantity': 1, 'pos_label': 1},
-        'ToTensor': {'target':["flows","annotations"]}
+        'ToTensor': {'target':["scenes","annotations"]}
+    }
+}
+
+heatmaps_1 = {
+    'indexing':{
+        #'grouping': 'person_sequence_angle',
+        'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
+                                 #  => 'manual_people' = uses 'people' list
+                                 #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
+        'people_selection': [40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70],
+        #'sequences_selection': ['nm-01']
+        'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
+        },
+
+    'annotations': {
+        'preprocess': False
+    },
+
+    'pose': {
+        'load':True,
+        'preprocess': True,
+        'D': 2 ,
+        # the complete list is:
+         'body_keypoints_include_list': ['LAnkle' , 'RAnkle' , 'LKnee' , 'RKnee' , 'RHip' , 'LHip',  'RBigToe' , 'LBigToe' , 'RSmallToe' , 'LSmallToe' , 'RHeel' , 'LHeel']
+        },
+    'flow': {
+        'load':False,
+        'preprocess' : False,
+        },
+    'scenes':{
+        'load':True,
+        'preprocess': False,
+        'crops' : False,
+    },
+    'heatmaps':{
+        'load':False,
+        'preprocess': False,
+        'body_keypoints_include_list': ['LAnkle' , 'RAnkle' , 'LKnee' , 'RKnee' , 'RHip' , 'LHip' , 'RBigToe' ,
+                                        'LBigToe' , 'RSmallToe' , 'LSmallToe' , 'RHeel' , 'LHeel']
+    },
+    'dataset_output' : {
+        'data': ["poses", "scenes"],
+        'label': "annotations"
+    },
+    'transformers':{
+        # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
+        #'SpanImagesList': {'remove':False, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
+        
+        'AnnotationToLabel': {'target': ["annotations"]},
+        
+        'Rescale': {'output_size' : (240,320), 'target': ["scenes"]},
+
+        'Transpose' : {'swapping': (2,1,0) , 'target': ["scenes"]},
+        #'Transpose' : {'swapping': (1,2,0) , 'target': ["heatmaps"]},
+        #'Rescale': {'output_size' : (240,320), 'target': ["heatmaps","scenes"]},
+
+
+        #'Transpose' : {'swapping': (2,1,0) , 'target': ["scenes"]},
+       # 'Rescale': {'output_size' : (240,320), 'target': ["scenes"]},
+
+
+        #'Transpose' : {'swapping': (2,0,1) , 'target': ["heatmaps"]},
+        'Normalize': {'target':["scenes"]},
+        'Normpose': {'target':["poses"]},
+        'DimensionResize' : {'start': 0, 'dimension': 10, 'target': ["poses","scenes","annotations"]},
+        # 'Concatenate': {'target': ["scenes","annotations"], 'quantity': 1, 'pos_label': 1},
+        'ToTensor': {'target':["poses","scenes","annotations"]}
     }
 }
 
@@ -647,7 +711,7 @@ scenes_1 = {
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,4,5],
+        'people_selection': [40,41,42,43,44],
         #'sequences_selection': ['nm-01']
         'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
@@ -718,6 +782,7 @@ flows_40 = {
     'flow': {
         'load':True,
         'preprocess' : True,
+        'crops': False,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5,
@@ -773,104 +838,28 @@ flows_40 = {
     },
     'logger':{
         'log_file': 'flows_p20_lr0p01_bz5_ts10_control.log',
-        'log_folder': '~/gait_project/logs',
+        'log_folder': '/home/ron/PycharmProjects/Gait2019/CASIA/logs',
         'plot_file': 'flows_p20_lr0p01_bz5_ts10_control.png',
         'model_file': 'flows_p20_lr0p01_bz5_ts10_control.tar'
     }
 }
 
-
-
-stack_flow_a = {
-
+c3d = {
     'indexing':{
         'grouping': 'person_sequence_angle',
         'selection': 'manual_people',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,4,5,6,7,8,9,10,41,42,43,44,45,46,47,48,49,50],
-        #'sequences_selection': ['nm-01']
+        'people_selection': [41,42,42,43,44,45,46,47,48,49,50],
+        'sequences_selection': ['bg-01']
         #'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
+    'annotations':{
+        'preprocess': False
+    },
     'pose': {
         'load': False,
-        'preprocess': False,
-        'D': 2 ,
-        'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
-        },
-    'flow': {
-        'load':True,
-        'preprocess' : True,
-        'method' : 'dense',
-        'load_patches' : True,
-        'patch_size' : 5,
-        'angles' : [54,90,126],
-        'axis' : 1
-        },
-    'scenes':{
-        'load':False,
-        'preprocess': False,
-        'crops' : False,
-        'gray_scale' : False,
-        'load_tracked' : False,
-        'sequences': ['nm'],
-        'angles': [90]
-    },
-    'heatmaps':{
-        'load':False,
-        'preprocess': False,
-        'body_keypoints_include_list' : ['LAnkle','RAnkle']
-    },
-    'dataset_output' : {
-        'data': ["flows"],
-        'label': "annotations"
-    },
-    'transformers':{
-        'AnnotationToLabel': {'target': ["annotations"]},
-        'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
-        'DimensionResize' : {'start':10,'dimension': 5, 'target': ["flows","annotations"]},
-        'ToTensor': {'target':["flows","annotations"]},
-    },
-    'network': {
-        'learning_rate': 0.01,
-        'validation_split': 0.0,
-        'momentum': 0.9,
-        'randomized_seed': 10,
-        'shuffle_dataset': False,
-        'epochs': 1,
-        'NR_LSTM_UNITS': 2 ,
-        'IMAGE_INPUT_SIZE_W': 640 ,
-        'IMAGE_INPUT_SIZE_H': 480 ,
-        'IMAGE_AFTER_CONV_SIZE_W': 114 ,
-        'IMAGE_AFTER_CONV_SIZE_H': 24 ,
-        'LSTM_IO_SIZE': 24 * 114,
-        'LSTM_HIDDEN_SIZE': 24 * 114,
-        'RGB_CHANNELS': 3,
-        'TIMESTEPS': 5,  # size videos
-        'BATCH_SIZE': 5, # until now just batch_size = 1
-        'device': "cuda:1"
-    },
-    'logger':{
-        'log_file': 'flows_p20_lr0p01_bz5_ts10_control.log',
-        'log_folder': '~/gait_project/logs',
-        'plot_file': 'flows_p20_lr0p01_bz5_ts10_control.png',
-        'model_file': 'flows_p20_lr0p01_bz5_ts10_control.tar'
-    }
-}
-
-not_normalized_flows = {
-    'indexing':{
-        #'grouping': 'person_sequence_angle',
-        'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
-                                 #  => 'manual_people' = uses 'people' list
-                                 #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1],
-        #'sequences_selection': ['nm-01']
-        'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
-        },
-    'pose': {
-        'load': False,
-        'preprocess': False,
+        'preprocess': False ,
         'D': 2 ,
         # the complete list is:
         #'body_keypoints_include_list': ['LAnkle' , 'RAnkle' , 'LKnee' , 'RKnee' , 'RHip' , 'LHip' , 'RBigToe' ,
@@ -878,19 +867,19 @@ not_normalized_flows = {
         'body_keypoints_include_list': ['LAnkle','RAnkle','LKnee','RKnee','RHip','LHip']
         },
     'flow': {
-        'load':True,
-        'preprocess' : True,
+        'load':False,
+        'preprocess' : False,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5
         },
     'scenes':{
-        'load':True,
+        'load': True,
         'preprocess': False,
         'crops' : False,
         'gray_scale' : False,
         'load_tracked' : False,
-        'sequences': ['nm'],
+        'sequences': ['bg','cl','nm'],
         'angles': [90]
     },
     'heatmaps':{
@@ -899,19 +888,49 @@ not_normalized_flows = {
         'body_keypoints_include_list' : ['LAnkle','RAnkle']
     },
     'dataset_output' : {
-        'data': ["flows","scenes"],
+        'data': ["scenes"],
         'label': "annotations"
     },
     'transformers':{
         # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
-        #'SpanImagesList': {'remove':False, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
-        'Rescale': {'output_size' : (640,480), 'target': ["flows","scenes"]},
+        # 'SpanImagesList': {'remove':True, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
+        #'Rescale': {'output_size' : (640,480), 'target': ["heatmaps_LAnkle","heatmaps_RAnkle"]},
         'AnnotationToLabel': {'target': ["annotations"]},
-        'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows","scenes"]},
-        'DimensionResize' : {'start': 10, 'dimension': 10, 'target': ["flows","scenes","annotations"]},
-        # 'ToTensor': {'target':["flows","scenes","annotations"]}
+        # 'Transpose': {'swapping': (2, 0, 1), 'target': ["scenes", "flows"]},
+        'Transpose' : {'swapping': (2, 0, 1) , 'target': ["scenes"]},
+        #'DimensionResize' : {'dimension': 10, 'target': ["heatmaps_LAnkle","heatmaps_RAnkle","scenes","flows","annotations"]},
+        'Normalize': {'target': ["scenes"]},
+        'DimensionResize' : {'dimension': 20, 'target': ["scenes","annotations"]},
+        'ToTensor': {'target':["scenes","annotations"]}
+    },
+    'network': {
+        'learning_rate': 0.0001,
+        'validation_split': 0.2,
+        'momentum': 0.9,
+        'randomized_seed': 10,
+        'shuffle_dataset': False,
+        'epochs': 20,
+        'NR_LSTM_UNITS': 2 ,
+        'IMAGE_INPUT_SIZE_W': 640 ,
+        'IMAGE_INPUT_SIZE_H': 480 ,
+        'IMAGE_AFTER_CONV_SIZE_W': 18 ,
+        'IMAGE_AFTER_CONV_SIZE_H': 13 ,
+        'LSTM_IO_SIZE': 18 * 13,
+        'LSTM_HIDDEN_SIZE': 18 * 13,
+        'RGB_CHANNELS': 3,
+        'TIMESTEPS': 20,  # size videos
+        'BATCH_SIZE': 8, # batch_size
+        'device': "cuda:1",
+        'many_to_fewer': 10 # this used for many to fewer model. EXAMPLE =20, means from the 20th to the end
+    },
+    'logger':{
+        'log_file': 'scenes_20_people_20_timesteps_attemp_1.log',
+        'log_folder': '/home/ron/PycharmProjects/Gait2019/CASIA/logs',
+        'plot_file': 'scenes_20_people_20_timesteps_attemp_1.png',
+        'model_file': 'scenes_20_people_20_timesteps_attemp_1.tar'
     }
 }
+
 
 cnn_flows_pretrain = {
     'indexing':{
@@ -919,9 +938,10 @@ cnn_flows_pretrain = {
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1],
-        'sequences_selection': ['nm-01']
-        # 'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
+        'people_selection': [40,41,42,45,46,47,48,49,50,51,52,53,54,57,58,59,61,62,63,64,66,67,68,69,70],
+
+        # 'sequences_selection': ['nm-01']
+        'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
     'pose': {
         'load': False,
@@ -965,7 +985,7 @@ cnn_flows_pretrain = {
         'AnnotationToLabel': {'target': ["annotations"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
         'Normalize': {'target': ["flows"]},
-        'DimensionResize' : {'start': 15, 'dimension': 40, 'target': ["flows","annotations"]},
+        'DimensionResize' : {'start': 5, 'dimension': 40, 'target': ["flows","annotations"],'annotations_offset': 1},
         'ToTensor': {'target':["flows","annotations"]}
     }
 }
