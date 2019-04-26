@@ -895,6 +895,7 @@ c3d = {
         # 'Crop':{'include list':['LAnkle','RAnkle'],'output_size':256,'target':'flows'}
         # 'SpanImagesList': {'remove':True, 'names': ["heatmaps_LAnkle","heatmaps_RAnkle"],'target': ["heatmaps"]},
         #'Rescale': {'output_size' : (640,480), 'target': ["heatmaps_LAnkle","heatmaps_RAnkle"]},
+        'Rescale': {'output_size': (240, 240), 'target': ["scenes"]},
         'AnnotationToLabel': {'target': ["annotations"]},
         # 'Transpose': {'swapping': (2, 0, 1), 'target': ["scenes", "flows"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["scenes"]},
@@ -904,7 +905,7 @@ c3d = {
         'ToTensor': {'target':["scenes","annotations"]}
     },
     'network': {
-        'learning_rate': 0.0001,
+        'learning_rate': 0.1,
         'validation_split': 0.2,
         'momentum': 0.9,
         'randomized_seed': 10,

@@ -38,17 +38,17 @@ class CNN3D(nn.Module):
         self.c = Config()
         self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
 
-        self.conv1 = nn.Conv3d(3, 16, (5, 5, 5), stride=(1,2,2))  # input 640x480
+        self.conv1 = nn.Conv3d(3, 16, (1, 5, 5), stride=(1,3,3))  # input 640x480
         self.bn1 = nn.BatchNorm3d(16)
-        self.pool1 = nn.MaxPool3d(2, 2)  # input 638x478 output 319x239
-        # self.conv2 = nn.Conv3d(16, 16, (3, 3, 3), stride=2)  # input 640x480
-        # self.bn2 = nn.BatchNorm3d(32)
-        # self.pool2 = nn.MaxPool3d(2, 2)  # input 638x478 output 319x239
+        self.pool1 = nn.MaxPool3d(2)  # input 638x478 output 319x239
+        self.conv2 = nn.Conv3d(16, 32, (1, 5, 5), stride=(1,3,3))  # input 640x480
+        self.bn2 = nn.BatchNorm3d(32)
+        self.pool2 = nn.MaxPool3d(2)  # input 638x478 output 319x239
 
-        self.conv3 = nn.Conv3d(16, c.config['network']['TIMESTEPS'], (5, 5, 5), stride=(1,2,2))  # input 640x480
-        self.bn3 = nn.BatchNorm3d( c.config['network']['TIMESTEPS'])
-        self.pool3 = nn.MaxPool3d(2, 2)  # input 638x478 output 319x239
-        self.flat_feat = 1131
+        # self.conv3 = nn.Conv3d(16, c.config['network']['TIMESTEPS'], (5, 5, 5), stride=(1,2,2))  # input 640x480
+        # self.bn3 = nn.BatchNorm3d( c.config['network']['TIMESTEPS'])
+        # self.pool3 = nn.MaxPool3d(2, 2)  # input 638x478 output 319x239
+        self.flat_feat = 5760
         self.fc1s = []
         self.fc2s = []
         for i in range(c.config['network']['TIMESTEPS']):
@@ -63,13 +63,12 @@ class CNN3D(nn.Module):
         #         print("Input elemens size:", x[0].size())
         #         c.config['network']['BATCH_SIZE'] = x[0].size()[0]
         x = torch.stack(x).transpose(0,1).transpose_(1,2)
-        x = self.pool1(F.relu(self.conv1(x)))
-        # x = self.pool2(F.relu(self.conv2(x)))
-        x = self.pool3(F.relu(self.conv3(x)))
-        x = x.view(x.size(0),x.size(1),-1)
+        x = self.pool1(F.relu(self.bn1(self.conv1(x))))
+        x = self.pool2(F.relu(self.bn2(self.conv2(x))))
+        x = x.view(x.size(0),-1)
         output = []
         for i in range(c.config['network']['TIMESTEPS']):
-            z = x[:,i,:]
+            z = x
             z = F.relu(self.fc1s[i](z))
             z = F.relu(self.fc2s[i](z))
             output.append(z)
