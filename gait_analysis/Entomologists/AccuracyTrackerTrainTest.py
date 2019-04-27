@@ -8,9 +8,14 @@ class AccuracyTrackerTrainTest(object):
         self.train_tracker = AccuracyTracker.AccuracyTracker(possible_labels)
         self.test_tracker = AccuracyTracker.AccuracyTracker(possible_labels)
 
-    def update_loss(self,loss):
-        self.train_tracker.update_loss(loss)
-        self.test_tracker.update_loss(loss)
+    def update_loss(self,loss, str):
+        if str == "TEST":
+            self.test_tracker.update_loss(loss)
+        elif str == "TRAINING" or "TRAIN":
+            self.train_tracker.update_loss(loss)
+        else:
+            print("Training/Test not specified. Return Training")
+
 
     def update_lr(self,lr):
         self.train_tracker.update_lr(lr)
