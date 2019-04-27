@@ -34,7 +34,7 @@ casia_pose_dir = join(casia_root,"preprocessing/pose/") # ordered by people fold
 casia_heatmap_dir = join(casia_root,"preprocessing/heatmaps/") # ordered by people folders
 casia_flow_dir = join(casia_root,"preprocessing/flow/")  # ordered by people folders
 casia_crops_dir = join(casia_root,"preprocessing/crops")# ordered by people folders
-casia_crops_flow_dir = join(casia_root, "preprocessing/crops_flow")
+casia_crops_flow_dir = join(casia_root,"preprocessing/crops_flow")
 casia_images_dir = join(casia_root,"images")# ordered by people folders
 casia_annotations_dir = join(casia_root,"annotations")# ordered by people folders
 # *********************************************************
