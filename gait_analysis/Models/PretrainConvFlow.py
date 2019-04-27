@@ -6,7 +6,7 @@ from torchvision import datasets, models, transforms
 
 IMAGE_INPUT_SIZE_W = 176
 IMAGE_INPUT_SIZE_H = 250
-RGB_CHANNELS = 3
+CHANNELS_IN = 3
 
 IMAGE_AFTER_CONV_SIZE_W = 3
 IMAGE_AFTER_CONV_SIZE_H = 5
@@ -21,7 +21,7 @@ class PretrainConvFlow(nn.Module):
         # self.avialable_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         self.features = nn.Sequential(
-            nn.Conv2d(RGB_CHANNELS, 6, 3),
+            nn.Conv2d(CHANNELS_IN, 6, 3),
             nn.ReLU(inplace= False),
             nn.MaxPool2d(2,2),
             nn.Conv2d(6, 16, 3),
