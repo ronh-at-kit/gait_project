@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 import torchvision
 from torchvision import datasets, models, transforms
@@ -19,7 +18,7 @@ CHANNELS_OUT = 6
 class PretrainConvFlow(nn.Module):
     def __init__(self):
         super(PretrainConvFlow, self).__init__()
-        self.avialable_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        # self.avialable_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         self.features = nn.Sequential(
             nn.Conv2d(RGB_CHANNELS, 6, 3),
