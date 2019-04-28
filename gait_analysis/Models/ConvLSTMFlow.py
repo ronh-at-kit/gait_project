@@ -45,7 +45,7 @@ class ConvLSTMFlow(nn.Module):
         self.lstm = nn.LSTM(LSTM_INPUT_SIZE,
                             LSTM_HIDDEN_FEATURES,
                             NR_LSTM_UNITS,
-                            batch_first=True)  # horizontal direction
+                            batch_first=False)  # horizontal direction
         self.classifier = nn.Sequential(
             nn.Linear(LSTM_HIDDEN_FEATURES, 20),
             #             nn.ReLU(),

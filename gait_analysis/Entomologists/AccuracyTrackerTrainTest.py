@@ -1,12 +1,12 @@
-from gait_analysis.Entomologists import AccuracyTracker
+from gait_analysis.Entomologists.AccuracyTracker import AccuracyTracker
 
 class AccuracyTrackerTrainTest(object):
     """AccuracyTracker for both Training and Test set
     """
     def __init__(self,possible_labels):
         self.different_labels = possible_labels
-        self.train_tracker = AccuracyTracker.AccuracyTracker(possible_labels)
-        self.test_tracker = AccuracyTracker.AccuracyTracker(possible_labels)
+        self.train_tracker = AccuracyTracker(possible_labels)
+        self.test_tracker = AccuracyTracker(possible_labels)
 
     def update_loss(self,loss, str):
         if str == "TEST":
