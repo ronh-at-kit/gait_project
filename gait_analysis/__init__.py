@@ -29,7 +29,11 @@ from gait_analysis.Transformers.Transpose import Transpose
 from gait_analysis.DataSets.CasiaDataset import CasiaDataset
 from gait_analysis.Transformers.AnnotationToLabel import AnnotationToLabel
 from gait_analysis.DataSets.FlowStackDataset import FlowStackDataset
-
+from gait_analysis.Models.TransferConvLSTMFlow import TransferConvLSTMFlow as TransferConvLSTMFlowB1
+from gait_analysis.Models.TransferConvLSTMFlow import TransferConvLSTMFlow as TransferConvLSTMFlowB16
+from gait_analysis.Models.TransferConvLSTMFlow import TransferConvLSTMFlow as TransferConvLSTMFlowB32
+from gait_analysis.Models.PretrainConvFlow import PretrainConvFlow
 # EXTRA-LIBRARIES
+
 import gait_analysis.utils.files as fileUtils
 import gait_analysis.settings as settings

@@ -24,6 +24,7 @@ BATCH_SIZE = 1
 class ConvLSTMFlow(nn.Module):
     def __init__(self):
         super(ConvLSTMFlow, self).__init__()
+        self.avialable_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         self.features = nn.Sequential(
             nn.Conv2d(CHANNELS_IN, 6, 3),
@@ -54,19 +55,20 @@ class ConvLSTMFlow(nn.Module):
             nn.Linear(20, 3)
         )
 
+        # self.lstm.to(self.avialable_device)
+
         # self.hidden = self.init_hidden()
         print("TODO: doesn't x = x.view(BATCH_SIZE,TIME_STEPS*LSTM_HIDDEN_FEATURES) mix up batch size order?")
         print("TODO: BATCH_SIZE is currently fixed and one")
         print("TODO: Is x_arr in device?")
 
-    #
     # def init_hidden(self):
     #     return (torch.randn(NR_LSTM_UNITS, BATCH_SIZE, LSTM_HIDDEN_FEATURES),
     #             torch.randn(NR_LSTM_UNITS, BATCH_SIZE, LSTM_HIDDEN_FEATURES))
 
     def forward(self, x):
         # print("X[0]:",x[0].size())
-        x_arr = torch.zeros(TIME_STEPS, BATCH_SIZE, 6, 5, 3)# .to(self.avialable_device)
+        x_arr = torch.zeros(TIME_STEPS, BATCH_SIZE, 6, 5, 3).to(self.avialable_device)
 
         for i in range(TIME_STEPS):
             x_arr[i] = self.features(x[i])
@@ -75,7 +77,7 @@ class ConvLSTMFlow(nn.Module):
         x = x_arr.view(TIME_STEPS, BATCH_SIZE, 6*5*3)
         #         print("x.Size()",x.size())
         x = x.permute(1, 0, 2)
-        x, _ = self.lstm(x)
+        x,_ = self.lstm(x)
         x = self.classifier(x)
 
         return x

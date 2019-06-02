@@ -3,12 +3,13 @@ from gait_analysis.utils.files import correct_path
 # DEFINE YOUR CONFIGURATION HERE
 openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
 casia_root = "/home/ron/PycharmProjects/Gait2019/CASIA"
-# casia_root = "~/gait_project/CASIAData"
+#casia_root = "~/gait_project/CASIAData"
 tum_root = "~/gait_project/TUMData"
-#configuration = "heatmaps_1"
+# configuration = "heatmaps_1"
+# configuration = "heatmaps_1"
 # configuration = "one_angle"
-# configuration = "c3d"
 configuration = "cnn_flows_pretrain"
+
 # ==========================================================
 # ==========================================================
 # ==========================================================

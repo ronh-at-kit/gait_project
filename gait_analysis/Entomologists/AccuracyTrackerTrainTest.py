@@ -1,5 +1,5 @@
 from gait_analysis.Entomologists.AccuracyTracker import AccuracyTracker
-
+import numpy as np
 class AccuracyTrackerTrainTest(object):
     """AccuracyTracker for both Training and Test set
     """
@@ -69,4 +69,21 @@ class AccuracyTrackerTrainTest(object):
             print("Distribution not specified. Return Training")
             return self.train_tracker.total
 
-
+    def read_from_csv(self,path):
+        # for training:
+        data={
+            'train':{},
+            'test':{}
+        }
+        vars = {'acc0','acc1','acc2','acc_tot','loss','lr'}
+        for v in vars:
+            with open(path + 'train/{}.csv'.format(v)) as f:
+                first_line = f.readline()
+                values = np.array([float(x) for x in first_line.split(',')])
+            data['train'][v]=values
+        for v in vars:
+            with open(path + 'test/{}.csv'.format(v)) as f:
+                first_line = f.readline()
+                values = np.array([float(x) for x in first_line.split(',')])
+            data['test'][v]=values
+        return data

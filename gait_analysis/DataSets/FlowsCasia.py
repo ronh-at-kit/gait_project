@@ -77,15 +77,17 @@ class FlowsCasia(Dataset):
             scene_files.sort()
 
         def read_image(im_file):
-            if not os.path.isfile(im_file):
-                raise ValueError('{} don\'t exist.'.format(im_file))
             im = cv2.imread(im_file, -1)
             #im = cv2.astype('uint8')#
             #im = cv2.cvtColor(im.astype('uint8'), cv2.COLOR_BGR2RGB)
             im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)#original
             #im = im.astype('uint8')#
             return im
-        scene_images = [read_image(f) for f in scene_files]
+
+        if not os.path.isfile(scene_files[-1]):
+            print('Patch: repeat last image on missing flow file')
+            scene_files[-1] = scene_files[-2]
+        scene_images = [read_image(f) for f in scene_files if os.path.isfile(f)]
         return scene_images
 
 

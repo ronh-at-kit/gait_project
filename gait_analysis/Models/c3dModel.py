@@ -24,12 +24,56 @@ from gait_analysis import CasiaDataset
 from gait_analysis.Config import Config
 from gait_analysis import Composer
 from gait_analysis.utils import files
+import gait_analysis.Models.resnet as resnet
 
 # GLOBAL VARIABLES
 c = Config()
 time_stamp = training.get_time_stamp()
-logger, log_folder =  set_logger('FLOWS40PLATEAU100epoch',c,time_stamp=time_stamp, level='INFO')
+logger, log_folder =  set_logger('pretrained3d',c,time_stamp=time_stamp, level='INFO')
 #logger, log_folder =  set_logger('test_delete_after',c,time_stamp=time_stamp, level='DEBUG')
+
+class CNN3DPretrained(nn.Module):
+    def __init__(self):
+        super(CNN3DPretrained, self).__init__()
+        self.c = Config()
+        self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
+        model = resnet.resnet101(
+                num_classes=400,
+                shortcut_type='B',
+                sample_size=8,
+                sample_duration=20)
+        pretrained_dict = torch.load(c.config['network']['pretrain_path'])
+        self.resnet = model.load_state_dict(pretrained_dict['state_dict'])
+        self.flat_feat = 256
+        self.fc1s = []
+        self.fc2s = []
+        for i in range(c.config['network']['TIMESTEPS']):
+            self.fc1s.append(nn.Linear(self.flat_feat, 128))
+            self.fc2s.append(nn.Linear(128 , 3))
+            self.fc1s[i].to(device=self.avialable_device)
+            self.fc2s[i].to(device=self.avialable_device)
+
+
+    def forward(self , x):
+        #         print("Input list len:",len(x))
+        #         print("Input elemens size:", x[0].size())
+        #         c.config['network']['BATCH_SIZE'] = x[0].size()[0]
+        x = torch.stack(x).transpose(0,1).transpose_(1,2)
+        with torch.no_grad:
+            x = self.resnet(x)
+        x = self.pool1(F.relu(self.bn1(self.conv1(x))))
+        x = self.pool2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool3(F.relu(self.bn3(self.conv3(x))))
+
+        x = x.view(x.size(0),-1)
+        output = []
+        for i in range(c.config['network']['TIMESTEPS']):
+            z = x
+            z = F.relu(self.fc1s[i](z))
+            z = F.relu(self.fc2s[i](z))
+            output.append(z)
+        output = torch.stack(output,1).transpose(1,2)
+        return output
 
 
 class CNN3D(nn.Module):
@@ -38,22 +82,25 @@ class CNN3D(nn.Module):
         self.c = Config()
         self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
 
-        self.conv1 = nn.Conv3d(3, 16, (1, 5, 5), stride=(1,3,3))  # input 640x480
+        self.conv1 = nn.Conv3d(3, 16, (1, 5, 5), stride=(1,2,2))  # input 640x480
         self.bn1 = nn.BatchNorm3d(16)
         self.pool1 = nn.MaxPool3d(2)  # input 638x478 output 319x239
-        self.conv2 = nn.Conv3d(16, 32, (1, 5, 5), stride=(1,3,3))  # input 640x480
+        self.conv2 = nn.Conv3d(16, 32, (1, 5, 5), stride=(1,2,2))  # input 640x480
         self.bn2 = nn.BatchNorm3d(32)
         self.pool2 = nn.MaxPool3d(2)  # input 638x478 output 319x239
+        self.conv3 = nn.Conv3d(32, 32, (1, 5, 5), stride=(1, 2, 2))  # input 640x480
+        self.bn3 = nn.BatchNorm3d(32)
+        self.pool3 = nn.MaxPool3d(2)  # input 638x478 output 319x239
 
         # self.conv3 = nn.Conv3d(16, c.config['network']['TIMESTEPS'], (5, 5, 5), stride=(1,2,2))  # input 640x480
         # self.bn3 = nn.BatchNorm3d( c.config['network']['TIMESTEPS'])
         # self.pool3 = nn.MaxPool3d(2, 2)  # input 638x478 output 319x239
-        self.flat_feat = 5760
+        self.flat_feat = 256
         self.fc1s = []
         self.fc2s = []
         for i in range(c.config['network']['TIMESTEPS']):
-            self.fc1s.append(nn.Linear(self.flat_feat, 60))
-            self.fc2s.append(nn.Linear(60 , 3))
+            self.fc1s.append(nn.Linear(self.flat_feat, 128))
+            self.fc2s.append(nn.Linear(128 , 3))
             self.fc1s[i].to(device=self.avialable_device)
             self.fc2s[i].to(device=self.avialable_device)
 
@@ -65,6 +112,8 @@ class CNN3D(nn.Module):
         x = torch.stack(x).transpose(0,1).transpose_(1,2)
         x = self.pool1(F.relu(self.bn1(self.conv1(x))))
         x = self.pool2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool3(F.relu(self.bn3(self.conv3(x))))
+
         x = x.view(x.size(0),-1)
         output = []
         for i in range(c.config['network']['TIMESTEPS']):
@@ -253,7 +302,8 @@ def main(input_path=None,lr=None):
     logger.info("Device in usage: {}".format(device))
 
     # creates the network
-    model = CNN3D()
+    # model = CNN3D()
+    model = CNN3DPretrained()
     if input_path:
         model = training.load_model(input_path, model, target=target_device)
         model.eval()

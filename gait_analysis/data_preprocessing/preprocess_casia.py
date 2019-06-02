@@ -250,6 +250,16 @@ def visit_person_sequence_casia(person_folder):
             extract_pose_imagedir(sequence_angle_folder , heatmaps_dir=heatmaps_output_dir)
 
 
+def filter_with_annotations(person_sequence_folders):
+    annotation_dir = settings.casia_annotations_dir
+    annotation_folders = list_person_folders(annotation_dir, dataset='CASIA')
+    new_person_sequence_folders = []
+    annotation_people = [os.path.basename(os.path.dirname(person_folder)) for person_folder in annotation_folders ]
+    for person_folder in person_sequence_folders:
+        if person_folder[-9:-6] in annotation_people:
+            new_person_sequence_folders.append(person_folder)
+    return new_person_sequence_folders
+
 def preprocess_casia(only_example=False):
     '''
 
@@ -263,7 +273,7 @@ def preprocess_casia(only_example=False):
     print("=======>>>>  images_dir = {}".format(images_dir))
     print("I am in the general version")
     person_sequence_folders = list_person_folders(images_dir, dataset='CASIA')
-
+    person_sequence_folders = filter_with_annotations(person_sequence_folders)
     # Waring to don't overwrite:
     if abort_overwrite():
         # if user
@@ -272,7 +282,7 @@ def preprocess_casia(only_example=False):
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:
-        person_sequence_folders = person_sequence_folders[700:750]
+        person_sequence_folders = person_sequence_folders[520:529]
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
         visit_person_sequence_casia(person_folder)

@@ -18,7 +18,7 @@ CHANNELS_OUT = 6
 class PretrainConvFlow(nn.Module):
     def __init__(self):
         super(PretrainConvFlow, self).__init__()
-        # self.avialable_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.avialable_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         self.features = nn.Sequential(
             nn.Conv2d(CHANNELS_IN, 6, 3),
