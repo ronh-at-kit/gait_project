@@ -15,16 +15,25 @@ from gait_analysis.Transformers.Composer import Composer
 from gait_analysis.Transformers.Rescale import Rescale
 from gait_analysis.Transformers.DimensionResize import DimensionResize
 from gait_analysis.Transformers.Normalizer import Normalizer
+from gait_analysis.Transformers.Normalize import Normalize
+from gait_analysis.Transformers.Normpose import Normpose
 
+from gait_analysis.Entomologists.WeightWatcher import WeightWatcher
+from gait_analysis.Entomologists.AccuracyTracker import AccuracyTracker
+from gait_analysis.Entomologists.AccuracyTrackerTrainTest import AccuracyTrackerTrainTest
 
 from gait_analysis.Transformers.ToTensor import ToTensor
 from gait_analysis.Transformers.SpanImagesList import SpanImagesList
 from gait_analysis.Transformers.Transpose import Transpose
-from gait_analysis.DataSets.TumGAID_Dataset import TumGAID_Dataset
+# from gait_analysis.DataSets.TumGAID_Dataset import TumGAID_Dataset
 from gait_analysis.DataSets.CasiaDataset import CasiaDataset
 from gait_analysis.Transformers.AnnotationToLabel import AnnotationToLabel
 from gait_analysis.DataSets.FlowStackDataset import FlowStackDataset
-
+from gait_analysis.Models.TransferConvLSTMFlow import TransferConvLSTMFlow as TransferConvLSTMFlowB1
+from gait_analysis.Models.TransferConvLSTMFlow import TransferConvLSTMFlow as TransferConvLSTMFlowB16
+from gait_analysis.Models.TransferConvLSTMFlow import TransferConvLSTMFlow as TransferConvLSTMFlowB32
+from gait_analysis.Models.PretrainConvFlow import PretrainConvFlow
 # EXTRA-LIBRARIES
+
 import gait_analysis.utils.files as fileUtils
 import gait_analysis.settings as settings

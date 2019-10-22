@@ -14,7 +14,6 @@ class AbstractGaitModel():
     def validate(self, X, Y):
         pass
 
-
     def predict(self, X):
         return np.random.rand()
 

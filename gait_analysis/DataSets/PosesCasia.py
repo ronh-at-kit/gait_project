@@ -112,8 +112,8 @@ class PosesCasia(Dataset):
         #create numpy array from list of dict_values
 
         poses = [np.array(list(pose_list[i])) for i in range(len(pose_list))]
-        poses = np.array(poses)
-        poses = np.transpose(poses, (1, 2, 0))
+        #poses = np.array(poses)
+        #poses = np.transpose(poses, (1, 2, 0))
 
         #print(poses[:,:,0])
         #print(poses[:, :, 1])

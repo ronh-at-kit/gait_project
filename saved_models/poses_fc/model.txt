@@ -1,0 +1,60 @@
+class HTM_LSTM(nn.Module):
+    def __init__(self):
+        super(HTM_LSTM, self).__init__()
+        self.avialable_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+        self.lstm1 = nn.LSTM(LSTM_IO_SIZE,
+                            LSTM_HIDDEN_SIZE)# horizontal direction
+        
+        self.lstm2 = nn.LSTM(LSTM_HIDDEN_SIZE,
+                            LSTM_HIDDEN_SIZE)# horizontal direction
+#         self.lstm2 = nn.LSTM(LSTM_IO_SIZE,
+#                             LSTM_HIDDEN_SIZE,
+#                             TIMESTEPS)# horizontal direction
+        #self.fc1 = nn.Linear(LSTM_HIDDEN_SIZE * OUTPUT_SIZE,10000)
+        self.fc1 = nn.Linear(OUTPUT_SIZE * 24,2048)
+        self.fc2 = nn.Linear(2048, 1024)
+        self.fc3 = nn.Linear(1024,512)
+        self.fc4 = nn.Linear(512,256)
+        self.fc5 = nn.Linear(256,3*OUTPUT_SIZE)
+        
+        #initialize hidden states of LSTM
+        self.hidden = self.init_hidden()
+
+        #print("Hidden:", _hidden)
+    def init_hidden(self):
+        return (torch.randn(TIMESTEPS, BATCH_SIZE, LSTM_HIDDEN_SIZE).to(self.avialable_device), 
+                torch.randn(TIMESTEPS, BATCH_SIZE, LSTM_HIDDEN_SIZE).to(self.avialable_device))
+    def forward(self,x):
+
+        x_arr = torch.stack(x)
+
+        #print(x_arr[:,0,:,:])
+        #x1, hidden = self.lstm1(x_arr.view(x_arr.size(0),x_arr.size(1),-1))
+        #x1, hidden = self.lstm2(x1)
+        #x1 = x1.view(x_arr.size(0),x_arr.size(1),LSTM_HIDDEN_SIZE) #output.view(seq_len, batch, num_dir*hidden_size)
+        #print('-----------------')
+        #print(x1.size())
+        #x1 = x1[SLICE_FROM_TIMESTEP:TIMESTEPS,:,:]
+        x1 = x_arr[SLICE_FROM_TIMESTEP:TIMESTEPS,:,:]
+        
+        x1 = x1.permute(1,0,2,3)
+        #print(x1.size())
+        x1 = x1.contiguous()
+        #print(x1.size())
+        x1 = x1.view(x1.size(0),-1)
+        #print(x1.size())
+        #         x = torch.squeeze(x)
+        x1 = F.selu(self.fc1(x1))
+        x1 = F.selu(self.fc2(x1))
+        x1 = F.selu(self.fc3(x1))
+        x1 = F.selu(self.fc4(x1))
+        x1 = self.fc5(x1) 
+        
+        #print(x1.size())
+        x1 = x1.view(x1.size(0),3,OUTPUT_SIZE)
+        #print(x1.size())
+        #print('-----------------')
+        #print ("Size network output", x1.shape)
+        return x1
+print("Class defined")
