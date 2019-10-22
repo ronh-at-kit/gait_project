@@ -32,7 +32,7 @@ from gait_analysis.utils import files
 
 c = Config()
 time_stamp = training.get_time_stamp()
-logger, log_folder =  set_logger('FLOWS40PLATEAU100epoch',c,time_stamp=time_stamp, level='INFO')
+logger, log_folder =  set_logger('STACKFLOW-ABS-GRAD-MULTILEVEL-STEP-50-80-90',c,time_stamp=time_stamp, level='INFO')
 #logger, log_folder =  set_logger('test_delete_after',c,time_stamp=time_stamp, level='DEBUG')
 
 ###############################
@@ -44,35 +44,36 @@ class CNNLSTM(nn.Module):
         super(CNNLSTM , self).__init__()
         self.c = Config()
         self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
+        self.timesteps_lenght = 3*self.c.config['network']['TIMESTEPS'] if self.c.config['flow']['axis'] == 'all' else self.c.config['network']['TIMESTEPS']
 
-        self.conv1a = nn.Conv2d(1 , 8 , 3)  # input 640x480
-        self.conv1b = nn.Conv2d(8 , 8 , 3)  # input 640x480
+        self.conv1a = nn.Conv2d(1 , 64 , 3)  # input 640x480
+        self.conv1b = nn.Conv2d(64 , 64 , 3)  # input 640x480
         self.pool1 = nn.MaxPool2d(2 , 2)  # input 638x478 output 319x239
         # new layers
-        self.conv2a = nn.Conv2d(8 , 16 , 3)  # input 319x239 output 317x237
-        self.conv2b = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
+        self.conv2a = nn.Conv2d(64 , 128 , 3)  # input 319x239 output 317x237
+        self.conv2b = nn.Conv2d(128 , 128 , 3)  # input 319x239 output 317x237
         self.pool2 = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
 
-        self.conv3a = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
-        self.conv3b = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
-        self.conv3c = nn.Conv2d(16 , 6 , 3)  # input 319x239 output 317x237
+        self.conv3a = nn.Conv2d(128 , 256 , 3)  # input 319x239 output 317x237
+        self.conv3b = nn.Conv2d(256 , 256 , 3)  # input 319x239 output 317x237
+        self.conv3c = nn.Conv2d(256 , 256 , 3)  # input 319x239 output 317x237
         self.pool3 = nn.MaxPool2d(2 , 2)  # input 156x116 output 78x58
 
-        self.conv4a = nn.Conv2d(6 , 3 , 3)  # input 78x58 output 76x56
-        self.conv4b = nn.Conv2d(3 , 3 , 3)  # input 78x58 output 76x56
-        self.conv4c = nn.Conv2d(3 , 1 , 3)  # input 78x58 output 76x56
+        self.conv4a = nn.Conv2d(256 , 512 , 3)  # input 78x58 output 76x56
+        self.conv4b = nn.Conv2d(512 , 512 , 3)  # input 78x58 output 76x56
+        self.conv4c = nn.Conv2d(512 , 1 , 3)  # input 78x58 output 76x56
         self.pool4 = nn.MaxPool2d(2 , 2)  # input 76x56 output 39x29
 
 
-        self.lstm1 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
-                             self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
-                             self.c.config['network']['TIMESTEPS'])  # horizontal direction
+        # self.lstm1 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
+        #                      self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
+        #                      self.c.config['network']['TIMESTEPS'])  # horizontal direction
+        self.lstm1 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'],
+                             self.c.config['network']['LSTM_HIDDEN_SIZE'],
+                             self.timesteps_lenght)  # horizontal direction
         self.lstm2 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'],
                              self.c.config['network']['LSTM_HIDDEN_SIZE'],
-                             self.c.config['network']['TIMESTEPS'])  # horizontal direction
-        self.lstm3 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'],
-                             self.c.config['network']['LSTM_HIDDEN_SIZE'],
-                             self.c.config['network']['TIMESTEPS'])  # horizontal direction
+                             self.timesteps_lenght)  # horizontal direction
         self.fc1 = nn.Linear(self.c.config['network']['LSTM_IO_SIZE'] , 120)
         self.fc2 = nn.Linear(120, 90)
         self.fc3 = nn.Linear(90, 90)
@@ -93,11 +94,11 @@ class CNNLSTM(nn.Module):
         #         print("Input elemens size:", x[0].size())
         #         c.config['network']['BATCH_SIZE'] = x[0].size()[0]
 
-        x = torch.squeeze(x).float().to(self.avialable_device)
+        x = x.float() # .to(self.avialable_device)
         x_arr = [] # DIMENSIONS: TS X BZ X ? X ?
 
         ## print("X arr size", x_arr.size())
-        for i in range(self.c.config['network']['TIMESTEPS']):  # parallel convolutions which are later concatenated for LSTM
+        for i in range(self.timesteps_lenght):  # parallel convolutions which are later concatenated for LSTM
             x_in = torch.unsqueeze(x[:,i,:,:],1)
             x_in = F.relu(self.conv1a(x_in))
             x_in = self.pool1(F.relu(self.conv1b(x_in)))
@@ -110,13 +111,14 @@ class CNNLSTM(nn.Module):
             x_in = F.relu(self.conv4b(x_in))
             x_in = self.pool4(F.relu(self.conv4c(x_in)))
             x_arr.append(x_in)
+
         x = torch.cat(x_arr,1)
         x = x.permute(1,0,2,3)
-        x , _ = self.lstm1(x.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
+        x , _ = self.lstm1(x.view(self.timesteps_lenght, self.c.config['network']['BATCH_SIZE'], -1), self.hidden)
         x , _ = self.lstm2(x , self.hidden)
-        x , _ = self.lstm3(x , self.hidden)
+        # x , _ = self.lstm3(x , self.hidden)
         # the reshaping was taken from the documentation... and makes scense
-        x = x.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , self.c.config['network']['LSTM_HIDDEN_SIZE'])  # output.view(seq_len, batch, num_dir*hidden_size)
+        x = x.view(self.timesteps_lenght, self.c.config['network']['BATCH_SIZE'], self.c.config['network']['LSTM_HIDDEN_SIZE'])  # output.view(seq_len, batch, num_dir*hidden_size)
         #         x = torch.squeeze(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -340,9 +342,9 @@ def main(input_path=None,lr=None):
     train_dataloader, test_dataloader = get_dataloaders(dataset)
 
     # creates scheduler
-    scheduler = None
+    # scheduler = None
     # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
-    # scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,30], gamma=0.1)
+    scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[50,80,90], gamma=0.1)
     # training
     logger.info('configuration: {}'.format(c.config))
     if input_path:

@@ -59,31 +59,38 @@ class ScenesCasia(Dataset):
         if grouping == 'person_sequence':
             p_num, sequence = dataset_item
             # by default we select the 90 degree grom person_sequence grouping
+            if hasattr(self.config.config['scenes']['angles'],'angles'):
+                angles = self.config.config['scenes']['angles']
             angle = 90
         elif grouping == 'person_sequence_angle':
             p_num , sequence, angle = dataset_item
 
         scene_folder = os.path.join(self.images_dir,'{:03d}'.format(p_num),sequence)
-        def compose_image_filename(angle,i):
-            return join(scene_folder , '{}-{:03d}'.format(sequence , angle) , \
-                    '{:03d}-{}-{:03d}_frame_{:03d}.jpg'.format(p_num , sequence , angle , i))
+        # one angle mode
+        def compose_image_filename(angle, i):
+            return join(scene_folder, '{}-{:03d}'.format(sequence, angle), \
+                        '{:03d}-{}-{:03d}_frame_{:03d}.jpg'.format(p_num, sequence, angle, i))
+        if not angles:
 
-        scene_files = []
-        if 'valid_indices' in self.options:
-            valid_indices = self.options['valid_indices']
-            scene_files += [compose_image_filename(angle , i) for i , valid in enumerate(valid_indices) if valid]
+            scene_files = []
+            if 'valid_indices' in self.options:
+                valid_indices = self.options['valid_indices']
+                scene_files += [compose_image_filename(angle , i) for i , valid in enumerate(valid_indices) if valid]
+            else:
+                scene_files += [join(scene_folder, '{}-{:03d}'.format(sequence , angle) , f) for f in listdir(scene_folder) if f.endswith('.jpg')]
+                scene_files.sort()
+
+            def read_image(im_file):
+                if not os.path.isfile(im_file):
+                    raise ValueError('{} don\'t exist.'.format(im_file))
+                im = cv2.imread(im_file, -1)
+                im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+                return im
+            scene_images = [read_image(f) for f in scene_files]
+            return scene_images
+        # many angles mode
         else:
-            scene_files += [join(scene_folder, '{}-{:03d}'.format(sequence , angle) , f) for f in listdir(scene_folder) if f.endswith('.jpg')]
-            scene_files.sort()
-
-        def read_image(im_file):
-            if not os.path.isfile(im_file):
-                raise ValueError('{} don\'t exist.'.format(im_file))
-            im = cv2.imread(im_file, -1)
-            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-            return im
-        scene_images = [read_image(f) for f in scene_files]
-        return scene_images
+            pass
 
 
 def extract_pnum(abspath):

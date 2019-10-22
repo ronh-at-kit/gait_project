@@ -271,7 +271,7 @@ def preprocess_casia(only_example=False):
     # if one example is selected: the list of person folders are reduced to 1 sample
     # this is a debug mode.
     if only_example:
-        person_sequence_folders = person_sequence_folders[390:601]
+        person_sequence_folders = person_sequence_folders[390:399]
     for person_folder in tqdm(person_sequence_folders):
         print("processing folder {}".format(person_folder))
         visit_person_sequence_casia(person_folder)

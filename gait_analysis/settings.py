@@ -2,10 +2,12 @@ from os.path import join
 from gait_analysis.utils.files import correct_path
 # DEFINE YOUR CONFIGURATION HERE
 openpose_root = '~/PycharmProjects/openpose_b' # where the bin is located
-# casia_root = "/home/ron/Dokumente/Datasets/Gait/CASIA"
-casia_root = "~/gait_project/CASIAData"
+casia_root = "/home/ron/Dokumente/Datasets/Gait/CASIA"
+# casia_root = "~/gait_project/CASIAData"
 tum_root = "~/gait_project/TUMData"
-configuration = "scenes"
+# configuration = "scenes_40"
+configuration = "stack_flow_a"
+# configuration = "default"
 # configuration = "one_angle"
 
 # ==========================================================

@@ -28,7 +28,7 @@ from gait_analysis.utils import files
 # GLOBAL VARIABLES
 c = Config()
 time_stamp = training.get_time_stamp()
-logger, log_folder =  set_logger('FLOWS40PLATEAU100epoch',c,time_stamp=time_stamp, level='INFO')
+logger, log_folder =  set_logger('small_set_normalization',c,time_stamp=time_stamp, level='INFO')
 #logger, log_folder =  set_logger('test_delete_after',c,time_stamp=time_stamp, level='DEBUG')
 
 
@@ -38,16 +38,10 @@ class CNNLSTM(nn.Module):
         self.c = Config()
         self.avialable_device = torch.device(c.config['network']['device'] if torch.cuda.is_available() else "cpu")
 
-        self.conv1 = nn.Conv2d(3 , 16 , 3)  # input 640x480
+        self.conv1 = nn.Conv2d(3 , 6 , 3)  # input 640x480
         self.pool1 = nn.MaxPool2d(2 , 2)  # input 638x478 output 319x239
-        # new layers
-        self.conv2a = nn.Conv2d(16 , 16 , 3)  # input 319x239 output 317x237
-        self.pool2a = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
-        self.conv2b = nn.Conv2d(16, 16, 3)  # input 319x239 output 317x237
-        self.pool2b = nn.MaxPool2d(2, 2)  # input 317x237 output 158x118
-        self.conv2c = nn.Conv2d(16, 16, 3)  # input 319x239 output 317x237
-        self.pool2c = nn.MaxPool2d(2, 2)  # input 317x237 output 158x118
-
+        self.conv2 = nn.Conv2d(6 , 16 , 3)  # input 319x239 output 317x237
+        self.pool2 = nn.MaxPool2d(2 , 2)  # input 317x237 output 158x118
         self.conv3 = nn.Conv2d(16 , 6 , 3)  # input 158x118 output 156x116
         self.pool3 = nn.MaxPool2d(2 , 2)  # input 156x116 output 78x58
         self.conv4 = nn.Conv2d(6 , 3 , 3)  # input 78x58 output 76x56
@@ -57,17 +51,12 @@ class CNNLSTM(nn.Module):
         self.lstm1 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
                              self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
                              self.c.config['network']['TIMESTEPS'])  # horizontal direction
-        self.lstm2 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'],
-                             self.c.config['network']['LSTM_HIDDEN_SIZE'],
-                             self.c.config['network']['TIMESTEPS'])  # horizontal direction
-        self.lstm3 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'],
-                             self.c.config['network']['LSTM_HIDDEN_SIZE'],
+        self.lstm2 = nn.LSTM(self.c.config['network']['LSTM_IO_SIZE'] ,
+                             self.c.config['network']['LSTM_HIDDEN_SIZE'] ,
                              self.c.config['network']['TIMESTEPS'])  # horizontal direction
         self.fc1 = nn.Linear(self.c.config['network']['LSTM_IO_SIZE'] , 120)
-        self.fc2 = nn.Linear(120, 90)
-        self.fc3 = nn.Linear(90, 90)
-        self.fc4 = nn.Linear(90, 20)
-        self.fc5 = nn.Linear(20 , 3)
+        self.fc2 = nn.Linear(120 , 20)
+        self.fc3 = nn.Linear(20 , 3)
 
         # initialize hidden states of LSTM
         self.hidden = self.init_hidden()
@@ -88,27 +77,20 @@ class CNNLSTM(nn.Module):
         ## print("X arr size", x_arr.size())
         for i in range(self.c.config['network']['TIMESTEPS']):  # parallel convolutions which are later concatenated for LSTM
             x_tmp_c1 = self.pool1(F.relu(self.conv1(x[i].float())))
-            # new layer
-            x_tmp_c2 = self.pool2a(F.relu(self.conv2a(x_tmp_c1)))
-            x_tmp_c2 = self.pool2b(F.relu(self.conv2b(x_tmp_c1)))
-            x_tmp_c2 = self.pool2c(F.relu(self.conv2c(x_tmp_c1)))
-
+            x_tmp_c2 = self.pool2(F.relu(self.conv2(x_tmp_c1)))
             x_tmp_c3 = self.pool3(F.relu(self.conv3(x_tmp_c2)))
             x_tmp_c4 = self.pool4(F.relu(self.conv4(x_tmp_c3)))
             x_tmp_c5 = self.pool5(F.relu(self.conv5(x_tmp_c4)))
             x_arr[i] = x_tmp_c5  # torch.squeeze(x_tmp_c5)
 
-        x , _ = self.lstm1(x_arr.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
-        x , _ = self.lstm2(x , self.hidden)
-        x , _ = self.lstm3(x , self.hidden)
+        x , hidden = self.lstm1(x_arr.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , -1) , self.hidden)
+        x , hidden = self.lstm2(x , self.hidden)
         # the reshaping was taken from the documentation... and makes scense
         x = x.view(self.c.config['network']['TIMESTEPS'] , self.c.config['network']['BATCH_SIZE'] , self.c.config['network']['LSTM_HIDDEN_SIZE'])  # output.view(seq_len, batch, num_dir*hidden_size)
         #         x = torch.squeeze(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
-        x = self.fc5(x)
+        x = self.fc3(x)
         x = x.permute(1 , 2 , 0)
         return x
 
@@ -315,9 +297,10 @@ def main(input_path=None,lr=None):
     train_dataloader, test_dataloader = get_dataloaders(dataset)
 
     # creates scheduler
-    # scheduler = None
-    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
+    scheduler = None
+    # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, verbose=True, threshold=1e-7)
     # scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[10,20,30], gamma=0.1)
+
     # training
     logger.info('configuration: {}'.format(c.config))
     if input_path:

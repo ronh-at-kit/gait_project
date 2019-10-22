@@ -67,7 +67,7 @@ class FlowStackDataset(Dataset):
                 raise ValueError
             flow_timesteps = torch.cat(flow_timesteps , 2)
             flows.append(flow_timesteps)
-        output = torch.cat(flows , 0).unsqueeze(0)
+        output = torch.cat(flows , 0)
         if self.transform:
             output = self.transform(output)
         self.config['dataset_output'] = prev_config

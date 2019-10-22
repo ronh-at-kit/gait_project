@@ -192,7 +192,7 @@ scenes = {
     },
     'logger':{
         'log_file': 'scenes_20_people_attemp_1.log',
-        'log_folder': '~/gait_project/logs',
+        'log_folder': '/home/ron/Dokumente/Datasets/Gait/logs',
         'plot_file': 'scenes_scenes_20_people_attemp_1.png'
     }
 }
@@ -203,7 +203,7 @@ scenes_40 = {
         'selection': 'manual_people',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,4,5,6,7,8,9,10,41,42,42,43,44,45,46,47,48,49,50],
+        'people_selection': [40,41,42,42,43,44,45,46,47,48,49,70,71,72,73,74,75,76,77,78,79],
         'sequences_selection': ['bg-01']
         #'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
@@ -277,7 +277,7 @@ scenes_40 = {
     },
     'logger':{
         'log_file': 'scenes_20_people_20_timesteps_attemp_1.log',
-        'log_folder': '~/gait_project/logs',
+        'log_folder': '/home/ron/Dokumente/Datasets/Gait/logs',
         'plot_file': 'scenes_20_people_20_timesteps_attemp_1.png',
         'model_file': 'scenes_20_people_20_timesteps_attemp_1.tar'
     }
@@ -352,7 +352,7 @@ one_angle = {
     },
     'logger':{
         'log_file': 'one_angle_test_1.log',
-        'log_folder': '~/gait_project/logs',
+        'log_folder': '/home/ron/Dokumente/Datasets/Gait/logs',
         'plot_file': 'one_angle_test_1.png'
     }
 }
@@ -363,7 +363,9 @@ flows = {
         'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,4,5,6,7,8,9,10],
+        #'people_selection': [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,21],
+        'people_selection' : [1,2],
+        #'people_selection': [1],
         #'sequences_selection': ['nm-01']
         'sequences_selection': ['bg-01']
         },
@@ -694,11 +696,11 @@ scenes_1 = {
 flows_40 = {
     'indexing':{
         'grouping': 'person_sequence_angle',
-        'selection': 'manual_people',     #  => 'auto'= by final annotation or
+        'selection': 'manual_people_sequence',     #  => 'auto'= by final annotation or
                                  #  => 'manual_people' = uses 'people' list
                                  #  => 'manual_people_sequence' uses combination of two lists 'people' and 'sequences'
-        'people_selection': [1,2,3,4,5,6,7,8,9,10,41,42,43,44,45,46,47,48,49,50],
-        #'sequences_selection': ['nm-01']
+        'people_selection': [1,2,3,4,5], #44,45,46,47,48,49,70,71,72,73,74,75,76,77,78,79],
+        'sequences_selection': ['bg-01']
         #'sequences_selection': ['bg-01','bg-02','cl-01','cl-02','nm-01','nm-02','nm-03','nm-04','nm-05','nm-06']
         },
     'pose': {
@@ -712,12 +714,12 @@ flows_40 = {
         },
     'flow': {
         'load':True,
-        'preprocess' : True,
+        'preprocess' : False,
         'method' : 'dense',
         'load_patches' : True,
         'patch_size' : 5,
         'angles' : [54,90,126],
-        'axis' : 1
+        'axis' : 2
         },
     'scenes':{
         'load':False,
@@ -726,12 +728,15 @@ flows_40 = {
         'gray_scale' : False,
         'load_tracked' : False,
         'sequences': ['nm'],
-        'angles': [90]
+        'angles': [54,90,126]
     },
     'heatmaps':{
         'load':False,
         'preprocess': False,
         'body_keypoints_include_list' : ['LAnkle','RAnkle']
+    },
+    'annotations':{
+        'preprocess': True
     },
     'dataset_output' : {
         'data': ["flows"],
@@ -759,16 +764,15 @@ flows_40 = {
         'IMAGE_INPUT_SIZE_H': 480 ,
         'IMAGE_AFTER_CONV_SIZE_W': 18 ,
         'IMAGE_AFTER_CONV_SIZE_H': 13 ,
-        'LSTM_IO_SIZE': 58 * 13,
+        'LSTM_IO_SIZE': 18 * 13,
         'LSTM_HIDDEN_SIZE': 18 * 13,
-        'RGB_CHANNELS': 3,
-        'TIMESTEPS': 10,  # size videos
-        'BATCH_SIZE': 5, # until now just batch_size = 1
+        'TIMESTEPS': 20,  # size videos
+        'BATCH_SIZE': 10, # until now just batch_size = 1
         'device': "cuda:1"
     },
     'logger':{
         'log_file': 'flows_p20_lr0p01_bz5_ts10_control.log',
-        'log_folder': '~/gait_project/logs',
+        'log_folder': '/home/ron/Dokumente/Datasets/Gait/logs',
         'plot_file': 'flows_p20_lr0p01_bz5_ts10_control.png',
         'model_file': 'flows_p20_lr0p01_bz5_ts10_control.tar'
     }
@@ -822,8 +826,9 @@ stack_flow_a = {
     },
     'transformers':{
         'AnnotationToLabel': {'target': ["annotations"]},
+        'Rescale': {'output_size' : (240,240), 'target': ["flows"]},
         'Transpose' : {'swapping': (2, 0, 1) , 'target': ["flows"]},
-        'DimensionResize' : {'start':10,'dimension': 5, 'target': ["flows","annotations"]},
+        'DimensionResize' : {'start':10,'dimension': 20, 'target': ["flows","annotations"]},
         'ToTensor': {'target':["flows","annotations"]},
     },
     'network': {
@@ -831,25 +836,25 @@ stack_flow_a = {
         'validation_split': 0.0,
         'momentum': 0.9,
         'randomized_seed': 10,
-        'shuffle_dataset': False,
-        'epochs': 1,
+        'shuffle_dataset': True,
+        'epochs': 200,
         'NR_LSTM_UNITS': 2 ,
-        'IMAGE_INPUT_SIZE_W': 640 ,
-        'IMAGE_INPUT_SIZE_H': 480 ,
-        'IMAGE_AFTER_CONV_SIZE_W': 114 ,
-        'IMAGE_AFTER_CONV_SIZE_H': 24 ,
-        'LSTM_IO_SIZE': 24 * 114,
-        'LSTM_HIDDEN_SIZE': 24 * 114,
+        'IMAGE_INPUT_SIZE_W': 240 ,
+        'IMAGE_INPUT_SIZE_H': 240 ,
+        'IMAGE_AFTER_CONV_SIZE_W': 39 ,
+        'IMAGE_AFTER_CONV_SIZE_H': 9 ,
+        'LSTM_IO_SIZE': 9*39,
+        'LSTM_HIDDEN_SIZE': 9*39,
         'RGB_CHANNELS': 3,
-        'TIMESTEPS': 5,  # size videos
+        'TIMESTEPS': 20,  # size videos
         'BATCH_SIZE': 5, # until now just batch_size = 1
         'device': "cuda:1"
     },
     'logger':{
-        'log_file': 'flows_p20_lr0p01_bz5_ts10_control.log',
-        'log_folder': '~/gait_project/logs',
-        'plot_file': 'flows_p20_lr0p01_bz5_ts10_control.png',
-        'model_file': 'flows_p20_lr0p01_bz5_ts10_control.tar'
+        'log_file': 'stack_people20_axisall_lr010010001408090.log',
+        'log_folder': '/home/ron/Dokumente/Datasets/Gait/logs',
+        'plot_file': 'stack_people_20_timesteps_attemp_1.png',
+        'model_file': 'stack_people_20_timesteps_attemp_1.tar'
     }
 }
 
